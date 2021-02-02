@@ -50,7 +50,7 @@ export default {
           url: "http://192.168.137.246/file/farm-entity5/tileset.json",
           classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
         });
-        tileset1.style = new Cesium.Cesium3DTileStyle({color: "rgba(255, 0, 0, 0.5)",});
+        tileset1.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
         viewer.scene.primitives.add(tileset1);
     }
   },

@@ -39,14 +39,7 @@ export default {
       viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
       this.viewer = viewer;
 
-      // let panoPromise = Cesium.GeoJsonDataSource.load('/farm_wgs84.geojson', {//发起函数，异步写法
-      //   stroke: Cesium.Color.fromCssColorString('#FFF173'),
-      //   strokeWidth: 2,
-      //   clampToGround: true
-      // }); // load完之后即为一个promise对象
-      // panoPromise.then(function(dataSource) { // 回调函数，异步读取json数据，数据读取成功后返回该对象（dataSource）,下面的功能因为是在数据加载成功后才有意义的，故放在同一个异步里
-      //     viewer.dataSources.add(dataSource);
-      // });
+      let selected=null;
 
 
       var clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -54,23 +47,39 @@ export default {
         console.log(movement);
         var pickedFeature = viewer.scene.pick(movement.position);
         if(pickedFeature instanceof Cesium.Cesium3DTileFeature){
-          debugger
           console.log(pickedFeature);
           var property = pickedFeature.getPropertyNames();
-          
           console.log(property);
+          this.$router.push({
+            path: "/detail",
+            query: { data: info },
+          });
         }
         
       
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
       var moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
       moveHandler.setInputAction(function (movement) {
-        console.log(movement);
-        var pickedFeature = viewer.scene.pick(movement.endPosition);
-        console.log(pickedFeature);
-        var property = pickedFeature.getPropertyNames();
         
-        console.log(property);
+        var pickedFeature = viewer.scene.pick(movement.endPosition);
+        if(pickedFeature instanceof Cesium.Cesium3DTileFeature){
+          if(!selected){
+            selected = pickedFeature;
+          }else{
+            if(pickedFeature != selected){
+              selected.color = new Cesium.Color(1, 1, 1, 0.01);
+              selected = pickedFeature;
+            }
+          }
+          selected.color = new Cesium.Color(1, 0, 0, 0.5);
+        }else {
+          if(selected){
+            selected.color = new Cesium.Color(1, 1, 1, 0.01);
+            selected = null;
+          }
+          
+        }
+        
       
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
