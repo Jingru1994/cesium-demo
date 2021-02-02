@@ -8,12 +8,15 @@
 <script>
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
+import { mapMutations } from "vuex";
 
 
 export default {
   name: "cesiumViewer",
   data() {
-    return {};
+    return {
+      isTiaozhuan: false
+    };
   },
   created() {
     // this.init();
@@ -23,6 +26,10 @@ export default {
   },
   beforeDestroy() {},
   methods: {
+    ...mapMutations({
+      setDialogVisible: 'SETDIALOGVISIBLE',
+      setDataId: 'SETDATAID'
+    }),
     initViewer() {
       let viewerOption = {
         geocoder: false, // 地理位置查询定位控件
@@ -41,19 +48,28 @@ export default {
 
       let selected=null;
 
-
+      const that = this;
       var clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
       clickHandler.setInputAction(function (movement) {
         console.log(movement);
         var pickedFeature = viewer.scene.pick(movement.position);
+        console.log(pickedFeature);
         if(pickedFeature instanceof Cesium.Cesium3DTileFeature){
-          console.log(pickedFeature);
-          var property = pickedFeature.getPropertyNames();
+          
+          let property = pickedFeature.getProperty('Name');
           console.log(property);
-          this.$router.push({
-            path: "/detail",
-            query: { data: info },
-          });
+          that.setDataId(property);
+          if(property !== 'farm5-2' && property !== "farm4-2"){
+            that.$router.push({
+              path: "/detail",
+              query: { data: property },
+            });
+          }else{
+            that.setDataId(property);
+            that.setDialogVisible(true);
+            
+          }
+          
         }
         
       
@@ -72,6 +88,8 @@ export default {
             }
           }
           selected.color = new Cesium.Color(1, 0, 0, 0.5);
+          let property = pickedFeature.getProperty('Name');
+          that.setDataId( property );
         }else {
           if(selected){
             selected.color = new Cesium.Color(1, 1, 1, 0.01);
@@ -84,7 +102,7 @@ export default {
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     }
-  }
+  },
 };
 </script>
 

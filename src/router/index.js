@@ -13,10 +13,10 @@ const routes = [
   
   },
   {
-    path: "/",
+    path: "/detail",
     name: "detail",
     component: () =>
-    import(/* webpackChunkName: "index" */ "@/views/detail.vue")
+    import(/* webpackChunkName: "detail" */ "@/views/detail.vue")
   
   },
   {
