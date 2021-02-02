@@ -53,9 +53,26 @@ export default {
       clickHandler.setInputAction(function (movement) {
         console.log(movement);
         var pickedFeature = viewer.scene.pick(movement.position);
-        console.log(pickedFeature);
+        if(pickedFeature instanceof Cesium.Cesium3DTileFeature){
+          debugger
+          console.log(pickedFeature);
+          var property = pickedFeature.getPropertyNames();
+          
+          console.log(property);
+        }
+        
       
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      var moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+      moveHandler.setInputAction(function (movement) {
+        console.log(movement);
+        var pickedFeature = viewer.scene.pick(movement.endPosition);
+        console.log(pickedFeature);
+        var property = pickedFeature.getPropertyNames();
+        
+        console.log(property);
+      
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     }
   }
