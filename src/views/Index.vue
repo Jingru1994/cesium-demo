@@ -1,9 +1,18 @@
 <template>
   <div class="cesium-index">
       <cesium-viewer>
-          <primitive-tileset></primitive-tileset>
+        <primitive-tileset></primitive-tileset>
+        <primitive-tileset></primitive-tileset>
       </cesium-viewer>
-      <div class="info-box">{{dataId}}</div>
+      <div class="toolbar">
+        <div class="info-box">模型：{{dataId}}</div>
+        <div>单体化类型：</div>
+        <div class="radio-box">
+          <input type="radio" name="type" v-model="type" value="geojson"/>geojson
+          <input type="radio" name="type" v-model="type" value="tiles"/>3dtiles
+        </div>
+      </div>
+      
       <el-dialog
         title="提示"
         :visible.sync="isDialogVisible"
@@ -31,7 +40,8 @@ export default {
   },
   data() {
     return {
-      isDialogVisible: false
+      isDialogVisible: false,
+      type:"tiles"
     };
   },
   mounted() {
@@ -69,14 +79,20 @@ export default {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  .info-box {
+  .toolbar{
     position:fixed;
     top: 10px;
     left: 10px;
-    width: 100px;
-    height: 50px;
     color: #ffffff;
     background: rgba(0,0,0,0.5);
+    text-align: left;
+  }
+  .info-box {
+    
+    
+  }
+  .radio-box{
+    
   }
 }
 

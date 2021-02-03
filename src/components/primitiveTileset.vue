@@ -45,22 +45,22 @@ export default {
             console.log(error);
         });
 
-        // let panoPromise = Cesium.GeoJsonDataSource.load('/farm_wgs84.geojson', {//发起函数，异步写法
-        //   stroke: Cesium.Color.fromCssColorString('#FFF173'),
-        //   strokeWidth: 2,
-        //   clampToGround: true
-        // }); // load完之后即为一个promise对象
-        // panoPromise.then(function(dataSource) { // 回调函数，异步读取json数据，数据读取成功后返回该对象（dataSource）,下面的功能因为是在数据加载成功后才有意义的，故放在同一个异步里
-        //     viewer.dataSources.add(dataSource);
-        // });
-
-        let tileset1 = new Cesium.Cesium3DTileset({
-
-          url: "http://192.168.137.246/file/farm-entity5/tileset.json",
-          classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
+        let panoPromise = Cesium.GeoJsonDataSource.load('/farm_wgs84.geojson', {//发起函数，异步写法
+          stroke: Cesium.Color.fromCssColorString('#FFF173'),
+          strokeWidth: 2,
+          clampToGround: true
+        }); // load完之后即为一个promise对象
+        panoPromise.then(function(dataSource) { // 回调函数，异步读取json数据，数据读取成功后返回该对象（dataSource）,下面的功能因为是在数据加载成功后才有意义的，故放在同一个异步里
+            viewer.dataSources.add(dataSource);
         });
-        tileset1.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
-        viewer.scene.primitives.add(tileset1);
+
+        // let tileset1 = new Cesium.Cesium3DTileset({
+
+        //   url: "http://192.168.137.246/file/farm-entity5/tileset.json",
+        //   classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
+        // });
+        // tileset1.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
+        // viewer.scene.primitives.add(tileset1);
     }
   },
 }
