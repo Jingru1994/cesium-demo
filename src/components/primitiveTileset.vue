@@ -61,12 +61,6 @@ export default {
         });
         tileset1.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
         viewer.scene.primitives.add(tileset1);
-        //
-        let tileset2 = new Cesium.Cesium3DTileset({
-
-          url: "http://192.168.137.246/file/farm-entity3/tileset.json",
-        });
-        viewer.scene.primitives.add(tileset2);
     }
   },
 }
