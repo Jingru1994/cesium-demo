@@ -1,99 +1,136 @@
 <template>
-  <div class="cesium-index">
-      <cesium-viewer>
-        <primitive-tileset></primitive-tileset>
-        <primitive-tileset></primitive-tileset>
-      </cesium-viewer>
-      <div class="toolbar">
-        <div class="info-box">模型：{{dataId}}</div>
-        <div>单体化类型：</div>
-        <div class="radio-box">
-          <input type="radio" name="type" v-model="type" value="geojson"/>geojson
-          <input type="radio" name="type" v-model="type" value="tiles"/>3dtiles
+    <div class="cesium-index">
+        <cesium-viewer>
+            <tileset-photogrammetry
+                :url="photogrammetryUrl"
+                @readyPromise="zoomToTiles"
+            ></tileset-photogrammetry>
+            <tileset-monomer
+                :url="monomerUrl"
+                :show="isMonomerShow"
+            ></tileset-monomer>
+            <primitive-geojson
+                :url="geojsonUrl"
+                :show="isGeojsonShow"
+            >
+            </primitive-geojson>
+        </cesium-viewer>
+        <div class="toolbar">
+            <div class="info-box">模型：{{dataId}}</div>
+            <div>单体化类型：</div>
+            <div class="radio-box">
+                <input type="radio" name="type" v-model="type" value="geojson"/>geojson
+                <input type="radio" name="type" v-model="type" value="tiles"/>3dtiles
+            </div>
         </div>
-      </div>
-      
-      <el-dialog
-        title="提示"
-        :visible.sync="isDialogVisible"
-        width="30%">
-        <span>{{dataId}}</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="closeDialog">取 消</el-button>
-          <el-button type="primary" @click="closeDialog">确 定</el-button>
-        </span>
-      </el-dialog>
-  </div>
+        
+        <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible"
+            width="30%">
+            <span>{{dataId}}</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeDialog">取 消</el-button>
+                <el-button type="primary" @click="closeDialog">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
 </template>
 
 <script>
-import cesiumViewer from "@/components/cesiumViewer.vue";
-import primitiveTileset from "@/components/primitiveTileset.vue";
-import { mapMutations , mapGetters } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
+import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
+import widget from "cesium/Widgets/widgets.css";
+
+import {findComponentDownward} from "@/utils/assist.js";
+
+import CesiumViewer from "@/components/cesiumViewer.vue";
+import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry.vue";
+import TilesetMonomer from "@/components/tilesetMonomer.vue";
+import PrimitiveGeojson from "@/components/primitiveGeojson.vue";
+
+
+
 
 
 export default {
-  name: "CesiumScene",
-  components: {
-      cesiumViewer,
-      primitiveTileset
-  },
-  data() {
-    return {
-      isDialogVisible: false,
-      type:"tiles"
-    };
-  },
-  mounted() {
-      
-  },
-  beforeDestroy() {},
-  computed: {
-    ...mapGetters({
-      dialogVisible:'dialogVisible',
-      dataId: "dataId"
-      // ...
-    })
-  },
-  methods: {
-    ...mapMutations({
-      setDialogVisible: 'SETDIALOGVISIBLE' 
-    }),
-    closeDialog(){
-      this.setDialogVisible(false)
+    name: "CesiumScene",
+    components: {
+      CesiumViewer,
+      TilesetPhotogrammetry,
+      TilesetMonomer,
+      PrimitiveGeojson
     },
-  },
-  watch:{
-    dialogVisible: function(newValue){
-      console.log(newValue);
-      this.isDialogVisible = newValue;
-    }
-  }
+    data() {
+        return {
+            isDialogVisible: false,
+            photogrammetryUrl: "http://192.168.137.246//file/data2/tileset.json",
+            monomerUrl: "http://192.168.137.246/file/farm-entity7/tileset.json",
+            geojsonUrl:"/farm_wgs84.geojson",
+            type:"tiles",
+            dataID:""
+        };
+    },
+    mounted() {
+        this.viewer = findComponentDownward(this,"cesiumViewer").viewer;
+    },
+    beforeDestroy() {},
+    computed: {
+        ...mapGetters({
+            dialogVisible:'dialogVisible',
+            dataId: "dataId"
+        }),
+        isMonomerShow() {
+            if(this.type === "tiles"){
+              return true;
+            }else {
+              return false;
+            }
+        },
+        isGeojsonShow() {
+            if(this.type === "geojson"){
+              return true;
+            }else {
+              return false;
+            }
+        }
+    },
+    methods: {
+        ...mapMutations({
+            setDialogVisible: 'SETDIALOGVISIBLE' 
+        }),
+        closeDialog(){
+            this.setDialogVisible(false)
+        },
+        zoomToTiles(tileset){
+            this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.5));
+        }
+    },
 };
 </script>
 
 <style lang='scss' scoped>
 .cesium-index {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  .toolbar{
-    position:fixed;
-    top: 10px;
-    left: 10px;
-    color: #ffffff;
-    background: rgba(0,0,0,0.5);
-    text-align: left;
-  }
-  .info-box {
-    
-    
-  }
-  .radio-box{
-    
-  }
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    .toolbar{
+        position:fixed;
+        top: 10px;
+        left: 10px;
+        color: #ffffff;
+        background: rgba(0,0,0,0.5);
+        text-align: left;
+    }
+    .info-box {
+      
+      
+    }
+    .radio-box{
+      
+    }
 }
 
 </style>
