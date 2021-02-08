@@ -9,7 +9,7 @@ const routes = [
     path: "/",
     name: "index",
     component: () =>
-    import(/* webpackChunkName: "index" */ "@/views/Index.vue")
+    import(/* webpackChunkName: "index" */ "@/views/macroModel.vue")
   
   },
   {
@@ -17,6 +17,13 @@ const routes = [
     name: "detail",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/detail.vue")
+  
+  },
+  {
+    path: "/detailModel",
+    name: "detailModel",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/detailModel.vue")
   
   },
   {

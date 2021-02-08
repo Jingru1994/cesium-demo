@@ -37,21 +37,29 @@ export default {
                 navigationHelpButton: false, // 默认的相机控制提示控件
                 fullscreenButton: false, // 全屏控件
                 scene3DOnly: true, // 每个几何实例仅以3D渲染以节省GPU内存
-                baseLayerPicker: false, // 底图切换控件
+                baseLayerPicker: true, // 底图切换控件
                 animation: false, // 控制场景动画的播放速度控件,
+                selectionIndicator: false,//去除原生自带绿色选择框
                 terrainProvider: Cesium.createWorldTerrain(),
             };
             let viewer = new Cesium.Viewer("cesiumContainer", viewerOption);
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
+            viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染
+            // viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
             this.viewer = viewer;
-            this.viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染
 
-            const that = this;
-            let clickHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+            let clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
             clickHandler.setInputAction(function (movement) {
                 console.log(movement);
-                var pickedFeature = that.viewer.scene.pick(movement.position);
+                let pickedFeature = viewer.scene.pick(movement.position);
                 console.log(pickedFeature);
+
+                let position = viewer.camera.position;
+                let heading = Cesium.Math.toDegrees(viewer.camera.heading).toFixed(2)
+                let pitch = Cesium.Math.toDegrees(viewer.camera.pitch).toFixed(2)
+                console.log(position+','+heading+','+pitch);
+                console.log(viewer.entities);
+                
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }
     },

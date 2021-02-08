@@ -38,13 +38,13 @@ export default {
             viewer.scene.primitives.add(tileset);
             const that = this;
             tileset.readyPromise.then(function (tileset) {               
-                // var boundingSphere = tileset.boundingSphere;
-                // var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
-                // console.log(cartographic);
-                // var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, cartographic.height);//倾斜数据中心点的笛卡尔坐标 
-                // var offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);//带高程的新笛卡尔坐标
-                // var translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
-                // tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+                let boundingSphere = tileset.boundingSphere;
+                let cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
+                console.log(cartographic);
+                let surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);//倾斜数据中心点的笛卡尔坐标 
+                let offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 13);//带高程的新笛卡尔坐标
+                let translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
+                tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
                 that.$emit("readyPromise", tileset);
             }).otherwise(function (error) {
                 console.log(error);

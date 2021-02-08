@@ -66,7 +66,7 @@ export default {
             isDialogVisible: false,
             photogrammetryUrl: "http://192.168.137.246//file/data2/tileset.json",
             monomerUrl: "http://192.168.137.246/file/farm-entity7/tileset.json",
-            geojsonUrl:"/farm_wgs84.geojson",
+            geojsonUrl:"/data/farm_wgs84.geojson",
             type:"tiles",
             dataID:""
         };
@@ -103,7 +103,7 @@ export default {
             this.setDialogVisible(false)
         },
         zoomToTiles(tileset){
-            this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.5));
+            this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.15));
         }
     },
 };

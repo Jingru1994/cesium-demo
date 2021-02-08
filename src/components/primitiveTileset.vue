@@ -49,13 +49,13 @@ export default {
             let viewer = this.viewer;
             viewer.scene.primitives.add(tileset);
             tileset.readyPromise.then(function (tileset) {               
-                // var boundingSphere = tileset.boundingSphere;
-                // var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
-                // console.log(cartographic);
-                // var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, cartographic.height);//倾斜数据中心点的笛卡尔坐标 
-                // var offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);//带高程的新笛卡尔坐标
-                // var translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
-                // tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+                var boundingSphere = tileset.boundingSphere;
+                var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
+                console.log(cartographic);
+                var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, cartographic.height+100);//倾斜数据中心点的笛卡尔坐标 
+                var offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);//带高程的新笛卡尔坐标
+                var translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
+                tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
                 this.$emit("readyPromise", tileset);
                 viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.25));
 

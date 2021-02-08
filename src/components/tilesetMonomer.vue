@@ -43,6 +43,17 @@ export default {
                 url: this.url,
                 classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
             });
+            debugger;
+            this.tileset.readyPromise.then(function (tileset) {
+                let boundingSphere = tileset.boundingSphere;
+                let cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
+                console.log(cartographic);
+                let surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);//倾斜数据中心点的笛卡尔坐标 
+                let offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 13);//带高程的新笛卡尔坐标
+                let translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
+                tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+            });
+            
             this.tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
             this.viewer.scene.primitives.add(this.tileset);
         },
@@ -55,26 +66,48 @@ export default {
         },
         addEvent() {
             const that = this;
+            let viewer = this.viewer;
             let selected=null;
             this.clickHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
             this.clickHandler.setInputAction(function (movement) {
                 var pickedFeature = that.viewer.scene.pick(movement.position);
                 if(pickedFeature instanceof Cesium.Cesium3DTileFeature){
-                let property = pickedFeature.getProperty('Name');
-                console.log(property);
-                that.setDataId(property);
-
-                if(property !== 'farm5-2' && property !== "farm4-2"){
-                    that.$router.push({
-                    path: "/detail",
-                    query: { data: property },
-                });
-                }else{
+                    let property = pickedFeature.getProperty('Name');
+                    console.log(property);
                     that.setDataId(property);
-                    that.setDialogVisible(true);
-                    
+
+                    if(property !== 'farm5-2' && property !== "farm4-2"){
+                        that.$router.push({
+                        path: "/detail",
+                        query: { data: property },
+                    });
+                    }else{
+                        that.setDataId(property);
+                        that.setDialogVisible(true);
+                        
+                    }
                 }
+
+                var wp = movement.position;
+                if (!Cesium.defined(wp)) {
+                    return
                 }
+                var ray = viewer.scene.camera.getPickRay(wp);
+                if (!Cesium.defined(ray)) {
+                    return
+                }
+                var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+                if (!Cesium.defined(cartesian)) {
+                    return
+                }
+                if (cartesian) {
+                    var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                    var lon = Cesium.Math.toDegrees(cartographic.longitude);
+                    var lat = Cesium.Math.toDegrees(cartographic.latitude);
+                    var elev = viewer.scene.globe.getHeight(cartographic);
+                }
+                console.log(lon,lat,elev);
+                
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
             this.moveHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
             this.moveHandler.setInputAction(function (movement) {
