@@ -59,8 +59,8 @@ export default {
             this.clickHandler.setInputAction(function (movement) {
                 var pickedFeature = that.viewer.scene.pick(movement.position);
                 if(Cesium.defined(pickedFeature)){
-                    let property
-                    if (feature instanceof Cesium3DTileFeature) {
+                    let property;
+                    if (pickedFeature instanceof Cesium.Cesium3DTileFeature) {
                         property = pickedFeature.getProperty("Name");
                     } else if(pickedFeature.id) {
                         property = pickedFeature.id.name; 
