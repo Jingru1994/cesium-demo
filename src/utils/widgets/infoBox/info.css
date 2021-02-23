@@ -1,0 +1,28 @@
+.cesium-three-plugins-infotool {
+     display: none;
+     flex-direction: column-reverse;
+     position: fixed;
+     top: 0; left: 0;
+     min-width: 100px;
+     height: 150px;
+     user-select: none;
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+}
+.cesium-three-plugins-infotool > div:nth-child(1) {
+     left: 0;
+     width: 40px;
+     height: 0;
+     bottom: 0;
+     background: url(~@/assets/popup_line.png) no-repeat center 100%;
+}
+.cesium-three-plugins-infotool > div:nth-child(2) {
+     opacity: 0;
+     color:#ffffff;
+     box-shadow: 0 0 8px 0 rgba(0, 170, 255, .6) inset;
+     padding: 10px;
+     user-select: text;
+     pointer-events: auto;
+     cursor: pointer;
+}

@@ -43,7 +43,6 @@ export default {
                 url: this.url,
                 classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
             });
-            debugger;
             this.tileset.readyPromise.then(function (tileset) {
                 let boundingSphere = tileset.boundingSphere;
                 let cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）

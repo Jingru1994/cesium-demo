@@ -54,7 +54,7 @@ import PrimitiveGeojson from "@/components/primitiveGeojson.vue";
 
 
 export default {
-    name: "CesiumScene",
+    name: "DetialModelView",
     components: {
       CesiumViewer,
       TilesetPhotogrammetry,
@@ -64,8 +64,8 @@ export default {
     data() {
         return {
             isDialogVisible: false,
-            photogrammetryUrl: "http://192.168.137.246//file/data2/tileset.json",
-            monomerUrl: "http://192.168.137.246/file/farm-entity7/tileset.json",
+            photogrammetryUrl: "http://192.168.137.11/file/data2/tileset.json",
+            monomerUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
             geojsonUrl:"/data/farm_wgs84.geojson",
             type:"tiles",
             dataID:""

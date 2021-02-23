@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-02-03 10:08:15
+ * @LastEditTime: 2021-02-22 17:59:10
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \cesium-demo\src\components\cesiumViewer.vue
+-->
 <template>
     <div id="cesiumContainer" class="cesium-container">
         <slot></slot>
@@ -14,7 +22,6 @@ export default {
     name: "cesiumViewer",
     data() {
         return {
-            isTiaozhuan: false
         };
     },
     created() {
@@ -30,6 +37,10 @@ export default {
             setDataId: 'SETDATAID'
         }),
         initViewer() {
+            var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
+                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
+            }); 
+
             let viewerOption = {
                 geocoder: false, // 地理位置查询定位控件
                 homeButton: false, // 默认相机位置控件
@@ -38,10 +49,13 @@ export default {
                 fullscreenButton: false, // 全屏控件
                 scene3DOnly: true, // 每个几何实例仅以3D渲染以节省GPU内存
                 baseLayerPicker: true, // 底图切换控件
+                imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
-                selectionIndicator: false,//去除原生自带绿色选择框
                 terrainProvider: Cesium.createWorldTerrain(),
+                infoBox: false,
+                selectionIndicator: false,//去除原生自带绿色选择框
             };
+
             let viewer = new Cesium.Viewer("cesiumContainer", viewerOption);
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
             viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染

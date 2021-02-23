@@ -1,7 +1,7 @@
 <template>
     <div class="cesium-index">
         <cesium-viewer>
-
+            
         </cesium-viewer>
         
     </div>
@@ -14,16 +14,14 @@ import widget from "cesium/Widgets/widgets.css";
 
 import {findComponentDownward} from "@/utils/assist.js";
 import {getPublicData} from "@/api/requestGeojson.js";
+import InfoTool from "@/utils/widgets/infoBox/infoBox.js"
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
 
 
 
-
-
-
 export default {
-    name: "CesiumScene",
+    name: "MacroModelView",
     components: {
       CesiumViewer,
     },
@@ -38,6 +36,7 @@ export default {
         this.addEntityPolygon();
         // this.addPrimitivePolygon();
         this.addEvent();
+        
     },
     beforeDestroy() {},
     computed: {
@@ -60,7 +59,12 @@ export default {
             this.clickHandler.setInputAction(function (movement) {
                 var pickedFeature = that.viewer.scene.pick(movement.position);
                 if(Cesium.defined(pickedFeature)){
-                    let property = pickedFeature.id.name;
+                    let property
+                    if (feature instanceof Cesium3DTileFeature) {
+                        property = pickedFeature.getProperty("Name");
+                    } else if(pickedFeature.id) {
+                        property = pickedFeature.id.name; 
+                    }
                     console.log(property);
                     if(property === 'farm1'){
                         that.$router.push({
@@ -69,11 +73,10 @@ export default {
                     }
                 }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-            
         },
         addGeojson(){
             let viewer = this.viewer;
-            let mountainPromise1 = Cesium.GeoJsonDataSource.load('/data/farm_macro2.geojson', {
+            let mountainPromise1 = Cesium.GeoJsonDataSource.load('/data/farm_macro.geojson', {
                 clampToGround: true
             });
             mountainPromise1.then(function(dataSource) {
@@ -81,21 +84,34 @@ export default {
                 let entities = dataSource.entities.values;
                 for (let i = 0; i < entities.length; i++) {
                     let entity = entities[i];
-                    entity.polygon.height = 100;
                     entity.polygon.extrudedHeight = 200;
-                    entity.polygon.heightReference= Cesium.HeightReference.RELATIVE_TO_GROUND;
-                    entity.polygon.extrudedHeightReference= Cesium.HeightReference.CLAMP_TO_GROUND;
+                    entity.polygon.heightReference= Cesium.HeightReference.CLAMP_TO_GROUND;
+                    entity.polygon.extrudedHeightReference= Cesium.HeightReference.RELATIVE_TO_GROUND;
                     entity.polygon.closeBottom = false;
                 }
             });
         },
         async addEntityPolygon(){
             let viewer = this.viewer;
-            let dataUrl = "/data/farm_macro2.geojson";
+            let dataUrl = "/data/farm_macro.geojson";
             let geojsonData = await this.getData(dataUrl);
             let entities = this.createEntity(geojsonData);
             for(let i = 0; i < entities.length; i++) {
-                viewer.entities.add(entities[i]);
+                let entity = entities[i];
+                viewer.entities.add(entity);
+                let infoTool = new InfoTool(this.viewer);
+                infoTool.add(entity);
+                let infoDiv = infoTool.getElement();
+                infoDiv.addEventListener("click",function(){
+                    let property = entity.properties.Name._value;
+                    console.log(property);
+                    if(property === 'farm1'){
+                        that.$router.push({
+                            path: "/detailModel",
+                        });
+                    }
+                });
+                
             }
         },
         createEntity(features) {
@@ -104,7 +120,7 @@ export default {
             for(let i=0; i<features.length; i++){
                 let positions= [];
                 let latitudes = []
-            let longitudes = [];
+                let longitudes = [];
                 for(let j=0; j<features[i].geometry.coordinates[0].length; j++){
                     positions.push(features[i].geometry.coordinates[0][j][0]);
                     positions.push(features[i].geometry.coordinates[0][j][1]);
@@ -113,7 +129,6 @@ export default {
                 }
                 let polygonOptions = {
                     hierarchy: Cesium.Cartesian3.fromDegreesArray(positions),
-                    
                     material: new Cesium.Color.fromCssColorString('#cc9a0e'),
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     extrudedHeight: 200,
@@ -127,12 +142,12 @@ export default {
                 let lablePosition = Cesium.Cartesian3.fromDegrees(longitude,latitude,200);
                 let entityOptions = {
                     name: features[i].properties.Name,
+                    properties: features[i].properties,
                     position:lablePosition,
                     polygon: polygon,
                     label : {
                         text : features[i].properties.Name,
                         // font : '17px sans-serif',
-                        
                         heightReference : Cesium.HeightReference.RELATIVE_TO_GROUND,
                         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                         pixelOffset : new Cesium.Cartesian2(0,-15),
@@ -142,11 +157,12 @@ export default {
                 }
                 let entity = new Cesium.Entity(entityOptions);
                 entities.push(entity);
+                
             }
             return entities;
         },
         async addPrimitivePolygon(){//以primitive方式加载geojson数据，primitive对象更底层，渲染效率更高，但是感觉他没有属性表
-            let dataUrl = "/data/farm_macro2.geojson";
+            let dataUrl = "/data/farm_macro.geojson";
             let geojsonData = await this.getData(dataUrl);
             let primitive = this.createGeometry(geojsonData);
             this.viewer.scene.primitives.add(primitive);
@@ -182,11 +198,11 @@ export default {
             }
             let primitive = new Cesium.Primitive({
                 geometryInstances : instances,
-                appearance :  new Cesium.PerInstanceColorAppearance({ // 为每个instance着色
+                appearance :  new Cesium.PerInstanceColorAppearance({// 为每个instance着色
                     translucent : true,
                     closed : false
                 }),
-                asynchronous : false,  // 确定基元是异步创建还是阻塞直到准备就绪
+                asynchronous : false,// 确定基元是异步创建还是阻塞直到准备就绪
             });
 
             return primitive;
@@ -219,21 +235,6 @@ export default {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    .toolbar{
-        position:fixed;
-        top: 10px;
-        left: 10px;
-        color: #ffffff;
-        background: rgba(0,0,0,0.5);
-        text-align: left;
-    }
-    .info-box {
-      
-      
-    }
-    .radio-box{
-      
-    }
 }
 
 </style>
