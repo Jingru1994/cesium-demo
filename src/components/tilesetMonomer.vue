@@ -53,7 +53,7 @@ export default {
                 tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
             });
             
-            this.tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 0, 0, 0.01)",});
+            this.tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(1, 1, 1, 0.01)",});
             this.viewer.scene.primitives.add(this.tileset);
         },
         
@@ -75,13 +75,12 @@ export default {
                     console.log(property);
                     that.setDataId(property);
 
-                    if(property !== 'farm5-2' && property !== "farm4-2"){
+                    if(property !== 'farm5-2' && property !== "farm4-2") {
                         that.$router.push({
                         path: "/detail",
                         query: { data: property },
                     });
-                    }else{
-                        that.setDataId(property);
+                    } else {
                         that.setDialogVisible(true);
                         
                     }
@@ -116,8 +115,8 @@ export default {
                         selected = pickedFeature;
                     }else{
                         if(pickedFeature != selected){
-                        selected.color = new Cesium.Color(1, 1, 1, 0.01);
-                        selected = pickedFeature;
+                            selected.color = new Cesium.Color(1, 1, 1, 0.01);
+                            selected = pickedFeature;
                         }
                     }
                     selected.color = new Cesium.Color(1, 0, 0, 0.5);
