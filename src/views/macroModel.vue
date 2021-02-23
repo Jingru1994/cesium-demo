@@ -92,6 +92,7 @@ export default {
             });
         },
         async addEntityPolygon(){
+            const that = this;
             let viewer = this.viewer;
             let dataUrl = "/data/farm_macro.geojson";
             let geojsonData = await this.getData(dataUrl);
