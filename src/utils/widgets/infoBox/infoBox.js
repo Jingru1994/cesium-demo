@@ -5,6 +5,7 @@
 import Viewer from "@/../node_modules/cesium/Source/Widgets/Viewer/Viewer.js";
 import CesiumMath from "@/../node_modules/cesium/Source/Core/Math.js";
 import Cesium3DTileFeature from "@/../node_modules/cesium/Source/Scene/Cesium3DTileFeature.js";
+// import Cesium3DTile from "@/../node_modules/cesium/Source/Scene/Cesium3DTile.js";
 import Cartesian2 from "@/../node_modules/cesium/Source/Core/Cartesian2.js";
 import Cartesian3 from "@/../node_modules/cesium/Source/Core/Cartesian3.js";
 import Cartographic from "@/../node_modules/cesium/Source/Core/Cartographic.js";
@@ -38,8 +39,9 @@ class InfoTool {
     */
     static createInfoTool(viewer, options, callback = undefined) {
         console.log(options);
-
-        const cartographic = Cartographic.fromCartesian(options.position._value);
+        let cartographic;
+        cartographic = Cartographic.fromCartesian(options.position);
+        
         const lon = CesiumMath.toDegrees(cartographic.longitude); //.toFixed(5);
         const lat = CesiumMath.toDegrees(cartographic.latitude); //.toFixed(5);
 
@@ -158,37 +160,44 @@ class InfoTool {
      * @param {String} options.content 内容（只有类型为default时才起作用）。
      * @param {Function} callback 回调函数。
      */
-    add(options, callback = undefined) {
+    add(feature, callback = undefined) {
         // 判断参数为空返回
-        if (!options) {
+        if (!feature) {
             return;
         }
-        // 点
-        let inputFeature;
-        inputFeature = options;
+        let options = {};
+        options.feature = feature;
 
         const that = this;
 
         // 1.组织信息
         let info = '';
-        options.type = "default"
 
-        // 拾取要素
-        const feature = inputFeature;
         // 判断拾取要素为空返回
         if (!defined(feature)) {
             this.remove();
             return;
         }
-
         if (feature instanceof Cesium3DTileFeature) { // 3dtiles
-            let propertyNames = feature.getPropertyNames();
-            let length = propertyNames.length;
-            for (let i = 0; i < length; ++i) {
-                let propertyName = propertyNames[i];
-                info += '"' + (propertyName + '": "' + feature.getProperty(propertyName)) + '",\n';
-            }
+            
+            
+            let property;
+            console.log(feature);
+            options.position = feature.content.tile.boundingSphere.center;
+            let infoTable = JSON.parse(feature.getProperty('jproperties'));
+            property = infoTable.Name;
+            info += property;
+
+            // let propertyNames = feature.getPropertyNames();
+            // let length = propertyNames.length;
+            // for (let i = 0; i < length; ++i) {
+            //     let propertyName = propertyNames[i];
+            //     info += '"' + (propertyName + '": "' + feature.getProperty(propertyName)) + '",\n';
+                
+            //     // let position = feature.tileset.boundingSphere.center;
+            // }
         } else if (feature.id) { // Entity
+            options.position = feature.position._value;
             const properties = feature.properties;
             if (properties) {
                 info += properties.Name._value;

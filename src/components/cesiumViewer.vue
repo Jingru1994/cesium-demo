@@ -1,8 +1,8 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-03 10:08:15
- * @LastEditTime: 2021-02-22 17:59:10
- * @LastEditors: your name
+ * @LastEditTime: 2021-02-24 14:28:32
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\cesiumViewer.vue
 -->
@@ -52,7 +52,7 @@ export default {
                 imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
                 terrainProvider: Cesium.createWorldTerrain(),
-                infoBox: false,
+                // infoBox: false,
                 selectionIndicator: false,//去除原生自带绿色选择框
             };
 

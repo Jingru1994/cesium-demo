@@ -1,7 +1,7 @@
 <!--
  * @Author: Dongjingru
  * @Date: 2021-02-23 15:54:52
- * @LastEditTime: 2021-02-23 16:35:52
+ * @LastEditTime: 2021-02-25 10:38:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\macroModel.vue
@@ -17,6 +17,7 @@ import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 import {findComponentUpward} from "@/utils/assist.js"
 import {getPublicData} from "@/api/requestGeojson.js";
 import InfoTool from "@/utils/widgets/infoBox/infoBox.js"
+import shader from "@/utils/shader.js"
 
 
 
@@ -35,8 +36,9 @@ export default {
     mounted() {
         this.$nextTick(() => {
             this.viewer = findComponentUpward(this,"cesiumViewer").viewer;
+            this.addTiles();
+            // this.addEntityPolygon();
             // this.addGeojson();
-            this.addEntityPolygon();
             // this.addPrimitivePolygon();
             this.addEvent();
         });
@@ -52,11 +54,15 @@ export default {
                 if(Cesium.defined(pickedFeature)){
                     let property;
                     if (pickedFeature instanceof Cesium.Cesium3DTileFeature) {
-                        property = pickedFeature.getProperty("Name");
+                        // property = pickedFeature.getPropertyNames();
+                        let infoTable = JSON.parse(pickedFeature.getProperty('jproperties'));
+                        property = infoTable.Name;
                     } else if(pickedFeature.id) {
                         property = pickedFeature.id.name;
                         // pickedFeature.id.polygon.material.color = new Cesium.Color(1, 1, 1, 1);
                     }
+                    // pickedFeature.primitive.appearance.vertexShaderSource = shader.gradient;//vertexShaderSource为只读，不能这么改
+                    // pickedFeature.primitive.appearance.fragmentShaderSource = shader.fragmentShaderSource;
                     console.log(property);
                     if(property === 'farm1'){
                         that.$router.push({
@@ -65,6 +71,65 @@ export default {
                     }
                 }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        },
+        addTiles() {
+            const that = this;
+            let viewer = this.viewer;
+            this.tileset = new Cesium.Cesium3DTileset({
+                url: this.url,
+            });
+            this.tileset.readyPromise.then(function (tileset) {
+                let boundingSphere = tileset.boundingSphere;
+                let cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
+                console.log(cartographic);
+                let surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0);//倾斜数据中心点的笛卡尔坐标 
+                let offset =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, cartographic.height);//带高程的新笛卡尔坐标
+                let translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
+                tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+
+                tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 127.5, 255,1)",});
+                console.log(tileset);
+                // tileset.tileVisible.addEventListener(function (tile) {
+                tileset.tileLoad.addEventListener(function(tile) {
+                    console.log(tile);
+                    var content = tile.content;
+                    var featuresLength = content.featuresLength;
+                    for (var i = 0; i < featuresLength; i += 2) {
+                        let feature = content.getFeature(i)
+                        let model = feature.content._model
+
+                        if (model && model._sourcePrograms && model._rendererResources) {
+                            Object.keys(model._sourcePrograms).forEach(key => {
+                                let program = model._sourcePrograms[key]
+                                let fragmentShader = model._rendererResources.sourceShaders[program.fragmentShader];
+                                if (fragmentShader.indexOf(" v_positionEC;") != -1) {
+                                    model._rendererResources.sourceShaders[program.fragmentShader] = shader.glowShader2;
+                                } else if (fragmentShader.indexOf(" v_pos;") != -1) {
+                                    model._rendererResources.sourceShaders[program.fragmentShader] = shader.glowShader1;
+                                }
+                                // model._rendererResources.sourceShaders[program.fragmentShader] = shader.glowShader2;
+                            })
+                            model._shouldRegenerateShaders = true
+                        }
+                        let infoTool = new InfoTool(viewer);
+                        infoTool.add(feature);
+                        let infoDiv = infoTool.getElement();
+                        infoDiv.addEventListener("click",function(){
+                            let infoTable = JSON.parse(feature.getProperty('jproperties'));
+                            let property = infoTable.Name;
+                            console.log(property);
+                            if(property === 'farm1'){
+                                that.$router.push({
+                                    path: "/detailModel",
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            
+            this.viewer.scene.primitives.add(this.tileset);
         },
         addGeojson(){
             let viewer = this.viewer;
@@ -80,6 +145,15 @@ export default {
                     entity.polygon.heightReference= Cesium.HeightReference.CLAMP_TO_GROUND;
                     entity.polygon.extrudedHeightReference= Cesium.HeightReference.RELATIVE_TO_GROUND;
                     entity.polygon.closeBottom = false;
+                    entity.label = new Cesium.LabelGraphics({//不显示，可能是因为没有position
+                        text : "farm",
+                        // font : '17px sans-serif',
+                        heightReference : Cesium.HeightReference.RELATIVE_TO_GROUND,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        pixelOffset : new Cesium.Cartesian2(0,-15),
+                        // pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 5, 1.5e7, 0.1)
+                    });
+            
                 }
             });
         },
@@ -123,6 +197,7 @@ export default {
                 let polygonOptions = {
                     hierarchy: Cesium.Cartesian3.fromDegreesArray(positions),
                     material: new Cesium.Color.fromCssColorString('#cc9a0e'),
+                    // material: this.getColorRamp([0.3,1],true),
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     extrudedHeight: 200,
                     extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
@@ -149,6 +224,7 @@ export default {
                     // properties: features[i].properties
                 }
                 let entity = new Cesium.Entity(entityOptions);
+                console.log(entity);
                 entities.push(entity);
                 
             }
@@ -200,18 +276,22 @@ export default {
 
             return primitive;
         },
-        getColorRamp(elevationRamp){
+        getColorRamp(elevationRamp, isVertical = true){
             var ramp = document.createElement('canvas');
-            ramp.width=1;
-            ramp.height = 100;
+            ramp.width = isVertical ? 1 : 100;
+            ramp.height = isVertical ? 100 : 1;
             let ctx = ramp.getContext('2d');
             let values = elevationRamp;
-            let grd = ctx.createLinearGradient(0,0,50,100);
+            let grd = isVertical ? ctx.createLinearGradient(0,0,0,100) : ctx.createLinearGradient(0,0,100,0);
             grd.addColorStop(values[0],'#46ba6d');
             grd.addColorStop(values[1],'#cc9a0e');
 
             ctx.fillStyle = grd;
-            ctx.fillRect(0,0,1,100);
+
+            if (isVertical)
+                ctx.fillRect(0, 0, 1, 100);
+            else
+                ctx.fillRect(0, 0, 100, 1);
             return ramp;
         },
         average(nums) {

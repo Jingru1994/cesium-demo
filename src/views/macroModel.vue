@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-05 11:40:22
- * @LastEditTime: 2021-02-23 16:35:18
+ * @LastEditTime: 2021-02-25 10:17:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\views\macroModel.vue
@@ -35,7 +35,9 @@ export default {
     },
     data() {
         return {
-            macroUrl: "/data/farm_macro.geojson"
+            // macroUrl: "/data/farm_macro.geojson"
+            macroUrl: "http://192.168.137.11/file/macro-farm/tileset.json",
+            // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json"
         };
     },
     mounted() {
