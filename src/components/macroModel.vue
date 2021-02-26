@@ -1,7 +1,7 @@
 <!--
  * @Author: Dongjingru
  * @Date: 2021-02-23 15:54:52
- * @LastEditTime: 2021-02-25 10:38:30
+ * @LastEditTime: 2021-02-26 16:09:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\macroModel.vue
@@ -87,7 +87,7 @@ export default {
                 let translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
                 tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
 
-                tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(0, 127.5, 255,1)",});
+                tileset.style = new Cesium.Cesium3DTileStyle({color: "rgba(3, 76, 50,1)",});
                 console.log(tileset);
                 // tileset.tileVisible.addEventListener(function (tile) {
                 tileset.tileLoad.addEventListener(function(tile) {
@@ -208,6 +208,7 @@ export default {
                 console.log(longitudes,latitudes);
                 console.log(longitude,latitude);
                 let lablePosition = Cesium.Cartesian3.fromDegrees(longitude,latitude,200);
+                console.log(lablePosition);
                 let entityOptions = {
                     name: features[i].properties.Name,
                     properties: features[i].properties,

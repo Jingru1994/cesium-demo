@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-03 10:08:15
- * @LastEditTime: 2021-02-24 14:28:32
+ * @LastEditTime: 2021-02-26 15:42:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\cesiumViewer.vue
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
+import * as Cesium from "cesium/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
 import { mapMutations } from "vuex";
 
@@ -37,9 +37,10 @@ export default {
             setDataId: 'SETDATAID'
         }),
         initViewer() {
-            var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
-                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
-            }); 
+            Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
+            // var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
+            //     url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
+            // }); 
 
             let viewerOption = {
                 geocoder: false, // 地理位置查询定位控件
@@ -49,7 +50,7 @@ export default {
                 fullscreenButton: false, // 全屏控件
                 scene3DOnly: true, // 每个几何实例仅以3D渲染以节省GPU内存
                 baseLayerPicker: true, // 底图切换控件
-                imageryProvider: googleImageryProvider,//谷歌影像底图
+                // imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
                 terrainProvider: Cesium.createWorldTerrain(),
                 // infoBox: false,
@@ -60,6 +61,15 @@ export default {
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
             viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染
             // viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
+            // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 50;
+            // viewer.scene.screenSpaceCameraController.maximumZoomDistance = 30000;
+            // viewer.scene.invertClassification = true;
+            // viewer.scene.invertClassificationColor = new Cesium.Color(
+            //     0.5,
+            //     0.5,
+            //     0.5,
+            //     1.0
+            // );
             this.viewer = viewer;
 
             let clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

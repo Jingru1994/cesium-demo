@@ -14,6 +14,12 @@
                 :show="isGeojsonShow"
             >
             </primitive-geojson>
+            <entity-point
+                :url="pointUrl"
+                heightType="3dtiles"
+                @pointClick="pushRouter"
+            >
+            </entity-point>
         </cesium-viewer>
         <div class="toolbar">
             <div class="info-box">模型：{{dataId}}</div>
@@ -48,6 +54,7 @@ import CesiumViewer from "@/components/cesiumViewer.vue";
 import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry.vue";
 import TilesetMonomer from "@/components/tilesetMonomer.vue";
 import PrimitiveGeojson from "@/components/primitiveGeojson.vue";
+import EntityPoint from "@/components/entityPoint.vue";
 
 
 
@@ -59,7 +66,8 @@ export default {
       CesiumViewer,
       TilesetPhotogrammetry,
       TilesetMonomer,
-      PrimitiveGeojson
+      PrimitiveGeojson,
+      EntityPoint
     },
     data() {
         return {
@@ -68,7 +76,8 @@ export default {
             monomerUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
             geojsonUrl:"/data/farm_wgs84.geojson",
             type:"tiles",
-            dataID:""
+            dataID:"",
+            pointUrl: "/data/detial_point.geojson"
         };
     },
     mounted() {
@@ -104,6 +113,14 @@ export default {
         },
         zoomToTiles(tileset){
             this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.15));
+        },
+        pushRouter(property){
+            console.log(property);
+            if(property === 'camera'){
+                this.$router.push({
+                    path: "/detail",
+                });
+            }
         }
     },
 };

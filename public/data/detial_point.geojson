@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724164362641417, 24.291082672977847 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724012247615732, 24.290536745801649 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "thermometer" }, "geometry": { "type": "Point", "coordinates": [ 113.72454940380014, 24.290775047635538 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724877401824259, 24.29084437172142 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724677750853061, 24.290393764486602 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "thermometer" }, "geometry": { "type": "Point", "coordinates": [ 113.725181631875614, 24.29062340106573 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "person" }, "geometry": { "type": "Point", "coordinates": [ 113.725524763456505, 24.290754711195646 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "person" }, "geometry": { "type": "Point", "coordinates": [ 113.724809395231887, 24.290086225531414 ] } }
+]
+}

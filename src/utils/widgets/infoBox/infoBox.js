@@ -9,6 +9,8 @@ import Cesium3DTileFeature from "@/../node_modules/cesium/Source/Scene/Cesium3DT
 import Cartesian2 from "@/../node_modules/cesium/Source/Core/Cartesian2.js";
 import Cartesian3 from "@/../node_modules/cesium/Source/Core/Cartesian3.js";
 import Cartographic from "@/../node_modules/cesium/Source/Core/Cartographic.js";
+import sampleTerrainMostDetailed from "@/../node_modules/cesium/Source/Core/sampleTerrainMostDetailed.js"
+import when from "@/../node_modules/cesium/Source/ThirdParty/when.js"
 import SceneTransforms from "@/../node_modules/cesium/Source/Scene/SceneTransforms.js";
 import defined from "@/../node_modules/cesium/Source/Core/defined.js";
 import './info.css';
@@ -40,7 +42,7 @@ class InfoTool {
     static createInfoTool(viewer, options, callback = undefined) {
         console.log(options);
         let cartographic;
-        cartographic = Cartographic.fromCartesian(options.position);
+        cartographic = options.position;
         
         const lon = CesiumMath.toDegrees(cartographic.longitude); //.toFixed(5);
         const lat = CesiumMath.toDegrees(cartographic.latitude); //.toFixed(5);
@@ -122,10 +124,11 @@ class InfoTool {
          });
      }
  
-    element;
-    viewer;
+    // element;
+    // viewer;
+    // type;
  
-    constructor(viewer) {
+    constructor(viewer,type,className) {
         this.viewer = viewer;
 
         // 在Cesium容器中添加元素
@@ -133,9 +136,11 @@ class InfoTool {
         this.element.id = "infoTool_" + getGuid(true);
         this.element.name = "infoTool";
         this.element.classList.add("cesium-three-plugins-infotool");
+        this.element.classList.add(className);
         this.element.appendChild(document.createElement("div"));
         this.element.appendChild(document.createElement("div"));
         viewer.container.appendChild(this.element);
+        this.type = type;
     }
 
     /**
@@ -160,13 +165,14 @@ class InfoTool {
      * @param {String} options.content 内容（只有类型为default时才起作用）。
      * @param {Function} callback 回调函数。
      */
-    add(feature, callback = undefined) {
+    async add(feature, HeightType, callback = undefined) {
         // 判断参数为空返回
         if (!feature) {
             return;
         }
         let options = {};
         options.feature = feature;
+        options.type = this.type;
 
         const that = this;
 
@@ -179,11 +185,9 @@ class InfoTool {
             return;
         }
         if (feature instanceof Cesium3DTileFeature) { // 3dtiles
-            
-            
             let property;
             console.log(feature);
-            options.position = feature.content.tile.boundingSphere.center;
+            options.position = Cartographic.fromCartesian(feature.content.tile.boundingSphere.center);
             let infoTable = JSON.parse(feature.getProperty('jproperties'));
             property = infoTable.Name;
             info += property;
@@ -193,15 +197,28 @@ class InfoTool {
             // for (let i = 0; i < length; ++i) {
             //     let propertyName = propertyNames[i];
             //     info += '"' + (propertyName + '": "' + feature.getProperty(propertyName)) + '",\n';
-                
             //     // let position = feature.tileset.boundingSphere.center;
             // }
         } else if (feature.id) { // Entity
-            options.position = feature.position._value;
             const properties = feature.properties;
             if (properties) {
-                info += properties.Name._value;
+                if(options.type === 'farm'){
+                    info += properties.Name._value;
+                }else {
+                    info += properties.Type._value;
+                }
             }
+            let position
+            if(HeightType === 'terrain'){
+                position = await this.mySampleTerrain(feature.position._value);
+                position = position[0]
+            }else if(HeightType  === '3dtiles') {
+                position = await this.myClampToHeigh(feature.position._value);
+                position = Cartographic.fromCartesian(position[0]);
+            }
+            
+            options.position = position;
+            console.log(options.position);
         }
 
 
@@ -235,6 +252,18 @@ class InfoTool {
          setCss(this.element.querySelector("div:nth-child(1)"), "height", "0");
          setCss(this.element.querySelector("div:nth-child(2)"), "pointer-events", "none");
      };
+
+     
+    async mySampleTerrain(cartesian) {
+        let terrainProvider = this.viewer.terrainProvider;
+        let cartographic = Cartographic.fromCartesian(cartesian);
+        let promise = sampleTerrainMostDetailed(terrainProvider, [cartographic]);
+        return promise;
+    };
+    async myClampToHeigh(cartesian) {
+        let promise = this.viewer.scene.clampToHeightMostDetailed([cartesian]);
+        return promise;
+    };
 }
  
 export default InfoTool;

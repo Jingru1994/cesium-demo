@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-05 11:40:22
- * @LastEditTime: 2021-02-25 10:17:31
+ * @LastEditTime: 2021-02-26 17:19:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\views\macroModel.vue
@@ -9,8 +9,14 @@
 <template>
     <div class="cesium-index">
         <cesium-viewer>
-            <macro-model
-                :url="macroUrl"></macro-model>
+            <!-- <macro-model
+                :url="macroUrl"></macro-model> -->
+            <entity-point
+                :url="pointUrl"
+                heightType="terrain"
+                @pointClick="pushRouter"
+            >
+            </entity-point>
         </cesium-viewer>
         
     </div>
@@ -24,20 +30,23 @@ import {findComponentDownward} from "@/utils/assist.js";
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
 import MacroModel from "@/components/macroModel.vue";
+import EntityPoint from "@/components/entityPoint.vue"
 
 
 
 export default {
     name: "MacroModelView",
     components: {
-      CesiumViewer,
-      MacroModel
+        CesiumViewer,
+        MacroModel,
+        EntityPoint
     },
     data() {
         return {
             // macroUrl: "/data/farm_macro.geojson"
             macroUrl: "http://192.168.137.11/file/macro-farm/tileset.json",
-            // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json"
+            // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
+            pointUrl: "/data/macro_point.geojson"
         };
     },
     mounted() {
@@ -58,6 +67,14 @@ export default {
                 }
             });
         },
+        pushRouter(property){
+            console.log(property);
+            if(property === '大林养殖场'){
+                this.$router.push({
+                    path: "/detailModel",
+                });
+            }
+        }
     }
 };
 </script>
