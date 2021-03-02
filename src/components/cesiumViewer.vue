@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-03 10:08:15
- * @LastEditTime: 2021-02-26 15:42:21
+ * @LastEditTime: 2021-03-01 14:20:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\cesiumViewer.vue
@@ -38,9 +38,9 @@ export default {
         }),
         initViewer() {
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
-            // var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
-            //     url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
-            // }); 
+            var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
+                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
+            }); 
 
             let viewerOption = {
                 geocoder: false, // 地理位置查询定位控件
@@ -50,7 +50,7 @@ export default {
                 fullscreenButton: false, // 全屏控件
                 scene3DOnly: true, // 每个几何实例仅以3D渲染以节省GPU内存
                 baseLayerPicker: true, // 底图切换控件
-                // imageryProvider: googleImageryProvider,//谷歌影像底图
+                imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
                 terrainProvider: Cesium.createWorldTerrain(),
                 // infoBox: false,
@@ -83,6 +83,7 @@ export default {
                 let pitch = Cesium.Math.toDegrees(viewer.camera.pitch).toFixed(2)
                 console.log(position+','+heading+','+pitch);
                 console.log(viewer.entities);
+                console.log(viewer.imageryLayers);
                 
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }
