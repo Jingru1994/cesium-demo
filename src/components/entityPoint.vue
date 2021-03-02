@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-25 16:34:20
- * @LastEditTime: 2021-02-26 17:23:08
+ * @LastEditTime: 2021-03-02 18:01:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\entityPoint.vue
@@ -84,9 +84,11 @@ export default {
         },
 
         addGeojson(){
+            console.log(process.env.BASE_URL);
             let viewer = this.viewer;
             const that = this;
-            let mountainPromise1 = Cesium.GeoJsonDataSource.load(this.url, {
+            console.log(window.location.pathname);//部署路径
+            let mountainPromise1 = Cesium.GeoJsonDataSource.load(window.location.pathname + this.url, {
                 clampToGround: true
             });
             mountainPromise1.then(function(dataSource) {

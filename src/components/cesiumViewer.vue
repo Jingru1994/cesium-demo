@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-03 10:08:15
- * @LastEditTime: 2021-03-01 14:20:19
+ * @LastEditTime: 2021-03-02 14:36:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\cesiumViewer.vue
@@ -15,7 +15,6 @@
 <script>
 import * as Cesium from "cesium/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
-import { mapMutations } from "vuex";
 
 
 export default {
@@ -32,10 +31,6 @@ export default {
     },
     beforeDestroy() {},
     methods: {
-        ...mapMutations({
-            setDialogVisible: 'SETDIALOGVISIBLE',
-            setDataId: 'SETDATAID'
-        }),
         initViewer() {
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
             var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	

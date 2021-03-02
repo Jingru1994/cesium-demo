@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-02-01 14:56:05
+ * @LastEditTime: 2021-03-02 17:41:20
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \cesium-demo\vue.config.js
+ */
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack')
 const path = require('path')
@@ -10,6 +18,7 @@ module.exports = {
   publicPath: "./",
   // 输出文件目录
   outputDir: "dist",
+  assetsDir: "static", // 打包后的静态文件位置，
   // eslint-loader 是否在保存的时候检查
   lintOnSave: false,
   // webpack-dev-server 相关配置

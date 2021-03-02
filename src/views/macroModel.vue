@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-05 11:40:22
- * @LastEditTime: 2021-02-26 17:19:09
+ * @LastEditTime: 2021-03-02 17:45:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\views\macroModel.vue
@@ -43,11 +43,18 @@ export default {
     },
     data() {
         return {
+            publicPath: process.env.BASE_URL,
             // macroUrl: "/data/farm_macro.geojson"
             macroUrl: "http://192.168.137.11/file/macro-farm/tileset.json",
             // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
-            pointUrl: "/data/macro_point.geojson"
+            pointUrl: "data/macro_point.geojson"
         };
+    },
+    computed: {
+        // pointUrl: function () {
+        //     console.log(this.publicPath);
+        //     return this.publicPath + this.basePointUrl;
+        // }
     },
     mounted() {
         this.viewer = findComponentDownward(this,"cesiumViewer").viewer;
