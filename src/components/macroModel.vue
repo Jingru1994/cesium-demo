@@ -1,7 +1,7 @@
 <!--
  * @Author: Dongjingru
  * @Date: 2021-02-23 15:54:52
- * @LastEditTime: 2021-02-26 16:09:32
+ * @LastEditTime: 2021-03-02 21:31:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \cesium-demo\src\components\macroModel.vue
@@ -15,7 +15,7 @@
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 
 import {findComponentUpward} from "@/utils/assist.js"
-import {getPublicData} from "@/api/requestGeojson.js";
+// import {getPublicData} from "@/api/requestGeojson.js";
 import InfoTool from "@/utils/widgets/infoBox/infoBox.js"
 import shader from "@/utils/shader.js"
 
