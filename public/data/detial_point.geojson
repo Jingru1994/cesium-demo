@@ -2,13 +2,13 @@
 "type": "FeatureCollection",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724164362641417, 24.291082672977847 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724012247615732, 24.290536745801649 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "thermometer" }, "geometry": { "type": "Point", "coordinates": [ 113.72454940380014, 24.290775047635538 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724877401824259, 24.29084437172142 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "camera" }, "geometry": { "type": "Point", "coordinates": [ 113.724677750853061, 24.290393764486602 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "thermometer" }, "geometry": { "type": "Point", "coordinates": [ 113.725181631875614, 24.29062340106573 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "person" }, "geometry": { "type": "Point", "coordinates": [ 113.725524763456505, 24.290754711195646 ] } },
-{ "type": "Feature", "properties": { "Id": 0, "Name": null, "Type": "person" }, "geometry": { "type": "Point", "coordinates": [ 113.724809395231887, 24.290086225531414 ] } }
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍1走廊监控", "Type": "camera", "Height": 96.904, "Height1": 109.904 }, "geometry": { "type": "Point", "coordinates": [ 113.724065377063582, 24.29099510881283 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍2走廊监控", "Type": "camera", "Height": 99.021, "Height1": 112.021 }, "geometry": { "type": "Point", "coordinates": [ 113.724021765459753, 24.290557685058499 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍3温湿度感应器", "Type": "thermometer", "Height": 96.667, "Height1": 109.667 }, "geometry": { "type": "Point", "coordinates": [ 113.724536078818517, 24.290754108378685 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍4走廊监控", "Type": "camera", "Height": 94.539, "Height1": 107.539 }, "geometry": { "type": "Point", "coordinates": [ 113.724822198328923, 24.290796782501303 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍5走廊监控", "Type": "camera", "Height": 93.218, "Height1": 106.218 }, "geometry": { "type": "Point", "coordinates": [ 113.724677750853061, 24.290393764486602 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "栋舍6温湿度感应器", "Type": "thermometer", "Height": 92.464, "Height1": 105.464 }, "geometry": { "type": "Point", "coordinates": [ 113.7251378497931, 24.290594847533661 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "张悦", "Type": "person", "Height": 87.51, "Height1": 100.51 }, "geometry": { "type": "Point", "coordinates": [ 113.725524763456505, 24.290754711195646 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "李强", "Type": "person", "Height": 87.615, "Height1": 100.615 }, "geometry": { "type": "Point", "coordinates": [ 113.724809395231887, 24.290086225531414 ] } }
 ]
 }

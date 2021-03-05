@@ -95,10 +95,13 @@ export default {
                 viewer.dataSources.add(dataSource);
                 let entities = dataSource.entities.values;
                 let type;
-                let className = "cesium-three-plugins-infotool-";
+                let className;
                 for (let i = 0; i < entities.length; i++) {
+                    
+                    className = "cesium-three-plugins-infotool-";
                     let entity = entities[i];
                     type = entity.properties.Type._value;
+                    console.log(entity);
                     className += type;
 
                     entity.billboard = undefined;
@@ -108,16 +111,14 @@ export default {
                     let infoDiv = infoTool.getElement();
                     infoDiv.addEventListener("click",function(){
                         let property = entity.properties.Name._value;
-                        if(type === 'farm'){
-                            property = entity.properties.Name._value;
-                        }else {
-                            property = entity.properties.Type._value;
-                        }
-                        
+                        // if(type === 'farm'){
+                        //     property = entity.properties.Name._value;
+                        // }else {
+                        //     property = entity.properties.Type._value;
+                        // }
                         that.$emit("pointClick", property);
-
-                        
                     });
+                    
                 }
             });
         },

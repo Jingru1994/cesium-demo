@@ -72,8 +72,8 @@ export default {
     data() {
         return {
             isDialogVisible: false,
-            photogrammetryUrl: "http://192.168.137.11/file/data2/tileset.json",
-            monomerUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
+            photogrammetryUrl: "http://192.168.40.26/file/data2/tileset.json",
+            monomerUrl: "http://192.168.40.26/file/farm-entity7/tileset.json",
             geojsonUrl:"data/farm_wgs84.geojson",
             type:"tiles",
             dataID:"",
@@ -112,15 +112,26 @@ export default {
             this.setDialogVisible(false)
         },
         zoomToTiles(tileset){
-            this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.15));
+            // this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.15));
+            let cartesianPosition = new Cesium.Cartesian3(-2340488.8615332292, 5325525.154494965, 2607518.644244695);
+            this.viewer.camera.setView({
+                destination : cartesianPosition,
+                orientation: {
+                    heading : 0.0, // east, default value is 0.0 (north)
+                    pitch : Cesium.Math.toRadians(-28.65),    // default value (looking down)
+                    roll : 0.0  // default value
+                }
+            });
         },
         pushRouter(property){
             console.log(property);
-            if(property === 'camera'){
-                this.$router.push({
-                    path: "/detail",
-                });
-            }
+            this.$router.push({
+                path: "/detail",
+                query: { data: property }
+            });
+            // if(property === 'camera'){
+                
+            // }
         }
     },
 };

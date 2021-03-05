@@ -48,9 +48,9 @@ class InfoTool {
         const lat = CesiumMath.toDegrees(cartographic.latitude); //.toFixed(5);
 
         // 注意，这里不能使用hide()或者display，会导致元素一直重绘。
-        // setCss(options.element, "opacity", "0"); 
+        setCss(options.element, "opacity", "0"); 
         // setCss(options.element.querySelector("div:nth-child(1)"), "height", "1px");
-        // setCss(options.element.querySelector("div:nth-child(2)"), "opacity", "1");
+        setCss(options.element.querySelector("div:nth-child(2)"), "opacity", "1");
 
         // 回调
         callback();
@@ -58,7 +58,7 @@ class InfoTool {
         // 添加div弹窗
         // InfoTool.popup(viewer, options.element, lon, lat, cartographic.height)
         setTimeout(function () {
-            InfoTool.popup(viewer, options, lon, lat, cartographic.height)
+            InfoTool.popup(viewer, options.element, lon, lat, cartographic.height)
         }, 500);
 
         
@@ -73,38 +73,21 @@ class InfoTool {
     * @param {Number} height 高度。
     * @ignore
     */
-    static popup(viewer, options, lon, lat, height) {
-        let element = options.element;
-        // setCss(element, "opacity", "1");
+    static popup(viewer, element, lon, lat, height) {
         setTimeout(function () {
             // 设置元素效果
-            // setCss(element, "opacity", "1");
-            // if(options.type === 'farm'){
-            //     setCss(element, "opacity", "1");
-                
-            // }else {
-            //     setCss(element, "opacity", "1");
-            //     // setCss(element.querySelector("div:nth-child(2)"), "display", "none");
-            //     // element.querySelector("div:nth-child(1)").addEventListener("mouseover",function(){
-            //     //     setCss(element.querySelector("div:nth-child(2)"), "display", "block");
-            //     // });
-            //     // element.querySelector("div:nth-child(1)").addEventListener("mouseout",function(){
-            //     //     setCss(element.querySelector("div:nth-child(2)"), "display", "none");
-            //     // });
-            //     // setCss(element.querySelector("div:nth-child(2)"), "width", "0");
-            // }
-            // setCss(element.querySelector("div:nth-child(2)"), "opacity", "1");
-            // setCss(element.querySelector("div:nth-child(1)"), "transition", "ease 1s");
-            // setCss(element.querySelector("div:nth-child(2)"), "transition", "opacity 1s");
-            // setCss(element.querySelector("div:nth-child(1)"), "height", "80px");
-            // setCss(element.querySelector("div:nth-child(2)"), "pointer-events", "auto");
-            // window.setTimeout(function () {
-            //     setCss(element.querySelector("div:nth-child(2)"), "opacity", "1");
-            // }, 500);
+            setCss(element, "opacity", "1");
+            setCss(element.querySelector("div:nth-child(2)"), "opacity", "1");
+            setCss(element.querySelector("div:nth-child(1)"), "transition", "ease 1s");
+            setCss(element.querySelector("div:nth-child(2)"), "transition", "opacity 1s");
+            setCss(element.querySelector("div:nth-child(1)"), "height", "80px");
+            setCss(element.querySelector("div:nth-child(2)"), "pointer-events", "auto");
+            window.setTimeout(function () {
+                setCss(element.querySelector("div:nth-child(2)"), "opacity", "1");
+            }, 500);
         }, 100);
         const divPosition = Cartesian3.fromDegrees(lon, lat, height);
-        console.log(parseInt(getCss(element, "height")));
-        InfoTool.hookToGlobe(viewer, element, divPosition, [options.xOffset, -(parseInt(getCss(element, "height")))], true);
+        InfoTool.hookToGlobe(viewer, element, divPosition, [10, -(parseInt(getCss(element, "height")))], true);
         viewer.scene.requestRender();
     }
     /**
@@ -191,13 +174,6 @@ class InfoTool {
         options.feature = feature;
         options.type = this.type;
 
-        if(options.type === 'farm'){
-            options.xOffset = -42.5
-            
-        }else {
-            options.xOffset = -39
-        }
-
         const that = this;
 
         // 1.组织信息
@@ -240,8 +216,6 @@ class InfoTool {
             }else if(HeightType  === '3dtiles') {
                 position = await this.myClampToHeigh(feature.position._value);
                 position = Cartographic.fromCartesian(position[0]);
-                // let cartographic = Cartographic.fromCartesian(feature.position._value);
-                // position = new Cartographic(cartographic.longitude,cartographic.latitude,properties.Height1._value)
             }
             
             options.position = position;
@@ -251,7 +225,7 @@ class InfoTool {
 
         // 2.生成特效
         // 添加之前先移除
-        // this.remove();
+        this.remove();
 
         if (!info) {
             return;
@@ -259,7 +233,6 @@ class InfoTool {
 
         // options.position = cartesian3d;
         options.element = options.element || this.element;
-
 
         InfoTool.createInfoTool(this.viewer, options, function () {
             setInnerText(that.element.querySelector("div:nth-child(2)"), info);
