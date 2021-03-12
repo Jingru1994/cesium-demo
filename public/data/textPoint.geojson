@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 0, "lng": 0.0, "Name": "一条河", "stRotation": 60.0 }, "geometry": { "type": "Point", "coordinates": [ 113.744437190760195, 24.284739279405663 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "lng": 0.0, "Name": "一个村", "stRotation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 113.752429171601264, 24.280324997116804 ] } }
+]
+}

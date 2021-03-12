@@ -88,7 +88,8 @@ export default {
             let viewer = this.viewer;
             const that = this;
             console.log(window.location.pathname);//部署路径
-            let mountainPromise1 = Cesium.GeoJsonDataSource.load(this.url, {
+            let prefix = process.env.NODE_ENV === "production" ? process.env.BASE_URL : "";
+            let mountainPromise1 = Cesium.GeoJsonDataSource.load(prefix+this.url, {
                 clampToGround: true
             });
             mountainPromise1.then(function(dataSource) {
@@ -101,7 +102,6 @@ export default {
                     className = "cesium-three-plugins-infotool-";
                     let entity = entities[i];
                     type = entity.properties.Type._value;
-                    console.log(entity);
                     className += type;
 
                     entity.billboard = undefined;

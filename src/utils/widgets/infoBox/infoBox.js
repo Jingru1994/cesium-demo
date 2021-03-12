@@ -195,7 +195,7 @@ class InfoTool {
             options.xOffset = -42.5
             
         }else {
-            options.xOffset = -39
+            options.xOffset = -29.5
         }
 
         const that = this;

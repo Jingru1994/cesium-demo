@@ -1,6 +1,5 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
 
@@ -9,14 +8,14 @@ const routes = [
     path: "/",
     name: "index",
     component: () =>
-    import(/* webpackChunkName: "index" */ "@/views/macroModel.vue")
+    import(/* webpackChunkName: "index" */ "@/views/index.vue")
   
   },
   {
-    path: "/detail",
-    name: "detail",
+    path: "/macroModel",
+    name: "macroModel",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/detail.vue")
+    import(/* webpackChunkName: "index" */ "@/views/macroModel.vue")
   
   },
   {
@@ -27,13 +26,18 @@ const routes = [
   
   },
   {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
+    path: "/detail",
+    name: "detail",
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+    import(/* webpackChunkName: "detail" */ "@/views/detail.vue")
+  
+  },
+  {
+    path: "/pointText",
+    name: "pointText",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/pointTextView.vue")
+  
   }
 ];
 

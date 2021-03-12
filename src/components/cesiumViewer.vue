@@ -57,6 +57,8 @@ export default {
             let viewer = new Cesium.Viewer("cesiumContainer", viewerOption);
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
             viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染
+            // viewer.scene.globe.enableLighting = true;
+            // viewer.shadows = true
             // viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
             // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 50;
             // viewer.scene.screenSpaceCameraController.maximumZoomDistance = 30000;

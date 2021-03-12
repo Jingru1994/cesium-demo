@@ -5,7 +5,7 @@
                 :url="photogrammetryUrl"
                 @readyPromise="zoomToTiles"
             ></tileset-photogrammetry>
-            <tileset-monomer
+            <!-- <tileset-monomer
                 :url="monomerUrl"
                 :show="isMonomerShow"
             ></tileset-monomer>
@@ -13,7 +13,7 @@
                 :url="geojsonUrl"
                 :show="isGeojsonShow"
             >
-            </primitive-geojson>
+            </primitive-geojson> -->
             <entity-point
                 :url="pointUrl"
                 heightType="3dtiles"
@@ -72,8 +72,8 @@ export default {
     data() {
         return {
             isDialogVisible: false,
-            photogrammetryUrl: "http://192.168.40.26/file/data2/tileset.json",
-            monomerUrl: "http://192.168.40.26/file/farm-entity7/tileset.json",
+            photogrammetryUrl: "http://139.219.1.146/ce/tileset.json",
+            // monomerUrl: "http://192.168.40.26/file/farm-entity7/tileset.json",
             geojsonUrl:"data/farm_wgs84.geojson",
             type:"tiles",
             dataID:"",
