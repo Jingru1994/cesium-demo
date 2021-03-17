@@ -10,8 +10,6 @@ import Cartesian2 from "@/../node_modules/cesium/Source/Core/Cartesian2.js";
 import Cartesian3 from "@/../node_modules/cesium/Source/Core/Cartesian3.js";
 import Cartographic from "@/../node_modules/cesium/Source/Core/Cartographic.js";
 import sampleTerrainMostDetailed from "@/../node_modules/cesium/Source/Core/sampleTerrainMostDetailed.js"
-import when from "@/../node_modules/cesium/Source/ThirdParty/when.js"
-import SceneTransforms from "@/../node_modules/cesium/Source/Scene/SceneTransforms.js";
 import defined from "@/../node_modules/cesium/Source/Core/defined.js";
 import './info.css';
 import { setCss, getCss, setInnerText, getGuid} from "@/utils//util.js";
@@ -43,7 +41,6 @@ class InfoTool {
         console.log(options);
         let cartographic;
         cartographic = options.position;
-        
         const lon = CesiumMath.toDegrees(cartographic.longitude); //.toFixed(5);
         const lat = CesiumMath.toDegrees(cartographic.latitude); //.toFixed(5);
 

@@ -162,7 +162,6 @@ export default {
             let viewer = this.viewer;
             let dataUrl = this.url;
             let geojsonData = await this.getData(dataUrl);
-            debugger;
             let entities = this.createEntity(geojsonData); 
             for(let i = 0; i < entities.length; i++) {
                 let entity = entities[i];

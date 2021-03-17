@@ -16,6 +16,8 @@
 import * as Cesium from "cesium/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
 
+import SkyBoxOnGround from '@/utils/widgets/skyBox/SkyBoxOnGround.js';
+
 
 export default {
     name: "cesiumViewer",
@@ -33,12 +35,11 @@ export default {
     methods: {
         initViewer() {
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
-            var googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
+            let googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
                 url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
                 // url: 'http://www.google.cn/maps/vt?lyrs=s@800&x={x}&y={y}&z={z}',
                 // url:'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
             }); 
-
             let viewerOption = {
                 geocoder: false, // 地理位置查询定位控件
                 homeButton: false, // 默认相机位置控件
@@ -52,17 +53,45 @@ export default {
                 terrainProvider: Cesium.createWorldTerrain(),
                 // infoBox: false,
                 selectionIndicator: false,//去除原生自带绿色选择框
+                skyAtmosphere: false,
+                
+                skyBox: new SkyBoxOnGround({
+                // skyBox: new Cesium.SkyBox({
+                    sources: {
+                        positiveX: './skybox/posx1.png',
+                        negativeX: './skybox/negx1.png',
+                        positiveY: './skybox/posy1.png',
+                        negativeY: './skybox/negy1.png',
+                        positiveZ: './skybox/posz1.png',
+                        negativeZ: './skybox/negz1.png'
+
+                    }
+                })
             };
 
             let viewer = new Cesium.Viewer("cesiumContainer", viewerOption);
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
             viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染
+            
+            //调整地图颜色
+            // let imageryLayers = viewer.imageryLayers;
+            // let layer = imageryLayers.get(0);
+            // layer.brightness = 0.46;
+            // layer.contrast = 1.38;
+            
+            //光照、雾、阴影
+            // viewer.scene.fog.enabled = true;
             // viewer.scene.globe.enableLighting = true;
             // viewer.shadows = true
+
             // viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
+
+            // 控制用户可以升高的高度
             // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 50;
             // viewer.scene.screenSpaceCameraController.maximumZoomDistance = 30000;
-            // viewer.scene.invertClassification = true;
+
+            // 调整模型颜色
+            // viewer.scene.invertClassification = true;//unclassified 3D Tile geometry will render with the color multiplied by Scene#invertClassificationColor
             // viewer.scene.invertClassificationColor = new Cesium.Color(
             //     0.5,
             //     0.5,
