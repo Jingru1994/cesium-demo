@@ -77,6 +77,7 @@ export default {
             let viewer = this.viewer;
             this.tileset = new Cesium.Cesium3DTileset({
                 url: this.url,
+                shadows: Cesium.ShadowMode.ENABLED
             });
             this.tileset.readyPromise.then(function (tileset) {
                 let boundingSphere = tileset.boundingSphere;
@@ -201,6 +202,7 @@ export default {
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     extrudedHeight: 200,
                     extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+                    shadows: Cesium.ShadowMode.ENABLED,//模型影子
                 }
                 let polygon = new Cesium.PolygonGraphics(polygonOptions);
                 let longitude = this.average(longitudes);

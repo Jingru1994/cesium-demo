@@ -32,7 +32,8 @@ export default {
         addTiles() {
             let viewer = this.viewer;
             let options = {
-                url: this.url
+                url: this.url,
+                shadows: Cesium.ShadowMode.DISABLED
             }
             let tileset = new Cesium.Cesium3DTileset(options);
             viewer.scene.primitives.add(tileset);

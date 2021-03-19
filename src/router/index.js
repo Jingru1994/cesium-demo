@@ -38,6 +38,13 @@ const routes = [
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/pointTextView.vue")
   
+  },
+  {
+    path: "/customSkyBox",
+    name: "customSkyBox",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/skyBoxView.vue")
+  
   }
 ];
 

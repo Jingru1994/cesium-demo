@@ -99,7 +99,7 @@ function SkyBoxOnGround(options) {
   if (!this.show) {
     return undefined;
   }
-
+  console.log
   if (
     frameState.mode !== SceneMode.SCENE3D &&
     frameState.mode !== SceneMode.MORPHING
