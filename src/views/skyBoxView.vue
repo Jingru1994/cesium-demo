@@ -33,7 +33,7 @@ export default {
     },
     mounted() {
         this.viewer = findComponentDownward(this,"cesiumViewer").viewer;
-        this.defaultSkybox = this.viewer.scene.skyBox;
+        console.log(this.viewer.scene.skyBox);
         this.initCamera();
         this.postRender();
     },
@@ -51,14 +51,19 @@ export default {
         },
         postRender(){
             let viewer = this.viewer;
-            let that = this;
+            const that = this;
             viewer.scene.postRender.addEventListener(function() {
-                if(that.currentSkyBox && that.defaultSkybox) {
+                if(that.currentSkyBox) {
+                    if(!that.defaultSkybox) {
+                            that.defaultSkybox = CustomSkyBox.default();
+                        }
                     let e = viewer.camera.position;
-                    if(Cesium.Cartographic.fromCartesian(e).height<3000) {
+                    if(Cesium.Cartographic.fromCartesian(e).height<3000 && that.selectedSkybox !== 'default') {
+                        console.log(1);
                         viewer.scene.skyBox = that.currentSkyBox;
                         viewer.scene.skyAtmosphere.show = false;
                     }else {
+                        console.log(2);
                         viewer.scene.skyBox = that.defaultSkybox;
                         viewer.scene.skyAtmosphere.show = true;
                     }
@@ -72,7 +77,12 @@ export default {
                 
                 switch(newVal) {
                     case 'default':
+                        if(!this.defaultSkybox) {
+                            this.defaultSkybox = CustomSkyBox.default();
+                        }
                         this.viewer.scene.skyBox = this.defaultSkybox;
+                        this.currentSkyBox = this.defaultSkybox;
+                        this.viewer.scene.skyAtmosphere.show = true;
                         break;
                     case 'sunny':
                         if(!this.sunnySkyBox) {
@@ -80,6 +90,7 @@ export default {
                         }
                         this.viewer.scene.skyBox = this.sunnySkyBox;
                         this.currentSkyBox = this.sunnySkyBox;
+                        this.viewer.scene.skyAtmosphere.show = false;
                         break;
                     case 'dusk':
                         if(!this.duskSkyBox) {
@@ -87,6 +98,7 @@ export default {
                         }
                         this.viewer.scene.skyBox = this.duskSkyBox;
                         this.currentSkyBox = this.duskSkyBox;
+                        this.viewer.scene.skyAtmosphere.show = false;
                         break;
                 }
             }
