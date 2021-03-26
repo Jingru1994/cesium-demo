@@ -91,9 +91,6 @@ class CustomSkyBox {
         });
         return duskSkyBox;
     }
- 
-
- 
 }
  
 export default CustomSkyBox;

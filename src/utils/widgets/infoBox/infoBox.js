@@ -2,15 +2,15 @@
 // ====================
 // 引入模块
 // ====================
-import Viewer from "@/../node_modules/cesium/Source/Widgets/Viewer/Viewer.js";
-import CesiumMath from "@/../node_modules/cesium/Source/Core/Math.js";
-import Cesium3DTileFeature from "@/../node_modules/cesium/Source/Scene/Cesium3DTileFeature.js";
+import Viewer from "cesium/Widgets/Viewer/Viewer.js";
+import CesiumMath from "cesium/Core/Math.js";
+import Cesium3DTileFeature from "cesium/Scene/Cesium3DTileFeature.js";
 // import Cesium3DTile from "@/../node_modules/cesium/Source/Scene/Cesium3DTile.js";
-import Cartesian2 from "@/../node_modules/cesium/Source/Core/Cartesian2.js";
-import Cartesian3 from "@/../node_modules/cesium/Source/Core/Cartesian3.js";
-import Cartographic from "@/../node_modules/cesium/Source/Core/Cartographic.js";
-import sampleTerrainMostDetailed from "@/../node_modules/cesium/Source/Core/sampleTerrainMostDetailed.js"
-import defined from "@/../node_modules/cesium/Source/Core/defined.js";
+import Cartesian2 from "cesium/Core/Cartesian2.js";
+import Cartesian3 from "cesium/Core/Cartesian3.js";
+import Cartographic from "cesium/Core/Cartographic.js";
+import sampleTerrainMostDetailed from "cesium/Core/sampleTerrainMostDetailed.js"
+import defined from "cesium/Core/defined.js";
 import './info.css';
 import { setCss, getCss, setInnerText, getGuid} from "@/utils//util.js";
 

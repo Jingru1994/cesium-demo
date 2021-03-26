@@ -45,6 +45,13 @@ const routes = [
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/skyBoxView.vue")
   
+  },
+  {
+    path: "/heatMap",
+    name: "heatMap",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/heatMapView.vue")
+  
   }
 ];
 

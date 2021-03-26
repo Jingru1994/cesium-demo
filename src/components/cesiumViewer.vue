@@ -36,15 +36,12 @@ export default {
         initViewer() {
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
             let googleImageryProvider = new Cesium.TileMapServiceImageryProvider({            	
-                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
-                // url: 'http://www.google.cn/maps/vt?lyrs=s@800&x={x}&y={y}&z={z}',
+                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali'
+                // url: 'http://www.google.cn/maps/vt?lyrs=s@800&x={x}&y={y}&z={z}'
                 // url:'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
             }); 
-            // let googleImageryProvider = new Cesium.UrlTemplateImageryProvider({            	
-            //     // url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali',
-            //     url: 'http://192.168.40.26:8080/{z}/{x}/{y}/img.jpg',
-            //     // url: 'http://www.google.cn/maps/vt?lyrs=s@800&x={x}&y={y}&z={z}',
-            //     // url:'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
+            // let googleImageryProvider = new Cesium.UrlTemplateImageryProvider({
+            //     url: 'http://192.168.40.26/file/satellite/{z}/{x}/{y}/img.jpg'
             // });
             // let clock = new Cesium.Clock({
             //     startTime: Cesium.JulianDate.fromIso8601("2013-12-25"),

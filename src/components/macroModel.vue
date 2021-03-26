@@ -15,7 +15,7 @@
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 
 import {findComponentUpward} from "@/utils/assist.js"
-import {getPublicData} from "@/api/requestGeojson.js";
+import {getPublicData} from "@/api/requestData.js";
 import InfoTool from "@/utils/widgets/infoBox/infoBox.js"
 import shader from "@/utils/shader.js"
 
@@ -37,6 +37,7 @@ export default {
         this.$nextTick(() => {
             this.viewer = findComponentUpward(this,"cesiumViewer").viewer;
             // this.addTiles();
+            debugger
             this.addEntityPolygon();
             // this.addGeojson();
             // this.addPrimitivePolygon();

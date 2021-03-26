@@ -6,8 +6,7 @@
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 
 import {findComponentUpward} from "@/utils/assist.js"
-import InfoTool from "@/utils/widgets/infoBox/infoBox.js"
-import {getPublicData} from "@/api/requestGeojson.js";
+import {getPublicData} from "@/api/requestData.js";
 
 
 /**
@@ -36,6 +35,7 @@ export default {
         this.$nextTick(() => {
             this.viewer = findComponentUpward(this,"cesiumViewer").viewer;
             this.addEntityText();
+            
         });
     },
     beforeDestroy() {},
@@ -48,6 +48,7 @@ export default {
             for(let i = 0; i < entities.length; i++) {
                 let entity = entities[i];
                 viewer.entities.add(entity);
+                
             }
         },
         async getData(url){
@@ -89,16 +90,22 @@ export default {
                 }
                 let entity = new Cesium.Entity(entityOptions);
                 entities.push(entity);
+                this.style = style;
             }
+            
+            
+                
+            
+            
             return entities;
         },
         drawText(style) {
             const text = style.text;
-            var c = document.createElement("canvas");
+            let c = document.createElement("canvas");
             const d = (text + "").length * style.fontSize;
             c.width = d;
             c.height = style.fontSize;
-            var ctx = c.getContext("2d");
+            let ctx = c.getContext("2d");
 
             ctx.fillStyle = style.color;
             ctx.font = "bold " + style.fontSize + "px 微软雅黑"; //设置字体
