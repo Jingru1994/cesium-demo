@@ -110,8 +110,8 @@ class HeatLayer{
 		}
 	}
  
-	_initEntity() {
-		let entity = this._entity
+	_initEntity(entity1) {
+		let entity = entity1
 		let offset = this._options.spacing * this._scale
 		this._bounds.west -= offset,
 		this._bounds.south -= offset,
@@ -130,6 +130,8 @@ class HeatLayer{
 	//    distanceDisplayCondition: this._options.distanceDisplayCondition
 		}
 	}
+
+ 
 	_draw() {
 		/** set bounds */
 		if (!this._bounds) {
@@ -169,9 +171,65 @@ class HeatLayer{
 		// this._entity.rectangle.fill = true;
 		// this._entity.rectangle.outline = true;
 		// this._entity.rectangle.material = material;
+		//  this._entity.rectangle.material = Color.WHITE;
+		this._entity.show = true
+	}
+	_redraw() {
+		/** set bounds */
+		if (!this._bounds) {
+			return false
+		}
+		this._initCanvas()
+		let data = []
+		this._positions.forEach(item => {
+			let coord = this._transformWGS84ToHeatmap({
+				lng: item.lng || item.x,
+				lat: item.lat || item.y
+			})
+			data.push({
+				x: coord.x,
+				y: coord.y,
+				value: item.value || 1
+			})
+		})
+		this._heat.setData({
+			min: 0,
+			max: 1,
+			data
+		})
+		this._initEntity(this._nextEntity)
+		
+		let material = new ImageMaterialProperty({
+			image: this._heat._renderer.canvas,
+			transparent: true
+		})
+		
+		Object.assign(this._nextEntity.rectangle,{
+			fill: true,
+			material: material
+		});
+		// this._entity.rectangle.fill = true;
+		// this._entity.rectangle.outline = true;
+		// this._entity.rectangle.material = material;
 		// this._entity.rectangle.material = Color.WHITE;
 		
+		this._nextEntity.show = true
+		this._entity.show = false
+		console.log(this._nextEntity);
+		console.log(this._entity);
+		[this._nextEntity, this._entity] = [this._entity, this._nextEntity]
+		
+
+		// const that = this
+		// setTimeout(function(){
+		// 	that._entity.show = false
+		// 	console.log(that._nextEntity);
+		// 	console.log(that._entity);
+		// 	[that._nextEntity, that._entity] = [that._entity, that._nextEntity]
+
+		// },100);
 	}
+
 	_getBounds(positions = [], expand = 0) {
 		let minLng = 180
 		let minLat = 90
@@ -204,6 +262,9 @@ class HeatLayer{
 			north: maxLat
 		}
 	}
+
+	
+
 	setPosition(positions) {
 		if (!positions || !Array.isArray(positions)) {
 			return this
@@ -211,16 +272,47 @@ class HeatLayer{
 		this._positions = positions
 		this._bounds = this._getBounds(this._positions)
 		this._draw()
-		this._entity.show = true
 		return this
 	}
+
 	changePositions(positions) {
 		if (!positions || !Array.isArray(positions)) {
 			return this
 		}
+		if (!this._heat) {
+			return this
+		}
+		if(!this._nextEntity) {
+			this._nextEntity = new Entity();
+			this._viewer.entities.add(this._nextEntity);
+		}
 		this._positions = positions
-		this._bounds = this._getBounds(this._positions)
-		this._draw()
+		this._bounds = this._getBounds(this._positions);
+		this._redraw();
+		
+		//直接切换material的方式，也会闪烁，相对redraw来说不能改变entity的位置大小
+		// let data = []
+		// this._positions.forEach(item => {
+		// 	let coord = this._transformWGS84ToHeatmap({
+		// 		lng: item.lng || item.x,
+		// 		lat: item.lat || item.y
+		// 	})
+		// 	data.push({
+		// 		x: coord.x,
+		// 		y: coord.y,
+		// 		value: item.value || 1
+		// 	})
+		// })
+		// this._heat.setData({
+		// 	min: 0,
+		// 	max: 1,
+		// 	data
+		// })
+		// let material = new ImageMaterialProperty({
+		// 	image: this._heat._renderer.canvas,
+		// 	transparent: true
+		// })
+		// this._entity.rectangle.material = material;
 		return this
 	}
  
@@ -238,6 +330,7 @@ class HeatLayer{
 		}
 		return this
 	}
+
 	remove() {
 		if(this._entity) {
 			this._viewer.entities.remove(this._entity)

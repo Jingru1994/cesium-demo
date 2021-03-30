@@ -36,9 +36,8 @@ export default {
     mounted() {
         this.$nextTick(() => {
             this.viewer = findComponentUpward(this,"cesiumViewer").viewer;
-            // this.addTiles();
-            debugger
-            this.addEntityPolygon();
+            this.addTiles();
+            // this.addEntityPolygon();
             // this.addGeojson();
             // this.addPrimitivePolygon();
             this.addEvent();

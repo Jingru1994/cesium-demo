@@ -1,5 +1,11 @@
 <template>
     <div class="heatmap-view">
+        <div class="operation-panel">
+            <el-button @click="showHeatLayer" :disabled="!isHeatlayerExist || isHeatlayerShow">显示</el-button>
+            <el-button @click="hideHeatLayer" :disabled="!isHeatlayerExist && !isHeatlayerShow">隐藏</el-button>
+            <el-button @click="removeHeatLayer" :disabled="!isHeatlayerExist">移除</el-button>
+            <el-button @click="addHeatLayer" :disabled="isHeatlayerExist">添加</el-button>
+        </div>
         <cesium-viewer>
         </cesium-viewer>
         
@@ -26,19 +32,17 @@ export default {
     data() {
         return {
             selectedSkybox: "default",
-            macroUrl: "data/farm_macro.geojson",
+            dataUrl: "data/tmp.json",
+            isHeatlayerExist: false,
+            isHeatlayerShow: false
         };
     },
     mounted() {
         this.viewer = findComponentDownward(this,"cesiumViewer").viewer;
-        let dataUrl = "data/tmp.json";
-        this.createHeatMap(dataUrl);
+        // let dataUrl = "data/tmp.json";
+        // this.createHeatMap(dataUrl);
         this.initCamera();
-        let _this = this
-        setInterval(() => {
-                // this.layer.changePositions(this.positions)
-                this.layer.changePositions(this.generatePosition(1000))
-            }, 5000)
+        console.log(this.isHeatlayerExist);
     },
     methods: {
         initCamera(){
@@ -72,42 +76,19 @@ export default {
                     '0.4': 'blue',
                     '0.6': 'green',
                     '0.8': 'yellow',
-                    '0.9': 'white'
+                    '0.9': 'red'
                 }
             }
-            this.positions = heatMapData.data;
+            this.positions = heatMapData;
             let layer = new HeatLayer(this.viewer, heatmapOptions);
-            // layer.setPosition(this.positions);
-            layer.setPosition(this.generatePosition(1000));
-            this.layer = layer
+            layer.setPosition(this.positions);
+            return layer;
             
-    
-            
-            
+        
         },
         async getData(url) {
             let data = await getPublicData(url);
-            // let geojson = toGeojson(data.list);
-            // console.log(geojson);
-            // return geojson;
-            console.log(data);
             let tmpList = data.list;
-            let valueMin = Math.min.apply(Math, tmpList.map(function(o) {return parseFloat(o.t)}));
-            let valueMax = Math.max.apply(Math, tmpList.map(function(o) {return parseFloat(o.t)}));
-            let west = Math.min.apply(Math, tmpList.map(function(o) {return parseFloat(o.j)}));
-            let east = Math.max.apply(Math,tmpList.map(function(o) {return parseFloat(o.j)}));
-            let south = Math.min.apply(Math,tmpList.map(function(o) {return parseFloat(o.w)}));
-            let north = Math.max.apply(Math,tmpList.map(function(o) {return parseFloat(o.w)}));
-            let bounds = {
-                west: west,
-                east: east,
-                south: south,
-                north: north
-            };
-            let processData = {};
-            processData.valueMin = valueMin;
-            processData.valueMax = valueMax;
-            processData.bounds = bounds;
             let len = tmpList.length;
             let dataList = [];
             for(let i = 0; i < len; i++){
@@ -117,9 +98,27 @@ export default {
                     "value": parseFloat(tmpList[i].t)
                 });
             }
-            processData.data = dataList;
-            console.log(processData);
-            return processData;
+            return dataList;
+        },
+        async addHeatLayer () {
+            let url = this.dataUrl;
+            let layer = await this.createHeatMap(url);
+            this.layer = layer;
+            this.isHeatlayerExist = true;
+            this.isHeatlayerShow = true;
+        },
+        removeHeatLayer() {
+            this.layer.remove();
+            this.isHeatlayerExist = false;
+            this.isHeatlayerShow = false;
+        },
+        showHeatLayer() {
+            this.layer.show();
+            this.isHeatlayerShow = true;
+        },
+        hideHeatLayer() {
+            this.layer.hide();
+            this.isHeatlayerShow = false;
         }
     }
 
@@ -127,7 +126,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.skybox-view {
+.heatmap-view {
     .operation-panel{
         position: fixed;
         top: 20px;
