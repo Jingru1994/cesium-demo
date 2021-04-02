@@ -25,13 +25,13 @@ const DEF_OPTS = {
 }
  
 class HeatLayer{
-	constructor(viewer,options) {
+	constructor(entityCollection,options) {
 		this._options = {
 			...DEF_OPTS,
 			...options,
 			
 		}
-		this._viewer = viewer
+		this._entityCollection = entityCollection
 		this._heat = undefined
 		this._bounds = undefined
 		this._scale = 1
@@ -156,7 +156,7 @@ class HeatLayer{
 			data
 		})
 		this._initEntity(this._entity)
-		this._viewer.entities.add(this._entity);
+		this._entityCollection.add(this._entity);
 		let material = new ImageMaterialProperty({
 			image: this._heat._renderer.canvas,
 			transparent: true
@@ -240,7 +240,7 @@ class HeatLayer{
 	}
 	remove() {
 		if(this._entity) {
-			this._viewer.entities.remove(this._entity)
+			this._entityCollection.remove(this._entity)
 		}
 	}
 	show() {

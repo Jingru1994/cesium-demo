@@ -45,8 +45,8 @@ export default {
     data() {
         return {
             publicPath: process.env.BASE_URL,
-            // macroUrl: "data/farm_macro.geojson",
-            macroUrl: "http://192.168.40.26/file/macro-farm/tileset.json",
+            macroUrl: "data/farm_macro.geojson",
+            // macroUrl: "http://192.168.40.26/file/macro-farm/tileset.json",
             // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
             pointUrl: "data/macro_point.geojson"
         };

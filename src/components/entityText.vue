@@ -17,7 +17,7 @@ import {getPublicData} from "@/api/requestData.js";
  *@param {Number} textStyle.stRotation 文字纹理方向 北方逆时针旋转 暂时不用这个属性，直接用数据里定义的角度比较合理
  */
 export default {
-    name: "entity-point",
+    name: "entity-text",
     props: {
         url: {
             type: String

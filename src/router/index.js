@@ -16,42 +16,42 @@ const routes = [
     name: "macroModel",
     component: () =>
     import(/* webpackChunkName: "index" */ "@/views/macroModel.vue")
-  
   },
   {
     path: "/detailModel",
     name: "detailModel",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/detailModel.vue")
-  
   },
   {
     path: "/detail",
     name: "detail",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/detail.vue")
-  
   },
   {
     path: "/pointText",
     name: "pointText",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/pointTextView.vue")
-  
   },
   {
     path: "/customSkyBox",
     name: "customSkyBox",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/skyBoxView.vue")
-  
   },
   {
     path: "/heatMap",
     name: "heatMap",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/heatMapView.vue")
-  
+  },
+  {
+    path: "/flowLine",
+    name: "flowLine",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/flowLineView.vue")
   }
 ];
 

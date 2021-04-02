@@ -31,7 +31,6 @@ export default {
     },
     data() {
         return {
-            selectedSkybox: "default",
             dataUrl: "data/tmp.json",
             isHeatlayerExist: false,
             isHeatlayerShow: false
@@ -80,7 +79,8 @@ export default {
                 }
             }
             this.positions = heatMapData;
-            let layer = new HeatLayer(this.viewer, heatmapOptions);
+            let layer = new HeatLayer(this.viewer.entities, heatmapOptions);
+            console.log(layer);
             layer.setPosition(this.positions);
             return layer;
             
@@ -127,6 +127,11 @@ export default {
 
 <style lang='scss' scoped>
 .heatmap-view {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     .operation-panel{
         position: fixed;
         top: 20px;
