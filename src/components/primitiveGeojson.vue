@@ -5,7 +5,8 @@
 <script>
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 import {findComponentUpward} from "@/utils/assist.js"
-import { mapMutations } from "vuex";
+import { createNamespacedHelpers } from "vuex";
+const { mapMutations } = createNamespacedHelpers("detailModel");
 
 
 export default {

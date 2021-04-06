@@ -52,6 +52,12 @@ const routes = [
     name: "flowLine",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/flowLineView.vue")
+  },
+  {
+    path: "/groundFlowLine",
+    name: "groundFlowLine",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/groundFlowLineView.vue")
   }
 ];
 

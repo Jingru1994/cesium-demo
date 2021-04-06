@@ -1,6 +1,8 @@
 <template>
     <div class="cesium-index">
-        <cesium-viewer>
+        <cesium-viewer
+            :showTerrain= showTerrain
+        >
             <tileset-photogrammetry
                 :url="photogrammetryUrl"
                 @readyPromise="zoomToTiles"
@@ -44,7 +46,8 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters } from "vuex";
+import { createNamespacedHelpers } from "vuex";
+const { mapMutations, mapGetters } = createNamespacedHelpers("detailModel");
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
 
@@ -77,7 +80,8 @@ export default {
             geojsonUrl:"data/farm_wgs84.geojson",
             type:"tiles",
             dataID:"",
-            pointUrl: "/data/detial_point.geojson"
+            pointUrl: "/data/detial_point.geojson",
+            showTerrain: true
         };
     },
     mounted() {

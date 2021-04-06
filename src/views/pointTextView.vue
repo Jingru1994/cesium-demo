@@ -1,6 +1,8 @@
 <template>
     <div class="text-view">
-        <cesium-viewer>
+        <cesium-viewer
+            :showTerrain= showTerrain
+        >
             <entity-text
                 :url="textUrl"
                 :textStyle="style"
@@ -30,7 +32,8 @@ export default {
     data() {
         return {
             textUrl: "data/textPoint.geojson",
-            style: {}
+            style: {},
+            showTerrain: true
         };
     },
     mounted() {

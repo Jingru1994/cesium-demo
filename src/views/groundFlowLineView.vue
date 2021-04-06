@@ -6,7 +6,9 @@
             <el-button @click="removeFlowLines" :disabled="!isRoadExist">移除</el-button>
             <el-button @click="addFlowLines" :disabled="isRoadExist">添加</el-button>
         </div>
-        <cesium-viewer>
+        <cesium-viewer
+            :showTerrain= showTerrain
+        >
             <flow-line
                 :url = dataUrl
                 :options = roadOptions
@@ -47,10 +49,12 @@ export default {
         return {
             dataUrl: "data/road_osm.geojson",
             roadOptions: {
-                width: 3
+                width: 3,
+                clampToGround: true
             },
             isRoadExist: false,
-            isRoadShow: false
+            isRoadShow: false,
+            showTerrain: true
         };
     },
     mounted() {
@@ -69,12 +73,12 @@ export default {
         //     setFlowlinesShow: "SET_FLOWLINESSHOW",
         // }),
         initCamera(){
-            let cartesianPosition = new Cartesian3(-1237489.601700552, 5048736.751675961, 3764055.1159114563);
+            let cartesianPosition = new Cartesian3(-1245797.8821957898, 5023460.017435593, 3727492.405743069);
             this.viewer.camera.setView({
                 destination : cartesianPosition,
                 orientation: {
-                    heading : 0.0, // east, default value is 0.0 (north)
-                    pitch : CesiumMath.toRadians(-90.0),    // default value (looking down)
+                    heading : CesiumMath.toRadians(323.43), // east, default value is 0.0 (north)
+                    pitch : CesiumMath.toRadians(-20.23),    // default value (looking down)
                     roll : 0.0  // default value
                 }
             });

@@ -1,6 +1,9 @@
 import Primitive from 'cesium/Scene/Primitive.js'
+// import GroundPrimitive from 'cesium/Scene/GroundPrimitive.js'
+import GroundPolylinePrimitive from 'cesium/Scene/GroundPolylinePrimitive.js'
 import GeometryInstance from 'cesium/Core/GeometryInstance.js'
 import PolylineGeometry from 'cesium/Core/PolylineGeometry.js'
+import GroundPolylineGeometry from 'cesium/Core/GroundPolylineGeometry.js'
 import PolylineMaterialAppearance from 'cesium/Scene/PolylineMaterialAppearance.js'
 import Material from 'cesium/Scene/Material.js'
 import Color from 'cesium/Core/Color.js'
@@ -13,17 +16,37 @@ class FlowLinePrimitive {
         this._positions = this._options.positions
         this._width = this._options.width
         this._style = this._options.style
-        let polyline = new PolylineGeometry({
-            positions: this._positions,
-            width: this._width
-        })
-        this._primitive = new Primitive({
-            geometryInstances: new GeometryInstance({
-                geometry: polyline
+        this._clampToGround = this._options.clampToGround
+        if(this._clampToGround) {
+            let polyline = new GroundPolylineGeometry({
+                positions: this._positions,
+                width: this._width
             })
-        })
+            this._primitive = new GroundPolylinePrimitive({
+                geometryInstances: new GeometryInstance({
+                    geometry: polyline
+                })
+            })
+        }else {
+            let polyline = new PolylineGeometry({
+                positions: this._positions,
+                width: this._width
+            })
+            this._primitive = new Primitive({
+                geometryInstances: new GeometryInstance({
+                    geometry: polyline
+                })
+            })
+        }
+        
+        // this._primitive = new Primitive({
+        //     geometryInstances: new GeometryInstance({
+        //         geometry: polyline
+        //     })
+        // })
+    
         this._setAppearance()
-        this.add()
+        this._add()
   }
 
     set show(show) {
@@ -58,18 +81,14 @@ class FlowLinePrimitive {
         })
     }
 
-    add() {
-        this._primitive.geometryInstances.geometry = new PolylineGeometry({
-            positions: this._positions,
-            width: this._width
-        })
+    _add() {
         this._style.classificationType &&
             (this._primitive.classificationType = this._style.classificationType)
         this._setAppearance()
-        this._primitive.geometryInstances.geometry = new PolylineGeometry({
-            positions: this._positions,
-            width: this._width
-        })
+        // this._primitive.geometryInstances.geometry = new PolylineGeometry({
+        //     positions: this._positions,
+        //     width: this._width
+        // })
         this._primitiveCollection.add(this._primitive)
     }
     remove() {

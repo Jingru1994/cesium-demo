@@ -16,17 +16,17 @@
 import * as Cesium from "cesium/Cesium.js"
 import widget from "cesium/Widgets/widgets.css";
 
-import SkyBoxOnGround from '@/utils/widgets/skyBox/SkyBoxOnGround.js';
-
-
 export default {
     name: "cesiumViewer",
-    // props: {
-    //     options: {
-    //         type: Object
-    //     },
+    props: {
+        options: {
+            type: Object
+        },
+        showTerrain: {
+            type: Boolean
+        }
 
-    // },
+    },
     data() {
         return {
         };
@@ -47,7 +47,7 @@ export default {
                 // url:'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
             }); 
             // let googleImageryProvider = new Cesium.UrlTemplateImageryProvider({
-            //     url: 'http://192.168.40.26/file/satellite/{z}/{x}/{y}/img.jpg'
+            //     url: 'http://42.159.85.55/googleImage/satellite/{z}/{x}/{y}/img.jpg'
             // });
             // let clock = new Cesium.Clock({
             //     startTime: Cesium.JulianDate.fromIso8601("2013-12-25"),
@@ -68,7 +68,7 @@ export default {
                 baseLayerPicker: true, // 底图切换控件
                 imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
-                // terrainProvider: Cesium.createWorldTerrain(),
+                // terrainProvider: new Cesium.EllipsoidTerrainProvider(),
                 // infoBox: false,
                 selectionIndicator: false,//去除原生自带绿色选择框
                 // skyAtmosphere: false,
@@ -76,8 +76,10 @@ export default {
             
             };
 
-            
-
+            viewerOption = Object.assign(viewerOption, this.options)
+            if(this.showTerrain) {
+                viewerOption.terrainProvider = new Cesium.createWorldTerrain()
+            }
             let viewer = new Cesium.Viewer("cesiumContainer", viewerOption);
             viewer._cesiumWidget._creditContainer.style.display = "none";// 隐藏版权
             viewer.scene.primitives.destroyPrimitives= false;//若不设置为false，移除primitives时会报错，停止渲染

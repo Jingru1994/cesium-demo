@@ -1,25 +1,24 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
-export default new Vuex.Store({
-  state: {
-    dialogVisible:false,
-    dataId:''
-  },
-  mutations: {
-    SETDIALOGVISIBLE: (state, dialogVisible) => {
-      state.dialogVisible = dialogVisible
-    },
-    SETDATAID: (state, dataId) => {
-      state.dataId = dataId
-    },
-  },
-  getters: {
-    dialogVisible: state => state.dialogVisible,
-    dataId: state => state.dataId
-  },
-  actions: {},
-  modules: {}
-});
+const modulesFiles = require.context('./modules', true, /\.js$/)
+
+// you do not need `import app from './modules/app'`
+// it will auto require all vuex module from modules file
+const modules = modulesFiles.keys().reduce((modules, modulePath) => {
+  // set './app.js' => 'app'
+    const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
+    const value = modulesFiles(modulePath)
+    modules[moduleName] = value.default
+    return modules
+}, {})
+
+const store = new Vuex.Store({
+    modules
+  // plugins: [createPersistedState()]
+})
+window.myStore = store
+export default store
+

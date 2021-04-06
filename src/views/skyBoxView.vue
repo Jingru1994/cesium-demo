@@ -5,7 +5,9 @@
             <el-radio v-model="selectedSkybox" label="dusk">黄昏</el-radio>
             <el-radio v-model="selectedSkybox" label="default">默认</el-radio>
         </div>
-        <cesium-viewer>
+        <cesium-viewer
+            :showTerrain= showTerrain
+        >
         </cesium-viewer>
         
     </div>
@@ -29,6 +31,7 @@ export default {
     data() {
         return {
             selectedSkybox: "default",
+            showTerrain: true
         };
     },
     mounted() {

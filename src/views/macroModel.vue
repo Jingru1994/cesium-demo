@@ -8,7 +8,9 @@
 -->
 <template>
     <div class="cesium-index">
-        <cesium-viewer>
+        <cesium-viewer
+            :showTerrain= showTerrain
+        >
             <macro-model
                 :url="macroUrl">
             </macro-model>
@@ -48,7 +50,8 @@ export default {
             macroUrl: "data/farm_macro.geojson",
             // macroUrl: "http://192.168.40.26/file/macro-farm/tileset.json",
             // macroUrl: "http://192.168.137.11/file/farm-entity7/tileset.json",
-            pointUrl: "data/macro_point.geojson"
+            pointUrl: "data/macro_point.geojson",
+            showTerrain: true
         };
     },
     computed: {
