@@ -24,15 +24,9 @@
 // const { mapMutations, mapGetters } = createNamespacedHelpers("flowLine");
 
 import Cartesian3 from 'cesium/Core/Cartesian3.js'
-import PrimitiveCollection from 'cesium/Scene/PrimitiveCollection.js'
 import CesiumMath from "cesium/Core/Math.js"
-import Color from 'cesium/Core/Color.js'
-import EllipsoidTerrainProvider from 'cesium/Core/EllipsoidTerrainProvider.js'
-
-import FlowLinePrimitive from "@/utils/widgets/FlowLine/FlowLinePrimitive.js"
 
 import {findComponentDownward} from "@/utils/assist.js";
-import {getPublicData} from "@/api/requestData";
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
 import FlowLine from "@/components/flowLine.vue"
