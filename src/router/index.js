@@ -58,6 +58,12 @@ const routes = [
     name: "groundFlowLine",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/groundFlowLineView.vue")
+  },
+  {
+    path: "/dynamicWall",
+    name: "dynamicWall",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/dynamicWallView.vue")
   }
 ];
 

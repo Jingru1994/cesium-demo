@@ -6,8 +6,9 @@ import PolylineGeometry from 'cesium/Core/PolylineGeometry.js'
 import GroundPolylineGeometry from 'cesium/Core/GroundPolylineGeometry.js'
 import PolylineMaterialAppearance from 'cesium/Scene/PolylineMaterialAppearance.js'
 import Material from 'cesium/Scene/Material.js'
-import Color from 'cesium/Core/Color.js'
 import './PolylineFlowMaterial.js'
+import Color from 'cesium/Core/Color.js'
+
 
 class FlowLinePrimitive {
     constructor(primitiveCollection, options) {
@@ -38,14 +39,7 @@ class FlowLinePrimitive {
                 })
             })
         }
-        
-        // this._primitive = new Primitive({
-        //     geometryInstances: new GeometryInstance({
-        //         geometry: polyline
-        //     })
-        // })
-    
-        this._setAppearance()
+
         this._add()
   }
 

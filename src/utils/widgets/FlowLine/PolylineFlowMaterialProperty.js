@@ -1,6 +1,7 @@
 import Property from 'cesium/DataSources/Property.js'
 import createPropertyDescriptor from 'cesium/DataSources/createPropertyDescriptor.js'
 import Event from 'cesium/Core/Event.js'
+import Material from 'cesium/Scene/Material.js'
 
 class PolylineFlowMaterialProperty{
     constructor(options = {}) {
@@ -32,7 +33,7 @@ class PolylineFlowMaterialProperty{
     }
 
     getType(time) {
-        return 'PolylineFlow'
+        return Material.PolylineFlowType
     }
 
     getValue(time, result) {
