@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-02-24 17:06:52
- * @LastEditTime: 2021-02-24 18:26:29
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \cesium-demo\src\utils\shader.js
- */
 
 const shader = {
     glowShader1: `

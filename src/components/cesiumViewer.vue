@@ -97,7 +97,7 @@ export default {
             // viewer.terrainShadows = Cesium.ShadowMode.DISABLED;//地形的阴影，开启后地形闪烁效果不好
             // viewer.shadowMap.softShadows = true;
 
-            // viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
+            viewer.scene.globe.depthTestAgainstTerrain = true;// depth test against terrain is required to make the polygons clamp to terrain不设置立体entity无法贴地
 
             // 控制用户可以升高的高度
             // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 50;

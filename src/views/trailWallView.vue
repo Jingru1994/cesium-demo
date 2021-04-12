@@ -18,7 +18,9 @@ import CesiumMath from "cesium/Core/Math.js"
 import {findComponentDownward} from "@/utils/assist.js";
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
-import WallImageTrailMaterialProperty from '@/utils/widgets/ImageWall/WallImageTrailMaterialProperty.js'
+// import '@/utils/widgets/FlowLine/PolylineFlowMaterial.js'
+import Material from 'cesium/Scene/Material.js'
+import WallTrailMaterialProperty from '@/utils/widgets/TrailWall/WallTrailMaterialProperty.js'
 import Color from 'cesium/Core/Color.js'
 
 
@@ -38,7 +40,7 @@ export default {
     },
     methods: {
         initCamera(){
-            let cartesianPosition = new Cartesian3(-2178421.0378274065, 4389187.190167153, 4069972.630906615);
+            let cartesianPosition = new Cartesian3(-2179342.1178893023, 4390086.862318702, 4069355.119685325);
             this.viewer.camera.setView({
                 destination : cartesianPosition,
                 orientation: {
@@ -56,29 +58,12 @@ export default {
                 116.386174,39.920894,200,
 
             ];
-            let alp = 1;
-            let num = 0;
             let wall = new Entity({
                 wall: {
                     positions: Cartesian3.fromDegreesArrayHeights(positions),
-                    material: new WallImageTrailMaterialProperty({
-                        image:'picture/gradientColor.png',
-                        color: new CallbackProperty(function () {
-                            if ((num % 2) === 0){
-                                alp -=0.005;
-                            }else {
-                                alp +=0.005;
-                            }
-    
-                            if (alp <= 0.3){
-                                num++;
-                            }else if (alp >= 1){
-                                num++;
-                            }
-                            return  Color.fromBytes(255,254,152).withAlpha(alp)
-                        },false),
-                        repeat:{x:3,y:1},
-                        speed: 1
+                    material: new WallTrailMaterialProperty({
+                        color: Color.fromBytes(255,0,0),
+                        speed: 8
                     })
                 }
             })
@@ -87,7 +72,7 @@ export default {
             const that = this
             setTimeout(function(){
                 that.viewer.entities.add(wall)
-            },2000)
+            },1000)
             
 
         },

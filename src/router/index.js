@@ -64,6 +64,12 @@ const routes = [
     name: "dynamicWall",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/dynamicWallView.vue")
+  },
+  {
+    path: "/trailWall",
+    name: "trailWall",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/trailWallView.vue")
   }
 ];
 
