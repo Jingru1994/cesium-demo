@@ -71,6 +71,13 @@ const routes = [
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/trailWallView.vue")
   }
+  ,
+  {
+    path: "/translateModel",
+    name: "translateModel",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/translateModelView.vue")
+  }
 ];
 
 const router = new VueRouter({
