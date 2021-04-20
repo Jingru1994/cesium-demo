@@ -7,8 +7,6 @@ import Primitive from 'cesium/Scene/Primitive'
 import GeometryInstance from 'cesium/Core/GeometryInstance'
 import MaterialAppearance from 'cesium/Scene/MaterialAppearance'
 import Material from 'cesium/Scene/Material'
-import Matrix3 from 'cesium/Core/Matrix3'
-import Matrix4 from 'cesium/Core/Matrix4'
 
 class ArrowPolyline extends Axis {
 

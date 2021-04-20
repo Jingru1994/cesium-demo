@@ -7,7 +7,7 @@
                 :url="photogrammetryUrl"
                 @readyPromise="zoomToTiles"
             ></tileset-photogrammetry>
-            <tileset-monomer
+            <!-- <tileset-monomer
                 :url="monomerUrl"
                 :show="isMonomerShow"
             ></tileset-monomer>
@@ -15,7 +15,7 @@
                 :url="geojsonUrl"
                 :show="isGeojsonShow"
             >
-            </primitive-geojson>
+            </primitive-geojson> -->
             <entity-point
                 :url="pointUrl"
                 heightType="3dtiles"
