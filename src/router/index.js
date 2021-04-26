@@ -77,6 +77,12 @@ const routes = [
     name: "translateModel",
     component: () =>
     import(/* webpackChunkName: "detail" */ "@/views/translateModelView.vue")
+  },
+  {
+    path: "/threeModel",
+    name: "threeModel",
+    component: () =>
+    import(/* webpackChunkName: "detail" */ "@/views/threeModelView.vue")
   }
 ];
 

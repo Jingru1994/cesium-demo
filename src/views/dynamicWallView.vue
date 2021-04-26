@@ -23,7 +23,7 @@ import Color from 'cesium/Core/Color.js'
 
 
 export default {
-    name: "FlowLineView",
+    name: "DynamicWallView",
     components: {
         CesiumViewer
     },

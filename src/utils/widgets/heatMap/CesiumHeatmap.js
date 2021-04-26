@@ -6,7 +6,8 @@ import ImageMaterialProperty from "cesium/DataSources/ImageMaterialProperty.js";
 import CesiumMath from "cesium/Core/Math.js";
 import Cartesian3 from "cesium/Core/Cartesian3.js";
 import Cartographic from "cesium/Core/Cartographic.js";
-import h337 from "heatmap.js";
+// import h337 from "heatmap.js";
+const h337 = require('./heatmap.min.js');
 
 const DEF_OPTS = {
 	maxOpacity: 0.6, // the maximum opacity used if not given in the heatmap options object

@@ -25,7 +25,7 @@ import Color from 'cesium/Core/Color.js'
 
 
 export default {
-    name: "FlowLineView",
+    name: "TrailWallView",
     components: {
         CesiumViewer
     },

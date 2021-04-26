@@ -39,6 +39,10 @@
         "name": "trailWall",
         "label": "动态纹理墙（上下）",
         "suffix": "gif"
+      },
+      {
+        "name": "heatMap",
+        "label": "热力图"
       }
     ]
   },

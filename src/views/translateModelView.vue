@@ -24,7 +24,7 @@ import TranslationController from '@/utils/widgets/TranslateModel/TranslationCon
 
 
 export default {
-    name: "FlowLineView",
+    name: "TranslateModelView",
     components: {
         CesiumViewer
     },
