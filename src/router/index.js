@@ -15,13 +15,13 @@ const routes = [
     path: "/macroModel",
     name: "macroModel",
     component: () =>
-    import(/* webpackChunkName: "index" */ "@/views/macroModel.vue")
+    import(/* webpackChunkName: "macroModel" */ "@/views/macroModel.vue")
   },
   {
     path: "/detailModel",
     name: "detailModel",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/detailModel.vue")
+    import(/* webpackChunkName: "detailModel" */ "@/views/detailModel.vue")
   },
   {
     path: "/detail",
@@ -33,56 +33,62 @@ const routes = [
     path: "/pointText",
     name: "pointText",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/pointTextView.vue")
+    import(/* webpackChunkName: "pointText" */ "@/views/pointTextView.vue")
   },
   {
     path: "/customSkyBox",
     name: "customSkyBox",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/skyBoxView.vue")
+    import(/* webpackChunkName: "customSkyBox" */ "@/views/skyBoxView.vue")
   },
   {
     path: "/heatMap",
     name: "heatMap",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/heatMapView.vue")
+    import(/* webpackChunkName: "heatMap" */ "@/views/heatMapView.vue")
   },
   {
     path: "/flowLine",
     name: "flowLine",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/flowLineView.vue")
+    import(/* webpackChunkName: "flowLine" */ "@/views/flowLineView.vue")
   },
   {
     path: "/groundFlowLine",
     name: "groundFlowLine",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/groundFlowLineView.vue")
+    import(/* webpackChunkName: "groundFlowLine" */ "@/views/groundFlowLineView.vue")
   },
   {
     path: "/dynamicWall",
     name: "dynamicWall",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/dynamicWallView.vue")
+    import(/* webpackChunkName: "dynamicWall" */ "@/views/dynamicWallView.vue")
   },
   {
     path: "/trailWall",
     name: "trailWall",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/trailWallView.vue")
+    import(/* webpackChunkName: "trailWall" */ "@/views/trailWallView.vue")
   }
   ,
   {
     path: "/translateModel",
     name: "translateModel",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/translateModelView.vue")
+    import(/* webpackChunkName: "translateModel" */ "@/views/translateModelView.vue")
   },
   {
     path: "/threeModel",
     name: "threeModel",
     component: () =>
-    import(/* webpackChunkName: "detail" */ "@/views/threeModelView.vue")
+    import(/* webpackChunkName: "threeModel" */ "@/views/threeModelView.vue")
+  },
+  {
+    path: "/pickModel",
+    name: "pickModel",
+    component: () =>
+    import(/* webpackChunkName: "threeModel" */ "@/views/threePickView.vue")
   }
 ];
 

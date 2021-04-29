@@ -20,6 +20,7 @@
 </template>
 <script>
 import * as THREE from "three"
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 // import { DRACOLoader  } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
@@ -30,6 +31,8 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 // import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import { AnimationMixer } from 'three/src/animation/AnimationMixer'
+import { mergeUniforms } from 'three/src/renderers/shaders/UniformsUtils.js'
+import { UniformsLib } from 'three/src/renderers/shaders/UniformsLib.js'
 
 export default ({
     name: "ThreeModelView",
@@ -56,31 +59,34 @@ export default ({
                 '/model/compressor.glb',
                 '/model/vase-2.glb'
             ],
-            models: [],
-            yOffset: -40,
+            yOffset: -40.0,
             loadPercentage: 0,
             isActive: true,
             currentModel: ''
         }
     },
     created() {
+        this.models = []
         this.$nextTick(() => {
-            
         })
     },
     async mounted() {
         this.initScene()
+        this.addState()
         this.initControls()
         this.initLight()
         this.loadModels()
         this.animate()
-        // let s = this.loadGLTFModel('/model/vase-1.glb',loaded)
-        // s.then(function(m){
-        //     console.log('m1',m)
-        // })
         // this.loadFBXModel()
         
         
+    },
+    beforeDestroy() {
+        cancelAnimationFrame(this.animate)
+        this.renderer = null
+        this.scene = null
+        this.camera = null
+        this.models = null
     },
     watch: {
         currentIndex: {
@@ -97,7 +103,7 @@ export default ({
             const scene = new THREE.Scene()
             this.scene = scene
             scene.background = new THREE.Color(0xa0a0a0)
-            scene.fog = new THREE.Fog( '#04613b', 200, 450 );
+            scene.fog = new THREE.Fog( '#04613b', 300, 500);
             const canvas = document.querySelector('#three')
             const renderer = new THREE.WebGLRenderer({canvas,antialias: true})
             this.renderer = renderer
@@ -108,8 +114,8 @@ export default ({
             camera.position.set(0, 0, 150)//camera默认放在中心点(0,0,0)，挪一下位置
 
             // 避免模型很模糊的现象
-            let width = window.innerWidth
-            let height = window.innerHeight
+            let width = window.innerWidth;
+            let height = window.innerHeight;
             let canvasPixelWidth = canvas.width / window.devicePixelRatio
             let canvasPixelHeight = canvas.height / window.devicePixelRatio
             const needResize = canvasPixelWidth !== width || canvasPixelHeight !== height
@@ -127,7 +133,13 @@ export default ({
                 map: texture
             })
             this.addGround()
-            this.addCircle()
+            this.addCircle()         
+        },
+        addState(){
+            let state = new Stats()
+            this.state = state
+            const container = document.querySelector('.three-view');
+            container.appendChild(state.dom)
             
         },
         addCircle() {
@@ -146,51 +158,242 @@ export default ({
             circle.material.transparent = true
             this.scene.add(circle)
             circle.rotation.x = - Math.PI / 2
-            circle.position.y = this.yOffset
+            circle.position.y = this.yOffset + 2
         },
         addGround() {
-            const grid = new THREE.GridHelper( 2000, 100, '#0bcf9d', '#0bcf9d' );
+            const grid = new THREE.GridHelper( 1000, 100, '#0bcf9d', '#0bcf9d' );
             grid.material.opacity = 0.2;
             grid.material.transparent = true;
             grid.position.y = this.yOffset
             this.scene.add( grid );
 
             // ground
-            // const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 500 ), new THREE.MeshPhongMaterial( { color: '#07b887', depthWrite: false } ) );
-            // mesh.material = new THREE.ShaderMaterial({
-            //     uniforms: {
-            //         color1: {
-            //         value: new THREE.Color("red")
-            //         },
-            //         color2: {
-            //         value: new THREE.Color("purple")
-            //         }
-            //     },
-            //     vertexShader: `
-            //         varying vec2 vUv;
-
-            //         void main() {
-            //         vUv = uv;
-            //         gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-            //         }
-            //     `,
-            //     fragmentShader: `
-            //         uniform vec3 color1;
-            //         uniform vec3 color2;
+            const ground = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshPhongMaterial( { color: '#045B3A', depthWrite: false } ) );
+            ground.rotation.x = - Math.PI / 2
+            ground.position.y = this.yOffset
+            
+            //自定义材质-渐变色，但是没有阴影
+            let groundMaterial = new THREE.ShaderMaterial({
+                // fog: true,//是否受全局雾化影响
+                // lights: true,
+                uniforms: {
+                    color1: {
+                        value: new THREE.Color("#046A3B")
+                    },
+                    color2: {
+                        value: new THREE.Color("#022A29")
+                    }
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    void main() {
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 color1;
+                    uniform vec3 color2;
                 
-            //         varying vec2 vUv;
+                    varying vec2 vUv;
                     
-            //         void main() {
+                    void main() {
+                        gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+                    }
+                `,
+                // wireframe: true
+            })
+            //渐变颜色有阴影，不受fog影响
+            //THREE.ShaderChunk three内置着色器片段
+            let groundMaterial2 = new THREE.ShaderMaterial({
+                // fog: true,
+                lights: true,
+                uniforms: THREE.UniformsUtils.merge([
+                    THREE.UniformsLib["lights"],
+                    {
+                        opacity: { type: "f", value: 1.0 }
+                    },
+                    {
+                        color1: {value: new THREE.Color("#046A3B")}
+                    },
+                    {
+                        color2: {value: new THREE.Color("#022A29")}
+                    },
+                    {
+                        shadowPower: {value: 0.5}
+                    }
+
+                ]),
+                vertexShader: [
+                    "varying vec2 vUv;",
+                    THREE.ShaderChunk["common"],
+                    // THREE.ShaderChunk[ "packing" ],
+                    THREE.ShaderChunk["bsdfs"],
+                    THREE.ShaderChunk["shadowmap_pars_vertex"],
+                    "void main() {",
+                    "vUv = uv;",
+                        THREE.ShaderChunk["beginnormal_vertex"],
+                        THREE.ShaderChunk["defaultnormal_vertex"],
+
+                        THREE.ShaderChunk["begin_vertex"],
+                        THREE.ShaderChunk["project_vertex"],
+                        THREE.ShaderChunk["worldpos_vertex"],
+                        THREE.ShaderChunk["shadowmap_vertex"],
+                    "}"
+                ].join("\n"),
+                fragmentShader: [
+                    THREE.ShaderChunk["common"],
+                    THREE.ShaderChunk["packing"],
+                    THREE.ShaderChunk["bsdfs"],
+                    THREE.ShaderChunk["lights_pars_begin"],
+                    THREE.ShaderChunk["shadowmap_pars_fragment"],
+                    THREE.ShaderChunk["shadowmask_pars_fragment"],
+                    "uniform float opacity;",
+                    "uniform vec3 color1;",
+                    "uniform vec3 color2;",
+                    "uniform float shadowPower;",
+                    "varying vec2 vUv;",
+                    "void main() {",
+                    // mix(x,y,a) 返回x和y的线性混合，即x*(1-a)+y*a  vec3
+                    // "   gl_FragColor = vec4(mix(color1, color2, vUv.y)*getShadowMask(), 1.0);",//纯黑色阴影
+                    "   gl_FragColor = vec4(mix(color1, color2, vUv.y)*(getShadowMask()==0.0?shadowPower:1.0), 1.0);",//与背景色融合的阴影,shadowPower调节阴影黑度
+                    // "   gl_FragColor = vec4(mix(color1, color2, (1 - getShadowMask())*shadowPower), 1.0);",//与背景色融合的阴影，但不是渐变色了，color1板的颜色，color2阴影颜色
+                    // "	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);",
+                    // "	vec3 col = vec3(1.0, 1.0, 0.5) * getShadowMask();",
+                    // "	gl_FragColor = ambient + vec4(col, opacity);",
+                    "}"
+                ].join("\n"),
+                lights: true
+            });
+
+            //渐变颜色有阴影，且受fog影响
+            let groundMaterial3 = new THREE.ShaderMaterial({
+                fog: true,
+                lights: true,
+                uniforms: THREE.UniformsUtils.merge([
+                    THREE.UniformsLib["lights"],
+                    {
+                        opacity: { type: "f", value: 1.0 }
+                    },
+                    {
+                        color1: {value: new THREE.Color("#046A3B")}
+                    },
+                    {
+                        color2: {value: new THREE.Color("#022A29")}
+                    },
+                    {
+                        shadowPower: {value: 0.5}
+                    },
+                    {
+                        fogColor: { type: "c", value: this.scene.fog.color }
+                    },
+                    {
+                        fogNear: { type: "f", value: this.scene.fog.near }
+                    },
+                    {
+                        fogFar: { type: "f", value: this.scene.fog.far }
+                    },
+
+                ]),
+                vertexShader: [
+                    "varying vec2 vUv;",
+                    "varying vec3 vPosition;",
+                    THREE.ShaderChunk["common"],
+                    // THREE.ShaderChunk[ "packing" ],
+                    THREE.ShaderChunk["bsdfs"],
+                    THREE.ShaderChunk["shadowmap_pars_vertex"],
+                    "void main() {",
+                    "   vUv = uv;",
+                    "   vPosition = position;",
+                        THREE.ShaderChunk["beginnormal_vertex"],
+                        THREE.ShaderChunk["defaultnormal_vertex"],
+                        THREE.ShaderChunk["begin_vertex"],
+                        THREE.ShaderChunk["project_vertex"],
+                        THREE.ShaderChunk["worldpos_vertex"],
+                        THREE.ShaderChunk["shadowmap_vertex"],
+                    "}"
+                ].join("\n"),
+                fragmentShader: [
+                    THREE.ShaderChunk["common"],
+                    THREE.ShaderChunk["packing"],
+                    THREE.ShaderChunk["bsdfs"],
+                    THREE.ShaderChunk["lights_pars_begin"],
+                    THREE.ShaderChunk["shadowmap_pars_fragment"],
+                    THREE.ShaderChunk["shadowmask_pars_fragment"],
+                    "uniform float opacity;",
+                    "uniform vec3 color1;",
+                    "uniform vec3 color2;",
+                    "uniform float shadowPower;",
+                    "varying vec2 vUv;",
+                    "uniform vec3 fogColor;",
+                    "uniform float fogNear;",
+                    "uniform float fogFar;",
+                    "void main() {",
+                    "   gl_FragColor = vec4(mix(color1, color2, vUv.y)*(getShadowMask()==0.0?shadowPower:1.0), 1.0);",
+                    "   #ifdef USE_FOG",
+                    "       #ifdef USE_LOGDEPTHBUF_EXT",
+                    "           float depth = gl_FragDepthEXT / gl_FragCoord.w;",
+                    "       #else",
+                    "           float depth = gl_FragCoord.z / gl_FragCoord.w;",
+                    "       #endif",
+                    //smoothstep(edge1,edge2,x)输出0至1平滑函数
+                    "       float fogFactor = smoothstep( fogNear, fogFar, depth );",
+                    "       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor);",
+                    "   #endif",
+                    "}"
+                ].join("\n")
+            });
+
+            //具有阴影的材质，报错，不能用，大概是较低版本的thrre
+            //与可用的阴影相似，但是引用three内置shader的方式明显不同
+            let groundMaterial1 = new THREE.ShaderMaterial({
+                fog: true,//是否受全局雾化影响
+                lights: true,
+                uniforms: mergeUniforms([
+                    UniformsLib.lights,
+                    UniformsLib.fog,
+                ]),
+                vertexShader: `
+                    #include <common>
+                    #include <fog_pars_vertex>
+                    #include <shadowmap_pars_vertex>
+                    void main() {
+                    #include <begin_vertex>
+                    #include <project_vertex>
+                    #include <worldpos_vertex>
+                    #include <shadowmap_vertex>
+                    #include <fog_vertex>
+                    }
+                `,
+
+                fragmentShader: `
+                    #include <common>
+                    #include <packing>
+                    #include <fog_pars_fragment>
+                    #include <bsdfs>
+                    #include <lights_pars_begin>
+                    #include <shadowmap_pars_fragment>
+                    #include <shadowmask_pars_fragment>
+                    #include <dithering_pars_fragment>
+                    void main() {
+                    // CHANGE THAT TO YOUR NEEDS
+                    // ------------------------------
+                    vec3 finalColor = vec3(0, 0.75, 0);
+                    vec3 shadowColor = vec3(0, 0, 0);
+                    float shadowPower = 0.5;
+                    // ------------------------------
                     
-            //         gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-            //         }
-            //     `,
-            //     wireframe: true
-            // });
-            // mesh.rotation.x = - Math.PI / 2;
-            // mesh.receiveShadow = true;
-            // mesh.position.y = -50
-            // this.scene.add( mesh );
+                    // it just mixes the shadow color with the frag color
+                    gl_FragColor = vec4( mix(finalColor, shadowColor, (1.0 - getShadowMask() ) * shadowPower), 1.0);
+                    #include <fog_fragment>
+                    #include <dithering_fragment>
+                    }
+                `
+                // wireframe: true
+            });
+            ground.receiveShadow = true;
+            ground.material = groundMaterial3
+            this.scene.add(ground)
         },
         initControls() {
             const controls = new OrbitControls(this.camera, this.renderer.domElement)
@@ -206,21 +409,10 @@ export default ({
             // trackballControls.panSpeed = 10.0;
         },
         initLight() {
-            //方向光
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6)
-            //光源位置
-            dirLight.position.set(100, 100, 100)
-            //可以产生阴影
-            dirLight.castShadow = true
-            dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024)
-            this.scene.add(dirLight)
-            //显示灯光方向
-            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            this.scene.add(debugCamera1)
-            //显示阴影
-            // debugCamera = new THREE.CameraHelper(dirLight.shadow.camera)
-            // this.scene.add(debugCamera)
-            
+            this.initAmbientLight()
+            this.initDirectionalLight()
+        },
+        initAmbientLight() {
             //环境光
             const ambientLight = new THREE.AmbientLight("#ffffff");
             this.scene.add(ambientLight)
@@ -229,10 +421,37 @@ export default ({
             // const hemLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6)
             // hemLight.position.set(200, 100, 200)
             // this.scene.add(hemLight)
-            
+        },
+        initDirectionalLight() {
+            //方向光
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.3)
+            //光源位置
+            dirLight.position.set(100, 100, 100)
+            //可以产生阴影
+            dirLight.castShadow = true
+            dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024)
+            // let target = new THREE.Object3D()
+            // target.position.set(0.0,this.yOffset,0.0)
+            dirLight.target = this.circle
+            console.log(dirLight.target)
+            dirLight.shadow.camera.near = 100
+            dirLight.shadow.camera.far = 300
+            dirLight.shadow.camera.left = -40
+            dirLight.shadow.camera.right = 40
+            dirLight.shadow.camera.top = 40
+            dirLight.shadow.camera.bottom = -50
+            // dirLight.target.position.set(0,this.yOffset,0)
+            this.scene.add(dirLight)
+            //显示灯光方向
+            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            // this.scene.add(debugCamera1)
+            //显示阴影
+            const debugCamera = new THREE.CameraHelper(dirLight.shadow.camera)
+            this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
             this.controls.update()
+            // trackballControls.update(clock.getDelta());
             
             if(this.models.length === this.modelUrls.length){
                 this.speed += 0.01
@@ -242,7 +461,7 @@ export default ({
             }
             this.circle.rotation.z += 0.02
             this.renderer.render(this.scene,this.camera)
-            // trackballControls.update(clock.getDelta());
+            this.state.update()
             requestAnimationFrame(this.animate)
         },
         resizeRendererToDisplaySize(renderer) {
@@ -301,7 +520,7 @@ export default ({
                             //让模型等每个部分都能产生阴影
                             if (o.isMesh) {
                                 o.castShadow = true
-                                o.receiveShadow = true
+                                // o.receiveShadow = true
                             }
                         })
                         this.scene.add(model)
