@@ -1,0 +1,63 @@
+[
+  {
+    "name": "model",
+    "label": "模型",
+    "examples": [
+      {
+        "name": "detailModel",
+        "label": "摄影测量模型"
+      },
+      {
+        "name": "translateModel",
+        "label": "模型编辑"
+      }
+    ]
+  },
+  {
+    "name": "feature",
+    "label": "要素",
+    "examples": [
+      {
+        "name": "pointText",
+        "label": "悬浮文字"
+      },
+      {
+        "name": "flowLine",
+        "label": "流动线",
+        "suffix": "gif"
+      },
+      {
+        "name": "groundFlowLine",
+        "label": "流动线贴地"
+      },
+      {
+        "name": "dynamicWall",
+        "label": "动态纹理墙",
+        "suffix": "gif"
+      },
+      {
+        "name": "trailWall",
+        "label": "动态纹理墙（上下）",
+        "suffix": "gif"
+      },
+      {
+        "name": "heatMap",
+        "label": "热力图"
+      }
+    ]
+  },
+  {
+    "name": "scene",
+    "label": "场景",
+    "examples": [
+      {
+        "name": "customSkyBox",
+        "label": "自定义天空盒"
+      },
+      {
+        "name": "macroModel",
+        "label": "场景跳转"
+      }
+    ]
+  }
+]

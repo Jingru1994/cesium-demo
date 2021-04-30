@@ -152,7 +152,7 @@ export default ({
 
             let outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth,window.innerWidth),this.scene,this.camera)
             outlinePass.visibleEdgeColor.set('#FF0000')
-            outlinePass.hiddenEdgeColor.set('#FF0000')
+            outlinePass.hiddenEdgeColor.set('#1C0000')
             outlinePass.edgeStrength =  3
             outlinePass.edgeGolw = 1.5
             outlinePass.edgeThickness = 1
@@ -178,15 +178,15 @@ export default ({
                 raycaster.setFromCamera(mouse,that.camera)
                 const intersects = raycaster.intersectObject(that.scene,true)
                 if(intersects.length > 0 && !(intersects[0].object instanceof THREE.GridHelper) && intersects[0].object.name !== 'ground') {
-                    console.log(intersects[0].object)
-                    console.log(!that.selectedObject)
                     if(!that.selectedObject || that.selectedObject !== intersects[0].object) {
                         that.selectedObject = intersects[0].object
+                        console.log(that.selectedObject)
                         selectedObjects = [];
                         selectedObjects.push(that.selectedObject);
                         outlinePass.selectedObjects = selectedObjects
                     }
                 }else {
+                    that.selectedObject = null
                     outlinePass.selectedObjects = []
                 }
             }

@@ -29,6 +29,7 @@ export default ({
     },
     created() {
         this.models = []
+        this.selectedObject = null
         this.$nextTick(() => {
         })
     },
@@ -177,27 +178,44 @@ export default ({
                 raycaster.setFromCamera(mouse,that.camera)
                 const intersects = raycaster.intersectObject(that.scene,true)
                 if(intersects.length > 0 && !(intersects[0].object instanceof THREE.GridHelper) && intersects[0].object.name !== 'ground') {
-                    const selectedObject = intersects[0].object
-                    console.log(selectedObject)
-                    selectedObjects = [];
-					selectedObjects.push(selectedObject);
-                    outlinePass.selectedObjects = selectedObjects
+                    if(that.selectedObject && that.selectedObject !== intersects[0].object) {
+                        that.selectedObject.material.emissive.set(that.selectedObject.currentHex)
+                    }
+                    if(!that.selectedObject || that.selectedObject !== intersects[0].object) {
+                        that.selectedObject = intersects[0].object
+                        console.log(that.selectedObject)
+                        that.selectedObject.currentHex = that.selectedObject.material.emissive.getStyle()
+                        console.log(that.selectedObject.currentHex)
+                        that.selectedObject.material.emissive.set("#FF3336")
+                    }
                 }else {
-                    outlinePass.selectedObjects = []
+                    if(that.selectedObject) {
+                        console.log(that.selectedObject.currentHex)
+                        that.selectedObject.material.emissive.set(that.selectedObject.currentHex)
+                    }
+                    that.selectedObject = null
                 }
             }
         },
         async loadModels() {
             for(let i = 0; i < this.modelUrls.length; i++) {
-                  let model = await this.loadGLTFModel(this.modelUrls[i])
-                  this.models.push(model)
-                  console.log(model)
-                  if(i === 0){
-                        model.position.x = -50
-                  }else if(i === 2){
-                        model.position.x = 50
-                  }
-                  this.scene.add(model)
+                let model = await this.loadGLTFModel(this.modelUrls[i])
+                this.models.push(model)
+                console.log(model)
+                if(i === 0){
+                    model.position.x = -50
+                }else if(i === 2){
+                    model.position.x = 50
+                }
+                // let materialCount = model.children.length
+                // let materialList = []
+                // model.traverse((o)=>{
+                //     if(o.material) {
+                //         materialList.push(o.material)
+                //     }
+                // })
+
+                this.scene.add(model)
             }
             
         },

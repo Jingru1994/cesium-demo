@@ -1,20 +1,17 @@
-<!--
- * @Author: your name
- * @Date: 2021-03-21 09:57:17
- * @LastEditTime: 2021-03-21 10:53:16
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \cesium-demo\src\views\index.vue
--->
 <template>
     <div class="demo-index">
-        <div class="header">Cesium Demo</div>
+        <div class="header">3D Demo</div>
         <div class="container">
             <el-row class="total-container">
                 <el-col class="menu-container">
+                    <sider-bar
+                        :menu-data="examplesData"
+                        default-active="model"
+                        @on-menu-select="selectMenuHandler">
+                    </sider-bar>
 
                 </el-col>
-                <el-col class="example-container">
+                <el-col class="example-container" >
                     <example-list :examples-data="examplesData"></example-list>
                 </el-col>
 
@@ -25,10 +22,12 @@
 
 <script>
 import ExampleList from '@/components/Index/ExampleList.vue'
+import SiderBar from '@/components/SiderBar/index.vue'
 import {getPublicData} from "@/api/requestData.js";
 export default {
     components: {
-        ExampleList
+        ExampleList,
+        SiderBar
     },
     data() {
         return {
@@ -36,6 +35,16 @@ export default {
         }
     },
     methods: {
+    selectMenuHandler(value) {
+        console.log(value)
+      if (value) {
+        let el = document.getElementById('nav-' + value)
+        console.log(el)
+        if (el) {
+            document.querySelector('.example-container').scrollTop = el.offsetTop - 15
+        }
+      }
+    },
         async getExamplesData() {
             let data = await getPublicData('config/examples.json');
             this.examplesData = data;
@@ -44,6 +53,7 @@ export default {
     mounted() {
         this.$nextTick(() => {
             this.getExamplesData()
+             console.log(document.querySelector('.example-container').scrollTop)
         })
   }
 }
@@ -87,7 +97,7 @@ p {
         .example-container {
             padding: 30px;
             height: 100%;
-            overflow-y: scroll;
+            overflow-y: auto;
         }
         @media only screen and (max-width: 1199px){
             .menu-container {

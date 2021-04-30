@@ -89,6 +89,12 @@ const routes = [
     name: "pickModel",
     component: () =>
     import(/* webpackChunkName: "threeModel" */ "@/views/threePickView.vue")
+  },
+  {
+    path: "/pickModel1",
+    name: "pickModel1",
+    component: () =>
+    import(/* webpackChunkName: "threeModel" */ "@/views/threePickView1.vue")
   }
 ];
 
