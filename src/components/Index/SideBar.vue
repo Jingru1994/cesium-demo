@@ -1,5 +1,5 @@
 <template>
-    <div class="sider-bar">
+    <div class="side-bar">
         <el-menu
             :default-active="defaultActive"
             unique-opened
@@ -42,7 +42,7 @@
 </template>
 <script>
 export default {
-    name: 'SiderBar',
+    name: 'SideBar',
     props: {
         defaultActive: {
             type: String,
@@ -67,7 +67,7 @@ export default {
 }
 </script>
 <style lang="scss">
-.sider-bar {
+.side-bar {
     width: 100%;
     height: 100%;
     .el-menu {

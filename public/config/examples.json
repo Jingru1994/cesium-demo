@@ -73,12 +73,16 @@
     "label": "Three示例",
     "examples": [
       {
-        "name": "customSkyBox",
-        "label": "自定义天空盒"
+        "name": "threeModel",
+        "label": "模型加载显示"
       },
       {
-        "name": "macroModel",
-        "label": "场景跳转"
+        "name": "pickModel",
+        "label": "模型拾取1"
+      },
+      {
+        "name": "pickModel1",
+        "label": "模型拾取2"
       }
     ]
   }

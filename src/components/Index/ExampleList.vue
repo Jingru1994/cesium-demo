@@ -93,6 +93,15 @@ export default {
   .el-divider {
     background-color: #1c6ab3 !important;
   }
+  .example-label {
+        text-align: left;
+    }
+    .child-name {
+        text-align: left;
+    }
+    .el-submenu__title {
+        text-align: left;
+    }
 }
 @media (max-width: 768px) {
   .example-list {

@@ -4,11 +4,11 @@
         <div class="container">
             <el-row class="total-container">
                 <el-col class="menu-container">
-                    <sider-bar
+                    <side-bar
                         :menu-data="examplesData"
                         default-active="model"
                         @on-menu-select="selectMenuHandler">
-                    </sider-bar>
+                    </side-bar>
 
                 </el-col>
                 <el-col class="example-container" >
@@ -22,12 +22,12 @@
 
 <script>
 import ExampleList from '@/components/Index/ExampleList.vue'
-import SiderBar from '@/components/SiderBar/index.vue'
+import SideBar from '@/components/Index/SideBar.vue'
 import {getPublicData} from "@/api/requestData.js";
 export default {
     components: {
         ExampleList,
-        SiderBar
+        SideBar
     },
     data() {
         return {
