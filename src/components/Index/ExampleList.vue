@@ -37,22 +37,22 @@
                                 v-if="child.examples && child.examples.length > 0"
                             >
                                 <el-card
-                                v-for="example in child.examples"
-                                :key="example.name"
-                                class="card"
-                                shadow="hover"
-                                :body-style="{ padding: '0px' }"
-                                @click="gotoExample(example)"
-                                >
-                                <img
-                                    :src="getImgPath(item.name, example)"
+                                    v-for="example in child.examples"
+                                    :key="example.name"
+                                    class="card"
+                                    shadow="hover"
+                                    :body-style="{ padding: '0px' }"
                                     @click="gotoExample(example)"
-                                    alt="example"
-                                />
-                                <p>
-                                    {{ example.label
-                                    }}
-                                </p>
+                                >
+                                    <img
+                                        :src="getImgPath(item.name, example)"
+                                        @click="gotoExample(example)"
+                                        alt="example"
+                                    />
+                                    <p>
+                                        {{ example.label
+                                        }}
+                                    </p>
                                 </el-card>
                             </div>
                         </div>
