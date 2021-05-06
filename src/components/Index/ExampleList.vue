@@ -29,32 +29,32 @@
                 <div v-if="item.children && item.children.length > 0">
                     <template v-for="child in item.children">
                         <div :key="child.name">
-                        <p class="child-name" :id="'nav-' + child.name">
-                            {{ child.label }}
-                        </p>
-                        <div
-                            class="card-list"
-                            v-if="child.examples && child.examples.length > 0"
-                        >
-                            <el-card
-                            v-for="example in child.examples"
-                            :key="example.name"
-                            class="card"
-                            shadow="hover"
-                            :body-style="{ padding: '0px' }"
-                            @click="gotoExample(example)"
-                            >
-                            <img
-                                :src="getImgPath(item.name, example)"
-                                @click="gotoExample(example)"
-                                alt="example"
-                            />
-                            <p>
-                                {{ example.label
-                                }}
+                            <p class="child-name" :id="'nav-' + child.name">
+                                {{ child.label }}
                             </p>
-                            </el-card>
-                        </div>
+                            <div
+                                class="card-list"
+                                v-if="child.examples && child.examples.length > 0"
+                            >
+                                <el-card
+                                v-for="example in child.examples"
+                                :key="example.name"
+                                class="card"
+                                shadow="hover"
+                                :body-style="{ padding: '0px' }"
+                                @click="gotoExample(example)"
+                                >
+                                <img
+                                    :src="getImgPath(item.name, example)"
+                                    @click="gotoExample(example)"
+                                    alt="example"
+                                />
+                                <p>
+                                    {{ example.label
+                                    }}
+                                </p>
+                                </el-card>
+                            </div>
                         </div>
                     </template>
                 </div>
