@@ -36,10 +36,8 @@ export default {
     },
     methods: {
     selectMenuHandler(value) {
-        console.log(value)
       if (value) {
         let el = document.getElementById('nav-' + value)
-        console.log(el)
         if (el) {
             document.querySelector('.example-container').scrollTop = el.offsetTop - 15
         }
@@ -53,7 +51,6 @@ export default {
     mounted() {
         this.$nextTick(() => {
             this.getExamplesData()
-             console.log(document.querySelector('.example-container').scrollTop)
         })
   }
 }
