@@ -78,7 +78,7 @@ export default {
   methods: {
     getImgPath(folder, info) {
       console.log(folder,info)
-      return `examples/images/${folder}/${info.name}.${info.suffix || 'png'}`
+      return `images/examples/${folder}/${info.name}.${info.suffix || 'png'}`
     },
     gotoEditor(name, example) {
       this.$router.push(example)

@@ -36,12 +36,12 @@ class CustomSkyBox {
         // let prefix = process.env.BASE_URL;
         let sunnySkyBox = new SkyBoxOnGround({
             sources: {
-                positiveX: prefix+'picture/skybox/sunny/posx.png',
-                negativeX: prefix+'picture/skybox/sunny/negx.png',
-                positiveY: prefix+'picture/skybox/sunny/posy.png',
-                negativeY: prefix+'picture/skybox/sunny/negy.png',
-                positiveZ: prefix+'picture/skybox/sunny/posz.png',
-                negativeZ: prefix+'picture/skybox/sunny/negz.png'
+                positiveX: prefix+'images/skybox/sunny/posx.png',
+                negativeX: prefix+'images/skybox/sunny/negx.png',
+                positiveY: prefix+'images/skybox/sunny/posy.png',
+                negativeY: prefix+'images/skybox/sunny/negy.png',
+                positiveZ: prefix+'images/skybox/sunny/posz.png',
+                negativeZ: prefix+'images/skybox/sunny/negz.png'
 
             }
         });
@@ -57,12 +57,12 @@ class CustomSkyBox {
         // let prefix = process.env.BASE_URL;
         let duskSkyBox = new SkyBoxOnGround({
             sources: {
-                positiveX: prefix+'picture/skybox/dusk/posx.png',
-                negativeX: prefix+'picture/skybox/dusk/negx.png',
-                positiveY: prefix+'picture/skybox/dusk/posy.png',
-                negativeY: prefix+'picture/skybox/dusk/negy.png',
-                positiveZ: prefix+'picture/skybox/dusk/posz.png',
-                negativeZ: prefix+'picture/skybox/dusk/negz.png'
+                positiveX: prefix+'images/skybox/dusk/posx.png',
+                negativeX: prefix+'images/skybox/dusk/negx.png',
+                positiveY: prefix+'images/skybox/dusk/posy.png',
+                negativeY: prefix+'images/skybox/dusk/negy.png',
+                positiveZ: prefix+'images/skybox/dusk/posz.png',
+                negativeZ: prefix+'images/skybox/dusk/negz.png'
 
             }
         });

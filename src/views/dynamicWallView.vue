@@ -62,7 +62,7 @@ export default {
                 wall: {
                     positions: Cartesian3.fromDegreesArrayHeights(positions),
                     material: new WallImageTrailMaterialProperty({
-                        image:'picture/gradientColor.png',
+                        image:'images/gradientColor.png',
                         color: new CallbackProperty(function () {
                             if ((num % 2) === 0){
                                 alp -=0.005;

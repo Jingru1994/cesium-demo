@@ -126,7 +126,7 @@ export default ({
 
             // // 加载背景图片
             var textureLoader = new THREE.TextureLoader();
-            var texture = textureLoader.load('/picture/threeBackground.png');
+            var texture = textureLoader.load('/images/threeBackground.png');
             // 纹理对象Texture赋值给场景对象的背景属性.background
             scene.background = texture
             const material = new THREE.MeshBasicMaterial({
@@ -144,7 +144,7 @@ export default ({
         },
         addCircle() {
             let explosionTexture = new THREE.TextureLoader().load(
-                '/picture/circle.png'
+                '/images/circle.png'
             )
             explosionTexture.flipY = false
             const material = new THREE.MeshBasicMaterial({
