@@ -94,7 +94,13 @@ const routes = [
     path: "/pickModel1",
     name: "pickModel1",
     component: () =>
-    import(/* webpackChunkName: "threeModel" */ "@/views/threePickView1.vue")
+    import(/* webpackChunkName: "threeModel1" */ "@/views/threePickView1.vue")
+  },
+  {
+    path: "/3DMap",
+    name: "3DMap",
+    component: () =>
+    import(/* webpackChunkName: "threeModel1" */ "@/views/threeMap.vue")
   }
 ];
 

@@ -39,7 +39,7 @@ export default ({
         this.initControls()
         this.initLight()
         this.loadModels()
-        this.addOutlinePass()
+        this.addPickModel()
         this.animate()
         // this.loadFBXModel()
     },
@@ -118,8 +118,7 @@ export default ({
         animate() {//three需要动画循环函数，每一帧都执行这个函数
             this.controls.update()
             // trackballControls.update(clock.getDelta());
-            // this.renderer.render(this.scene,this.camera)
-            this.composer.render();
+            this.renderer.render(this.scene,this.camera)
             this.state.update();
             requestAnimationFrame(this.animate);
         },
@@ -142,28 +141,8 @@ export default ({
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
         },
-        addOutlinePass() {
+        addPickModel() {
             const that = this
-            let selectedObjects = []
-            let composer = new EffectComposer(this.renderer)
-            this.composer = composer
-            const renderPass = new RenderPass(this.scene,this.camera)
-            composer.addPass(renderPass)
-
-            let outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth,window.innerWidth),this.scene,this.camera)
-            outlinePass.visibleEdgeColor.set('#FF0000')
-            outlinePass.hiddenEdgeColor.set('#FF0000')
-            outlinePass.edgeStrength =  3
-            outlinePass.edgeGolw = 1.5
-            outlinePass.edgeThickness = 1
-            // outlinePass.pulsePeriod = 3
-
-            composer.addPass(outlinePass)
-
-            let effectFXAA = new ShaderPass(FXAAShader)
-            effectFXAA.uniforms['resolution'].value.set(1/window.innerWidth,1/window.innerWidth)
-            composer.addPass(effectFXAA)
-
             this.renderer.domElement.addEventListener('pointermove',onPointerMove)
             let mouse = new THREE.Vector2();
             function onPointerMove(event) {

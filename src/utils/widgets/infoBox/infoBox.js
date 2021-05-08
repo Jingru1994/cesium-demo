@@ -292,3 +292,22 @@ class InfoTool {
 }
  
 export default InfoTool;
+if(intersects.length > 0) {
+    if(selectedObject && selectedObject !== intersects[0].object) {
+        selectedObject.material[0].color.set(selectedObject.currentColor)
+        popup.removeFrom(selectedObject)
+    }
+    if(!selectedObject || selectedObject !== intersects[0].object) {
+        selectedObject = intersects[0].object
+        selectedObject.currentColor = selectedObject.material[0].color.getStyle()
+        selectedObject.material[0].color.set("#FAFF6B")
+        popup.addTo(selectedObject)
+    }
+}else {
+    if(selectedObject) {
+        selectedObject.material[0].color.set(selectedObject.currentColor)
+        popup.removeFrom(selectedObject)
+    }
+    
+    selectedObject = null
+}
