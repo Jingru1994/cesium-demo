@@ -1,0 +1,18 @@
+.three-popup-label {
+    --padding-width: 10px;
+    text-align: center;
+}
+.three-popup-label .three-popup-label-panel {
+    padding: 10px 15px;
+    background-color: rgba(54, 54, 54, 0.6);
+    color: #fff;
+}
+.three-popup-label .three-popup-label-bottom {
+    width: 0;
+    height: 0;
+    border-top: 10px solid rgba(54, 54, 54, 0.6);
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid transparent;
+    margin: auto;
+}

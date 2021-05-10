@@ -12,7 +12,7 @@ import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils.js'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
-import Popup from '@/utils/widgets/Popup/Popup.js'
+import Popup from '@/utils/widgets/Popup1/Popup.js'
 
 export default ({
     name: "ThreeMap",
@@ -208,6 +208,7 @@ export default ({
                 color: 0x008bfb
             })
             let shapeGeometryObj = new THREE.Mesh(geometry, [material1, material2])
+            // shapeGeometryObj.position = geometry.boundingSphere.center
             // let shapeGeometryObj = new THREE.Mesh(geometry, material1)
             shapeGeometryObj.name = 'board'
             return shapeGeometryObj
@@ -259,12 +260,12 @@ export default ({
                 if(intersects.length > 0) {
                     if(selectedObject && selectedObject !== intersects[0].object) {
                         selectedObject.material[0].color.set(selectedObject.currentColor)
-                        popup.removeFrom(selectedObject)
                     }
                     if(!selectedObject || selectedObject !== intersects[0].object) {
                         selectedObject = intersects[0].object
                         selectedObject.currentColor = selectedObject.material[0].color.getStyle()
-                        selectedObject.material[0].color.set("#FAFF6B")
+                        selectedObject.material[0].color.set("#0077D9")
+                        // selectedObject.position.set(selectedObject.geometry.boundingSphere.center)
                         popup.addTo(selectedObject)
                     }
                 }else {
@@ -291,66 +292,6 @@ export default ({
     #three {
         width: 100%;
         height: 100%;
-    }
-    .timeline {
-        position: absolute;
-        height: 20px;
-        width: 100%;
-        // background: #fff;
-        bottom: 50px;
-        text-align:center;
-        .line {
-            display: inline-block;
-            
-            // float: left;
-            height: 7px;
-            margin: 0 10px;
-            width: calc(100% - 1020px);
-            background: rgb(67, 97, 163);
-        }
-        .point-list {
-            position: absolute;
-            // margin-top: -25px;
-            display: inline-block;
-            // float: left;
-            height: 10px;
-            width: calc(100% - 1000px);
-            
-
-        }
-        .assist-container {
-            height: 100%;
-            display: flex;
-            justify-content: space-between
-        }
-        .point {
-            float: left;
-            width: 20px;
-            height: 20px;
-            background: rgb(153, 170, 207);
-            border-radius: 50%;
-        }
-        .point.active{
-            background: rgb(83, 132, 236);
-        }
-    }
-    .progress {
-        position: absolute;
-        bottom: 95px;
-        left: 513px;
-        width: 450px;
-        display: flex;
-        color: #fff;
-        .progress-text{
-            display: inline-block;
-        }
-        .progress-bar{
-            width: 300px;
-            color: #fff;
-            .el-progress__text{
-                color: #fff;
-            }
-        }
     }
 
 }

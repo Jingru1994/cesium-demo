@@ -2,6 +2,7 @@ import * as THREE from 'three'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
+import './popup.css'
 
 class Popup {
     label
@@ -12,13 +13,11 @@ class Popup {
     constructor(scene,camera,dom,text) {
         this.#scene = scene
         this.#camera = camera
-        const labelDiv = document.createElement( 'div' );
-        labelDiv.className = 'label';
-        labelDiv.textContent = 'moon';
-        labelDiv.style.marginTop = '-1em';
-        const label = new CSS2DObject( labelDiv );
-        // label.position.set( 0, 10, 0 );
+        const labelDiv = document.createElement( 'div' )
+        labelDiv.className = 'three-popup-label'
+        const label = new CSS2DObject( labelDiv )
         this.label = label
+
         let labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize( window.innerWidth, window.innerHeight );
         labelRenderer.domElement.style.position = 'absolute';
@@ -33,8 +32,11 @@ class Popup {
         return this.#labelRenderer
     }
     addTo(object) {
-        console.log(object)
-        console.log(object.position)
+        this.label.element.innerText = object.label
+        let position = object.geometry.boundingSphere.center
+        this.label.position.x = position.x
+        this.label.position.y = position.y
+        this.label.position.z = position.z + 1.5
         object.add(this.label)
     }
     removeFrom(object) {
