@@ -1,0 +1,447 @@
+{
+    "type": "FeatureCollection",
+    "name": "100000_full",
+    "features": [{
+        "type": "Feature",
+        "properties": {
+            "NAME": "海口市",
+            "PINYIN": "Haikou Shi",
+            "CLASS": "AD",
+            "GNID": "460100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [110.34697490000008, 19.997037505000094, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "广州市",
+            "PINYIN": "Guangzhou Shi",
+            "CLASS": "AD",
+            "GNID": "440100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [113.25925122000012, 23.131018165000114, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "南宁市",
+            "PINYIN": "Nanning Shi",
+            "CLASS": "AD",
+            "GNID": "450100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [108.36320996500012, 22.821112295000034, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "贵州市",
+            "PINYIN": "Guiyang Shi",
+            "CLASS": "AD",
+            "GNID": "520100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [106.62763254000004, 26.651584470000103, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "昆明市",
+            "PINYIN": "Kunming Shi",
+            "CLASS": "AD",
+            "GNID": "530100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [102.83311390000006, 24.88273902500009, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "福州市",
+            "PINYIN": "Fuzhou Shi",
+            "CLASS": "AD",
+            "GNID": "350100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [119.2929731050001, 26.077223355000115, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "台北市",
+            "PINYIN": "Taipei Shih",
+            "CLASS": "AD",
+            "GNID": "710100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [121.56576511000014, 25.03722046000007, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "拉萨市",
+            "PINYIN": "Lhasa Shi",
+            "CLASS": "AD",
+            "GNID": "540100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [91.17030061500009, 29.654421620000107, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "成都市",
+            "PINYIN": "Chengdu Shi",
+            "CLASS": "AD",
+            "GNID": "510100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [104.06449860500004, 30.57459158500012, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "长沙市",
+            "PINYIN": "Changsha Shi",
+            "CLASS": "AD",
+            "GNID": "430100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [112.93494444500004, 28.231907280000087, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "合肥市",
+            "PINYIN": "Hefei Shi",
+            "CLASS": "AD",
+            "GNID": "340100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [117.22285307000004, 31.82487401500009, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "南昌市",
+            "PINYIN": "Nanchang Shi",
+            "CLASS": "AD",
+            "GNID": "360100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [115.85472955000012, 28.68673074000003, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "武汉市",
+            "PINYIN": "Wuhan Shi",
+            "CLASS": "AD",
+            "GNID": "420100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [114.30069160000005, 30.59648811000011, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "杭州市",
+            "PINYIN": "Hangzhou Shi",
+            "CLASS": "AD",
+            "GNID": "330100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [119.98726418500007, 30.227201615000126, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "西安市",
+            "PINYIN": "Xi'an Shi",
+            "CLASS": "AD",
+            "GNID": "610100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [108.93679234500007, 34.34345386000007, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "郑州市",
+            "PINYIN": "Zhengzhou Shi",
+            "CLASS": "AD",
+            "GNID": "410100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [113.62079376000008, 34.74889608500007, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "南京市",
+            "PINYIN": "Nanjing Shi",
+            "CLASS": "AD",
+            "GNID": "320100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [118.79257021500007, 32.064285845000086, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "西宁市",
+            "PINYIN": "Xining Shi",
+            "CLASS": "AD",
+            "GNID": "630100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [101.7770068750001, 36.615511730000094, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "兰州市",
+            "PINYIN": "Lanzhou Shi",
+            "CLASS": "AD",
+            "GNID": "620100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [103.83331980000014, 36.06037085500009, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "银川市",
+            "PINYIN": "Yinchuan Shi",
+            "CLASS": "AD",
+            "GNID": "640100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [106.22785090500008, 38.48606037500008, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "太原市",
+            "PINYIN": "Taiyuan Shi",
+            "CLASS": "AD",
+            "GNID": "140100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [112.54370979500004, 37.87052281500007, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "济南市",
+            "PINYIN": "Jinan Shi",
+            "CLASS": "AD",
+            "GNID": "370100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [116.98914602500008, 36.665943850000076, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "石家庄市",
+            "PINYIN": "Shijiazhuang Shi",
+            "CLASS": "AD",
+            "GNID": "130100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [114.50948483500008, 38.043184020000126, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "乌鲁木齐市",
+            "PINYIN": "Urumqi Shi",
+            "CLASS": "AD",
+            "GNID": "650100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [87.61425523000014, 43.825007850000134, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "呼和浩特市",
+            "PINYIN": "Hohhot Shi",
+            "CLASS": "AD",
+            "GNID": "150100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [111.74243438500014, 40.842129290000116, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "沈阳市",
+            "PINYIN": "Shenyang Shi",
+            "CLASS": "AD",
+            "GNID": "210100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [123.42540325000004, 41.80533096500005, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "长春市",
+            "PINYIN": "Changchun Shi",
+            "CLASS": "AD",
+            "GNID": "220100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [125.31839352000009, 43.816337145000034, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "哈尔滨市",
+            "PINYIN": "Ha'erbin Shi",
+            "CLASS": "AD",
+            "GNID": "230100",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [126.53037681500007, 45.80331619000003, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "北京市",
+            "PINYIN": "Beijing Shi",
+            "CLASS": "AD",
+            "GNID": "110000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [116.39929, 39.89301, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "天津市",
+            "PINYIN": "Tianjin Shi",
+            "CLASS": "AD",
+            "GNID": "120000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [117.20331, 39.07052, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "上海市",
+            "PINYIN": "Shanghai Shi",
+            "CLASS": "AD",
+            "GNID": "310000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [121.47385, 31.22592, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "重庆市",
+            "PINYIN": "Chongqing Shi",
+            "CLASS": "AD",
+            "GNID": "500000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [106.55344, 29.54918, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "香港",
+            "PINYIN": "Xianggang",
+            "CLASS": "AD",
+            "GNID": "810000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [114.16753, 22.2751, 0.0]
+        }
+    }, {
+        "type": "Feature",
+        "properties": {
+            "NAME": "澳门",
+            "PINYIN": "Aomen",
+            "CLASS": "AD",
+            "GNID": "820000",
+            "XZNAME": null
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [113.54082, 22.18213, 0.0]
+        }
+    }]
+}

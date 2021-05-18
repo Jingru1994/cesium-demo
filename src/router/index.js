@@ -101,6 +101,12 @@ const routes = [
     name: "3DMap",
     component: () =>
     import(/* webpackChunkName: "threeModel1" */ "@/views/threeMap.vue")
+  },
+  {
+    path: "/ODline",
+    name: "ODline",
+    component: () =>
+    import(/* webpackChunkName: "threeModel1" */ "@/views/threeODLine.vue")
   }
 ];
 

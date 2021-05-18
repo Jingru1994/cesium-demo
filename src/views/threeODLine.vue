@@ -9,15 +9,16 @@ import {getPublicData} from "@/api/requestData.js";
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils.js'
-
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-
-import Popup from '@/utils/widgets/Popup1/Popup.js'
+import ODLine from '@/utils/widgets/ODLine/ODLine.js'
+var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
     name: "ThreeMap",
     data() {
         return {
+            offsetX: -110,
+            offsetY: -30
         }
     },
     created() {
@@ -26,10 +27,12 @@ export default ({
         console.log(this)
         this.initScene()
         this.addState()
-        // this.initControls()//因为要添加labelRenderer，所以得在labelRenderer初始化后再给其添加control
-        await this.drawMap()
+        this.initControls()
         this.initLight()
+        
+        await this.drawMap()
         this.addPickObject()
+        await this.drawODLine()
         
         
         this.animate()
@@ -54,7 +57,7 @@ export default ({
             //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
             const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight,0.1,2000)
             this.camera = camera
-            camera.position.set(0, 0, 100)//camera默认放在中心点(0,0,0)，挪一下位置
+            camera.position.set(0, -50, 40)//camera默认放在中心点(0,0,0)，挪一下位置
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -75,7 +78,12 @@ export default ({
             
         },
         initControls(renderer) {
-            const controls = new OrbitControls(this.camera, renderer.domElement)
+            let controls
+            if(renderer) {
+                controls = new OrbitControls(this.camera, renderer.domElement)
+            }else {
+                controls = new OrbitControls(this.camera, this.renderer.domElement)
+            }
             this.controls = controls
             controls.enableDamping = true
         },
@@ -123,6 +131,7 @@ export default ({
             this.renderer.render(this.scene,this.camera)
             this.state.update();
             requestAnimationFrame(this.animate);
+            TWEEN.update()//tween要想完成效果需要在主函数中调用TWEEN.update()
         },
         resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement
@@ -138,7 +147,6 @@ export default ({
             return needResize
         },
         onWindowResize() {
-
             this.renderer.setSize( window.innerWidth, window.innerHeight );
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -151,13 +159,10 @@ export default ({
             const group = new THREE.Group()
             const lineGroup = new THREE.Group()
             let chinaGeometry = await this.getData('data/china.json')
-            let offsetX = 110
-            let offsetY = 30
+            let offsetX = this.offsetX
+            let offsetY = this.offsetY
             let i = 0
             chinaGeometry.forEach((province) => {
-                console.log('i:'+i)
-                console.log(province)
-                i++
                 province.geometry.coordinates.forEach(provinceChild => {
                     provinceChild.forEach(point => {
                         let item = this.drawExtrude(this.drawShape(point,offsetX,offsetY))
@@ -173,8 +178,8 @@ export default ({
                     
                 }) 
             })
-            group.scale.y = 1.2
-            lineGroup.scale.y = 1.2;
+            // group.scale.y = 1.2
+            // lineGroup.scale.y = 1.2;
             // group.rotation.x = - Math.PI / 2
             // lineGroup.rotation.x = - Math.PI / 2
             this.scene.add(group)
@@ -185,9 +190,9 @@ export default ({
         },
         drawShape(posArr,offsetX,offsetY) {
             var shape = new THREE.Shape()
-            shape.moveTo(posArr[0][0]-offsetX, posArr[0][1]-offsetY)
+            shape.moveTo(posArr[0][0]+offsetX, posArr[0][1]+offsetY)
             posArr.forEach(item => {
-                shape.lineTo(item[0]-offsetX, item[1]-offsetY)
+                shape.lineTo(item[0]+offsetX, item[1]+offsetY)
             })
             return shape
         },
@@ -219,11 +224,11 @@ export default ({
             let verticesList1 = []
             let verticesList2 = []
             posArr.forEach(item => {
-                verticesList1.push(item[0]-offsetX)
-                verticesList1.push(item[1]-offsetY)
+                verticesList1.push(item[0]+offsetX)
+                verticesList1.push(item[1]+offsetY)
                 verticesList1.push(1.001)
-                verticesList2.push(item[0]-offsetX)
-                verticesList2.push(item[1]-offsetY)
+                verticesList2.push(item[0]+offsetX)
+                verticesList2.push(item[1]+offsetY)
                 verticesList2.push(-0.001)
             })
             const vertices1 = new Float32Array(verticesList1)
@@ -241,13 +246,8 @@ export default ({
             const that = this
             const raycaster = new THREE.Raycaster()
             let selectedObject
-            const container = document.querySelector('.three-view')
-            let popup = new Popup(this.scene,this.camera,container)
-            console.log(popup)
-            let labelRenderer = popup.getCSS2DRenderer()
-            this.initControls(labelRenderer)
             // this.renderer.domElement.addEventListener('mousemove',onPointerMove)
-            labelRenderer.domElement.addEventListener('mousemove',onPointerMove)
+            this.renderer.domElement.addEventListener('mousemove',onPointerMove)
             function onPointerMove(event) {
                 let mouse = new THREE.Vector2();
                 if ( event.isPrimary === false ) return;
@@ -265,21 +265,55 @@ export default ({
                         selectedObject = intersects[0].object
                         selectedObject.currentColor = selectedObject.material[0].color.getStyle()
                         selectedObject.material[0].color.set("#0077D9")
-                        // selectedObject.position.set(selectedObject.geometry.boundingSphere.center)
-                        popup.addTo(selectedObject)
                     }
                 }else {
                     if(selectedObject) {
                         selectedObject.material[0].color.set(selectedObject.currentColor)
-                        popup.removeFrom(selectedObject)
                     }
                     
                     selectedObject = null
                 }
             }
         },
+        async drawODLine() {
+            let chinaPoint = await this.getData('data/chinaPoint.json')
+            console.log(chinaPoint)
+            let startPoint
+            let endPoints = []
 
-        
+            chinaPoint.forEach(point => {
+                if(point.properties.GNID === '110000') {
+                    let coordinates = point.geometry.coordinates
+                    startPoint = new THREE.Vector3(coordinates[0]+this.offsetX,coordinates[1]+this.offsetY,1.001)
+                }else {
+                    let coordinates = point.geometry.coordinates
+                    endPoints.push(new THREE.Vector3(coordinates[0]+this.offsetX,coordinates[1]+this.offsetY,1.001))
+                }
+            })
+            let options = {
+                isHalf: true,
+                length: 0.1,
+                lineWidth: 4,
+                color: new THREE.Color("rgb(204, 255, 0)"),
+                duration: 3000,
+                delay: 0
+            }
+            
+            let distances = []
+            endPoints.forEach(point => {
+                distances.push(point.distanceTo(startPoint))
+            })
+            let maxDistance = Math.max(...distances)
+            let minDistance = Math.min(...distances)
+            console.log(minDistance)
+            console.log(maxDistance)
+            const group = new THREE.Group()
+            endPoints.forEach(point => {
+                let odline = new ODLine(startPoint,point,maxDistance,minDistance,options,this.renderer.domElement)
+                group.add(odline.mesh)
+            })
+            this.scene.add(group)
+        }
     }
 })
 </script>

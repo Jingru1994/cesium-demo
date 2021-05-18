@@ -86,6 +86,11 @@
       {
         "name": "3DMap",
         "label": "3D地图"
+      },
+      {
+        "name": "ODline",
+        "label": "OD线",
+        "suffix": "gif"
       }
     ]
   }

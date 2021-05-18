@@ -11,7 +11,7 @@ class Popup {
     #camera
     #labelPanel
 
-    constructor(scene,camera,dom,text) {
+    constructor(scene,camera,dom) {
         this.#scene = scene
         this.#camera = camera
         const labelDiv = document.createElement( 'div' )
@@ -21,7 +21,7 @@ class Popup {
                 
         const labelPanel = document.createElement( 'div' );
         labelPanel.className = 'three-popup-label-panel'
-        this.labelPanel = labelPanel
+        this.#labelPanel = labelPanel
         const labelBottom = document.createElement( 'div' );
         labelBottom.className = 'three-popup-label-bottom'
         label.element.appendChild(labelPanel)
@@ -41,7 +41,7 @@ class Popup {
         return this.#labelRenderer
     }
     addTo(object) {
-        this.labelPanel.textContent = object.label
+        this.#labelPanel.textContent = object.label
         let position = object.geometry.boundingSphere.center
         this.label.position.x = position.x
         this.label.position.y = position.y
