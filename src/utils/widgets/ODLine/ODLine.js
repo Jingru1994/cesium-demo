@@ -1,6 +1,8 @@
 import * as THREE from "three"
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from './THREE.MeshLine.js'
-var TWEEN = require('@tweenjs/tween.js');
+import * as TWEEN from "@tweenjs/tween.js"
+// var TWEEN = require('@tweenjs/tween.js')
+
 
 class ODLine {
 
@@ -12,6 +14,7 @@ class ODLine {
      * @param {Vector3} endPoint 贝塞尔曲线终点
      * @param {Vector3} maxDistaces 所有线段中长度最大值
      * @param {Vector3} minDistance 所有线段中长度最小值
+     * @param {Number} height 拉伸地图厚度，贝塞尔曲线辅助点高度基础高度
      * @param {Element} options.element canvas容器
      * @param {Object} options 线样式
      * @param {Color} options.isHalf 高亮区域形状
@@ -23,9 +26,10 @@ class ODLine {
      * @param {Number} options.duration 单个动画持续时间
      * @param {Number} options.delay 动画之间延迟
      */
-    constructor(startPoint, endPoint, maxDistaces, minDistance, options, dom) {
+    constructor(startPoint, endPoint, maxDistaces, minDistance, height, options, dom) {
         this.minVal = minDistance
         this.maxVal = maxDistaces
+        this.height = height
         let points = this.createCubicBezierPoint(startPoint, endPoint)
         let material = this.createODLineMaterial(options,dom)
         let mesh = this.createODLine(points, material)
@@ -85,9 +89,9 @@ class ODLine {
         // v1 = v0.clone().add(vtop).normalize().multiplyScalar(50+n)
         // v2 = v3.clone().add(vtop).normalize().multiplyScalar(50+n)
         const distance = v0.distanceTo(v3)
-        let factor = this.smoothStep(distance)
-        v1 = new THREE.Vector3((v3.x-v0.x)/4+v0.x,(v3.y-v0.y)/4+v0.y,2+factor*5)//只要考虑xy坐标，z直接给个高度就行
-        v2 = new THREE.Vector3((v3.x-v0.x)/4*3+v0.x,(v3.y-v0.y)/4*3+v0.y,2+factor*5)
+        let height = this.height + this.smoothStep(distance)*this.maxVal/4
+        v1 = new THREE.Vector3((v3.x-v0.x)/4+v0.x,(v3.y-v0.y)/4+v0.y,height)//只要考虑xy坐标，z直接给个高度就行
+        v2 = new THREE.Vector3((v3.x-v0.x)/4*3+v0.x,(v3.y-v0.y)/4*3+v0.y,height)
         const curve = new THREE.CubicBezierCurve3(v0, v1, v2, v3)
         const points = curve.getPoints(500)
         return points

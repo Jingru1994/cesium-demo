@@ -8,33 +8,30 @@ import {getPublicData} from "@/api/requestData.js";
 
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { SceneUtils } from 'three/examples/jsm/utils/SceneUtils.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import ODLine from '@/utils/widgets/ODLine/ODLine.js'
+import * as d3 from 'd3-geo'
 var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
     name: "ThreeMap",
     data() {
         return {
-            offsetX: -110,
-            offsetY: -30
         }
     },
     created() {
     },
     async mounted() {
-        console.log(this)
+        // this.offsetX = -110 //直接使用经纬度绘制时的位移
+        // this.offsetY = -30
+        this.depth = 2 //拉伸地图的厚度
         this.initScene()
         this.addState()
         this.initControls()
         this.initLight()
-        
         await this.drawMap()
         this.addPickObject()
         await this.drawODLine()
-        
-        
         this.animate()
         
     },
@@ -57,7 +54,7 @@ export default ({
             //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
             const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight,0.1,2000)
             this.camera = camera
-            camera.position.set(0, -50, 40)//camera默认放在中心点(0,0,0)，挪一下位置
+            camera.position.set(0, -170, 120)//camera默认放在中心点(0,0,0)，挪一下位置
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -159,15 +156,18 @@ export default ({
             const group = new THREE.Group()
             const lineGroup = new THREE.Group()
             let chinaGeometry = await this.getData('data/china.json')
-            let offsetX = this.offsetX
-            let offsetY = this.offsetY
             let i = 0
             chinaGeometry.forEach((province) => {
                 province.geometry.coordinates.forEach(provinceChild => {
-                    provinceChild.forEach(point => {
-                        let item = this.drawExtrude(this.drawShape(point,offsetX,offsetY))
+                    provinceChild.forEach(points => {
+                        let points_prj = []
+                        points.forEach(point => {
+                            // let [x,y] 
+                            points_prj.push(this.projection(point))
+                        })
+                        let item = this.drawExtrude(this.drawShape(points_prj))
                         item.label = province.properties.name
-                        let lines = this.drawLine(point,offsetX,offsetY)
+                        let lines = this.drawLine(points_prj)
                         lines.forEach(line => {
                             lineGroup.add(line)
                         })
@@ -178,28 +178,32 @@ export default ({
                     
                 }) 
             })
-            // group.scale.y = 1.2
-            // lineGroup.scale.y = 1.2;
-            // group.rotation.x = - Math.PI / 2
-            // lineGroup.rotation.x = - Math.PI / 2
             this.scene.add(group)
             this.scene.add(lineGroup)
             this.group = group
             console.log(this.group)
             this.lineGroup = lineGroup
         },
-        drawShape(posArr,offsetX,offsetY) {
+        drawShape(posArr) {
             var shape = new THREE.Shape()
-            shape.moveTo(posArr[0][0]+offsetX, posArr[0][1]+offsetY)
+            shape.moveTo(posArr[0][0], posArr[0][1])
             posArr.forEach(item => {
-                shape.lineTo(item[0]+offsetX, item[1]+offsetY)
+                shape.lineTo(item[0], item[1])
             })
             return shape
         },
+        // drawShape(posArr,offsetX,offsetY) {
+        //     var shape = new THREE.Shape()
+        //     shape.moveTo(posArr[0][0]+offsetX, posArr[0][1]+offsetY)
+        //     posArr.forEach(item => {
+        //         shape.lineTo(item[0]+offsetX, item[1]+offsetY)
+        //     })
+        //     return shape
+        // },
         drawExtrude(shapeObj) {
             const extrudeSettings = {
                 steps: 2,
-                depth: 1,
+                depth: this.depth,
                 bevelEnabled: false
             }
             let geometry = new THREE.ExtrudeGeometry(shapeObj,extrudeSettings)
@@ -218,17 +222,17 @@ export default ({
             shapeGeometryObj.name = 'board'
             return shapeGeometryObj
         },
-        drawLine(posArr,offsetX,offsetY) {
+        drawLine(posArr) {
             let geometry1 = new THREE.BufferGeometry()
             let geometry2 = new THREE.BufferGeometry()
             let verticesList1 = []
             let verticesList2 = []
             posArr.forEach(item => {
-                verticesList1.push(item[0]+offsetX)
-                verticesList1.push(item[1]+offsetY)
-                verticesList1.push(1.001)
-                verticesList2.push(item[0]+offsetX)
-                verticesList2.push(item[1]+offsetY)
+                verticesList1.push(item[0])
+                verticesList1.push(item[1])
+                verticesList1.push(this.depth)
+                verticesList2.push(item[0])
+                verticesList2.push(item[1])
                 verticesList2.push(-0.001)
             })
             const vertices1 = new Float32Array(verticesList1)
@@ -242,6 +246,30 @@ export default ({
             line2.name = 'line'
             return [line1, line2]
         },
+        // drawLine(posArr,offsetX,offsetY) {
+        //     let geometry1 = new THREE.BufferGeometry()
+        //     let geometry2 = new THREE.BufferGeometry()
+        //     let verticesList1 = []
+        //     let verticesList2 = []
+        //     posArr.forEach(item => {
+        //         verticesList1.push(item[0]+offsetX)
+        //         verticesList1.push(item[1]+offsetY)
+        //         verticesList1.push(this.depth)
+        //         verticesList2.push(item[0]+offsetX)
+        //         verticesList2.push(item[1]+offsetY)
+        //         verticesList2.push(-0.001)
+        //     })
+        //     const vertices1 = new Float32Array(verticesList1)
+        //     const vertices2 = new Float32Array(verticesList2)
+        //     geometry1.setAttribute('position',new THREE.BufferAttribute(vertices1,3))
+        //     geometry2.setAttribute('position',new THREE.BufferAttribute(vertices2,3))
+        //     let lineMaterial = new THREE.LineBasicMaterial({ color: 0x008bfb })
+        //     let line1 = new THREE.Line(geometry1, lineMaterial)
+        //     let line2 = new THREE.Line(geometry2, lineMaterial)
+        //     line1.name = 'line'
+        //     line2.name = 'line'
+        //     return [line1, line2]
+        // },
         addPickObject() {
             const that = this
             const raycaster = new THREE.Raycaster()
@@ -275,6 +303,12 @@ export default ({
                 }
             }
         },
+        projection(point) {
+            const projection = d3.geoMercator().center([104.0, 37.5]).translate([0, 0]).reflectY(90)
+            // const projection = d3.geoMercator().center([104.0, 37.5]).scale(10).translate([0, 0]).reflectY(90)
+            return projection(point)
+
+        },
         async drawODLine() {
             let chinaPoint = await this.getData('data/chinaPoint.json')
             console.log(chinaPoint)
@@ -282,12 +316,12 @@ export default ({
             let endPoints = []
 
             chinaPoint.forEach(point => {
+                let coordinates = point.geometry.coordinates
+                coordinates = this.projection(coordinates)
                 if(point.properties.GNID === '110000') {
-                    let coordinates = point.geometry.coordinates
-                    startPoint = new THREE.Vector3(coordinates[0]+this.offsetX,coordinates[1]+this.offsetY,1.001)
+                    startPoint = new THREE.Vector3(coordinates[0],coordinates[1],this.depth)
                 }else {
-                    let coordinates = point.geometry.coordinates
-                    endPoints.push(new THREE.Vector3(coordinates[0]+this.offsetX,coordinates[1]+this.offsetY,1.001))
+                    endPoints.push(new THREE.Vector3(coordinates[0],coordinates[1],this.depth))
                 }
             })
             let options = {
@@ -309,7 +343,7 @@ export default ({
             console.log(maxDistance)
             const group = new THREE.Group()
             endPoints.forEach(point => {
-                let odline = new ODLine(startPoint,point,maxDistance,minDistance,options,this.renderer.domElement)
+                let odline = new ODLine(startPoint,point,maxDistance,minDistance,this.depth,options,this.renderer.domElement)
                 group.add(odline.mesh)
             })
             this.scene.add(group)
