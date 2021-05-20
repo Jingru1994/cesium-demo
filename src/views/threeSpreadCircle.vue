@@ -9,12 +9,12 @@ import {getPublicData} from "@/api/requestData.js";
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import ODLine from '@/utils/widgets/ODLine/ODLine.js'
+import SpreadCircle from '@/utils/widgets/SpreadCircle/SpreadCircle.js'
 import * as d3 from 'd3-geo'
 // var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
-    name: "ThreeODLine",
+    name: "ThreeSpreadCircle",
     data() {
         return {
         }
@@ -37,7 +37,7 @@ export default ({
     },
     beforeDestroy() {
         console.log(this.myAnimate)
-        ODLine.stop()//停止动画，里面也有一个cancelAnimationFrame
+        SpreadCircle.stop()//停止动画，里面也有一个cancelAnimationFrame
         cancelAnimationFrame(this.myAnimate)
         this.renderer = null
         this.scene = null
@@ -130,8 +130,6 @@ export default ({
             this.renderer.render(this.scene,this.camera)
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
-            // TWEEN.update()//tween要想完成动态效果需要在主函数中调用TWEEN.update(),
-            //在页面中并没有使用tween，让ODLine动起来应该放在ODLine类里，放在这里感觉类和业务代码耦合了，用ODLine.animate()替代了
         },
         resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement
@@ -315,43 +313,24 @@ export default ({
         async drawODLine() {
             let chinaPoint = await this.getData('data/chinaPoint.json')
             console.log(chinaPoint)
-            let startPoint
-            let endPoints = []
+            let circleCenter
 
-            chinaPoint.forEach(point => {
-                let coordinates = point.geometry.coordinates
+            for(let i = 0; i < chinaPoint.length; i++) {
+                let coordinates = chinaPoint[i].geometry.coordinates
                 coordinates = this.projection(coordinates)
-                if(point.properties.GNID === '110000') {
-                    startPoint = new THREE.Vector3(coordinates[0],coordinates[1],this.depth)
-                }else {
-                    endPoints.push(new THREE.Vector3(coordinates[0],coordinates[1],this.depth))
+                if(chinaPoint[i].properties.GNID === '110000') {
+                    circleCenter = new THREE.Vector3(coordinates[0],coordinates[1],this.depth+0.1)
+                    break
                 }
-            })
-            let options = {
-                isHalf: true,
-                length: 0.1,
-                lineWidth: 4,
-                color: new THREE.Color("rgb(204, 255, 0)"),
-                duration: 3000,
-                delay: 0
             }
+            let options = {
+                color: new THREE.Color("rgb(204, 255, 0)")
+            }
+            let spreadCircle = new SpreadCircle(circleCenter,20,options)
+            console.log(spreadCircle)
+            // SpreadCircle.animate()
             
-            let distances = []
-            endPoints.forEach(point => {
-                distances.push(point.distanceTo(startPoint))
-            })
-            let maxDistance = Math.max(...distances)
-            let minDistance = Math.min(...distances)
-            console.log(minDistance)
-            console.log(maxDistance)
-            const group = new THREE.Group()
-            endPoints.forEach(point => {
-                let odline = new ODLine(startPoint,point,maxDistance,minDistance,this.depth,options,this.renderer.domElement)
-                group.add(odline.mesh)
-            })
-            ODLine.animate()//开始动画
-            
-            this.scene.add(group)
+            this.scene.add(spreadCircle.mesh)
         }
     }
 })

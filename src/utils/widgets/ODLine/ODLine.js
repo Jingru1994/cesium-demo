@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { MeshLine, MeshLineMaterial, MeshLineRaycast } from './THREE.MeshLine.js'
+import { MeshLine, MeshLineMaterial } from './THREE.MeshLine.js'
 import * as TWEEN from "@tweenjs/tween.js"
 // var TWEEN = require('@tweenjs/tween.js')
 
@@ -7,6 +7,8 @@ import * as TWEEN from "@tweenjs/tween.js"
 class ODLine {
 
     mesh
+    static START
+    static MY_TWEEN
      /**
      * ODLine构造函数
      *
@@ -30,17 +32,17 @@ class ODLine {
         this.minVal = minDistance
         this.maxVal = maxDistaces
         this.height = height
-        let points = this.createCubicBezierPoint(startPoint, endPoint)
+        let points = this.createCubicBezierPoints(startPoint, endPoint)
         let material = this.createODLineMaterial(options,dom)
         let mesh = this.createODLine(points, material)
         this.mesh = mesh
         let duration = options.duration || 3000
         let delay = options.delay || 0
-        const tween = new TWEEN.Tween(material.uniforms.offset.value) // 飞线移动动画
+        ODLine.MY_TWEEN = new TWEEN.Tween(material.uniforms.offset.value) // 飞线移动动画
             .to({ x: material.uniforms.offset.value.x - 1 }, duration)
             .delay(delay)
             .repeat(Infinity)
-            .start();
+            .start()
     }
     get mesh() {
         return this.mesh
@@ -71,7 +73,7 @@ class ODLine {
         const mesh = new THREE.Mesh(meshline,material)
         return mesh
     }
-    createCubicBezierPoint(startPoint, endPoint) {
+    createCubicBezierPoints(startPoint, endPoint) {
         let v0, v1, v2, v3
         let n
         v0 = startPoint
@@ -133,6 +135,16 @@ class ODLine {
         const height = dom.height
         material.uniforms.resolution.value.set(width, height);
         return material
+    }
+    static animate() {
+        ODLine.START = requestAnimationFrame(ODLine.animate)
+        TWEEN.update()//tween要想完成效果需要在主函数中调用TWEEN.update()
+    }
+    static stop() {
+        if(ODLine.START) {
+            cancelAnimationFrame(ODLine.START)
+        }
+        
     }
     addTo(scene) {
         scene.add(this.mesh)

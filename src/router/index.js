@@ -107,6 +107,12 @@ const routes = [
     name: "ODline",
     component: () =>
     import(/* webpackChunkName: "threeModel1" */ "@/views/threeODLine.vue")
+  },
+  {
+    path: "/spreadCircle",
+    name: "spreadCircle",
+    component: () =>
+    import(/* webpackChunkName: "threeModel1" */ "@/views/threeSpreadCircle.vue")
   }
 ];
 
