@@ -91,6 +91,11 @@
         "name": "ODline",
         "label": "OD线",
         "suffix": "gif"
+      },
+      {
+        "name": "spreadCircle",
+        "label": "扩散圆",
+        "suffix": "gif"
       }
     ]
   }
