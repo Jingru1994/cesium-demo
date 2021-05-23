@@ -9,12 +9,12 @@ import {getPublicData} from "@/api/requestData.js";
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import SpreadCircle from '@/utils/widgets/SpreadCircle/SpreadCircle.js'
+import ScanCircle from '@/utils/widgets/ScanCircle/ScanCircle.js'
 import * as d3 from 'd3-geo'
 // var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
-    name: "ThreeSpreadCircle",
+    name: "ThreeScanCircle",
     data() {
         return {
         }
@@ -31,13 +31,12 @@ export default ({
         this.initLight()
         await this.drawMap()
         this.addPickObject()
-        await this.drawSpreadCircle()
+        await this.drawScanCircle()
         this.animate()
         
     },
     beforeDestroy() {
         console.log(this.myAnimate)
-        SpreadCircle.stop()//停止动画，里面也有一个cancelAnimationFrame
         cancelAnimationFrame(this.myAnimate)
         this.renderer = null
         this.scene = null
@@ -310,7 +309,7 @@ export default ({
             return projection(point)
 
         },
-        async drawSpreadCircle() {
+        async drawScanCircle() {
             let chinaPoint = await this.getData('data/chinaPoint.json')
             console.log(chinaPoint)
             let circleCenter
@@ -324,13 +323,13 @@ export default ({
                 }
             }
             let options = {
-                color: new THREE.Color("rgb(204, 255, 0)")
+                color: new THREE.Color("rgb(255, 0, 0)")
             }
-            let spreadCircle = new SpreadCircle(circleCenter,20,options)
-            console.log(spreadCircle)
+            let scanCircle = new ScanCircle(circleCenter,20.0,options)
+            console.log(scanCircle)
             // SpreadCircle.animate()
             
-            this.scene.add(spreadCircle.mesh)
+            this.scene.add(scanCircle.mesh)
         }
     }
 })

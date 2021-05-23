@@ -96,6 +96,11 @@
         "name": "spreadCircle",
         "label": "扩散圆",
         "suffix": "gif"
+      },
+      {
+        "name": "scanCircle",
+        "label": "扫描圆",
+        "suffix": "gif"
       }
     ]
   }

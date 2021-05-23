@@ -88,31 +88,37 @@ const routes = [
     path: "/pickModel",
     name: "pickModel",
     component: () =>
-    import(/* webpackChunkName: "threeModel" */ "@/views/threePickView.vue")
+    import(/* webpackChunkName: "pickModel" */ "@/views/threePickView.vue")
   },
   {
     path: "/pickModel1",
     name: "pickModel1",
     component: () =>
-    import(/* webpackChunkName: "threeModel1" */ "@/views/threePickView1.vue")
+    import(/* webpackChunkName: "pickModel1" */ "@/views/threePickView1.vue")
   },
   {
     path: "/3DMap",
     name: "3DMap",
     component: () =>
-    import(/* webpackChunkName: "threeModel1" */ "@/views/threeMap.vue")
+    import(/* webpackChunkName: "3DMap" */ "@/views/threeMap.vue")
   },
   {
     path: "/ODline",
     name: "ODline",
     component: () =>
-    import(/* webpackChunkName: "threeModel1" */ "@/views/threeODLine.vue")
+    import(/* webpackChunkName: "ODline" */ "@/views/threeODLine.vue")
   },
   {
     path: "/spreadCircle",
     name: "spreadCircle",
     component: () =>
-    import(/* webpackChunkName: "threeModel1" */ "@/views/threeSpreadCircle.vue")
+    import(/* webpackChunkName: "spreadCircle" */ "@/views/threeSpreadCircle.vue")
+  },
+  {
+    path: "/scanCircle",
+    name: "scanCircle",
+    component: () =>
+    import(/* webpackChunkName: "scanCircle" */ "@/views/threeScanCircle.vue")
   }
 ];
 

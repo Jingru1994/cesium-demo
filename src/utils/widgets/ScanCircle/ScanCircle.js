@@ -3,27 +3,25 @@ import * as TWEEN from "@tweenjs/tween.js"
 // var TWEEN = require('@tweenjs/tween.js')
 
 
-class SpreadCircle {
+class ScanCircle {
 
     mesh
     material
     static START
     static MY_TWEEN
      /**
-     * SpreadCircle构造函数
+     * ScanCircle构造函数
      *
-     * @param {Vector3} center 扩散圆位置
-     * @param {Number} radius 扩散圆半径
-     * @param {Object} options 阔散圆样式
-     * @param {Color} options.color 圆环颜色
-     * @param {Number} options.radius 圆环初始半径
-     * @param {Number} options.width 圆环半径
+     * @param {Vector3} center 扫描圆位置
+     * @param {Number} radius 扫描半径
+     * @param {Object} options 扫描圆样式
+     * @param {Color} options.color 颜色
      * @param {Number} options.duration 单个动画持续时间
      */
     constructor(center, radius, options) {
         this.radius = radius
         this.options = options
-        let material = this.createSpreadCircleMaterial(options)
+        let material = this.createScanCircleMaterial(radius,options)
         this.material = material
         // const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
         let geometry = new THREE.CircleGeometry(radius,120)
@@ -31,9 +29,8 @@ class SpreadCircle {
         mesh.position.copy(center)
         this.mesh = mesh
         let duration = options.duration || 3000
-        SpreadCircle.MY_TWEEN = new TWEEN.Tween(material.uniforms.radius) 
-            .to({value:radius}, duration)
-            .easing(TWEEN.Easing.Cubic.Out)
+        ScanCircle.MY_TWEEN = new TWEEN.Tween(material.uniforms.theta) 
+            .to({value:360.0}, duration)
             .repeat(Infinity)
             .start()
         this.animate(material,radius,options)
@@ -41,21 +38,18 @@ class SpreadCircle {
     get mesh() {
         return this.mesh
     }
-    createSpreadCircleMaterial(options) {
+    createScanCircleMaterial(radius, options) {
         let color = options.color || new THREE.Color("rgb(255, 255, 255)")
-        let annulus_radius = options.radius || this.radius/10
-        let width = options.width || this.radius/10
-        console.log(annulus_radius)
         
         let uniforms = {
             color: {
                 value: color
             },
             radius: {
-                value: annulus_radius
+                value: radius
             },
-            width: {
-                value: width
+            theta: {
+                value: 0.0
             }
         }
         this.uniforms = uniforms
@@ -67,19 +61,39 @@ class SpreadCircle {
             }
         `
         let fragmentShader = `
+            #define M_PI 3.1415926535897932384626433832795
+
             varying vec3 vPosition;
             uniform vec3 color;
             uniform float radius;
-            uniform float width;
+            uniform float theta;
 
-            void main(){
-                float pct=distance(vec2(vPosition.x,vPosition.y),vec2(0.0));
-                if(pct>radius || pct<(radius-width)){
-                    gl_FragColor = vec4(1.0,0.0,0.0,0);
-                }else{
-                    float dis=(pct-(radius-width))/(radius-width);
-                    gl_FragColor = vec4(color,dis);
+            float movingLine(vec2 position, vec2 center, float radius)
+            {
+                //angle of the line
+                float theta0 = theta;
+                vec2 d = position - center;
+                float r = sqrt( dot( d, d ) );
+                if(r<20.0)
+                {
+                    //compute the distance to the line theta=theta0
+                    vec2 p = radius*vec2(cos(theta0*M_PI/180.0), -sin(theta0*M_PI/180.0));
+                    float l = length( d - p*clamp( dot(d,p)/dot(p,p), 0.0, 1.0) );
+                    d = normalize(d);
+                    //compute gradient based on angle difference to theta0
+                    float theta = mod(180.0*atan(d.y,d.x)/M_PI+theta0,360.0);
+                    float gradient = clamp(1.0-theta/90.0,0.0,1.0);
+                    return 0.5*gradient;
                 }
+                else return 0.0;
+            }
+            void main()
+            {
+                float opacity;
+                vec2 center = vec2(0.0, 0.0);
+                opacity = movingLine(vPosition.xy, center, radius);
+                gl_FragColor = vec4( color, opacity );
+                
             }
         `
 
@@ -95,14 +109,9 @@ class SpreadCircle {
         return material
     }
     animate() {
-        // this.material.uniforms.radius.value += 0.1;//不使用tween动画，线性扩散
-		// if (this.material.uniforms.radius.value >= this.radius) {
-        //     console.log('a')
-        //     console.log(this.options.radius)
-		// 	this.material.uniforms.radius.value = this.options.radius || this.radius/10;
-		// }
         this.start = requestAnimationFrame(this.animate.bind(this))
         TWEEN.update()
+        // this.material.uniforms.iTime.value += 0.01
     }
     stop() {
         if(this.start) {
@@ -115,4 +124,4 @@ class SpreadCircle {
     }
 }
 
-export default SpreadCircle
+export default ScanCircle
