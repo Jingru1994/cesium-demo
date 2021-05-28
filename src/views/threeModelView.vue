@@ -104,6 +104,7 @@ export default ({
             this.scene = scene
             scene.background = new THREE.Color(0xa0a0a0)
             scene.fog = new THREE.Fog( '#04613b', 300, 500);
+            // scene.fog = new THREE.Fog( 0x04613b, 300, 500);
             const canvas = document.querySelector('#three')
             const renderer = new THREE.WebGLRenderer({canvas,antialias: true})
             this.renderer = renderer

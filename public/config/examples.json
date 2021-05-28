@@ -101,6 +101,10 @@
         "name": "scanCircle",
         "label": "扫描圆",
         "suffix": "gif"
+      },
+      {
+        "name": "adjustLight",
+        "label": "调整灯光"
       }
     ]
   }

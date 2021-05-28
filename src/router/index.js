@@ -119,6 +119,18 @@ const routes = [
     name: "scanCircle",
     component: () =>
     import(/* webpackChunkName: "scanCircle" */ "@/views/threeScanCircle.vue")
+  },
+  {
+    path: "/macroScene",
+    name: "macroScene",
+    component: () =>
+    import(/* webpackChunkName: "macroScene" */ "@/views/threeMacroScene.vue")
+  },
+  {
+    path: "/adjustLight",
+    name: "adjustLight",
+    component: () =>
+    import(/* webpackChunkName: "adjustLight" */ "@/views/threeAdjustLight.vue")
   }
 ];
 
