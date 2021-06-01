@@ -10,8 +10,10 @@ import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
-import * as d3 from 'd3-geo'
+import * as d3 from 'd3'
 import * as dat from 'dat.gui'
+// const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
+
 // var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
@@ -239,6 +241,7 @@ export default ({
                         points.forEach(point => {
                             points_prj.push(this.projection(point, this.center))
                         })
+                        console.log(points_prj)
                         let item = this.drawExtrude(this.drawShape(points_prj))
                         item.label = feature.properties.name
 
@@ -285,48 +288,46 @@ export default ({
         createInnerGlowMaterial(feature) {
             let center = this.computeFeatureCenter(feature)
 
-            // data.features.forEach((feature) => {
-            //     feature.geometry.coordinates.forEach(coordinate => {
-            //         coordinate.forEach(points => {
-            //             let points_prj = []
-            //             console.log(feature)
-            //             console.log(coordinate)
-            //             points.forEach(point => {
-            //                 // let [x,y] 
-            //                 points_prj.push(this.projection(point, this.center))
-            //             })
-            //             for(let i = 0; i < points.length; i++) {
-            //                 debugger
-            //             }
-
-            //         })
-                    
-                    
-            //     }) 
-            // })
-            
             let length = feature.geometry.coordinates.length
             console.log(length)
+            let points_prj = []
+            let projection = d3.geoMercator().center(center).translate([0, 0])
             for(let i = 0; i < length; i++){
                 let points = feature.geometry.coordinates[i][0]
-                let points_prj = []
+                points_prj = []
                 points.forEach(point => {
-                    points_prj.push(this.projection(point, center))
+                    let postPoint = projection(point)
+                    points_prj.push([postPoint[0]*50,postPoint[1]*50])
                 })
                 feature.geometry.coordinates[i][0] = points_prj
             }
             console.log(feature)
-            let xMax = Math.max(...coordinateList.map(item => { return item[0] }))
-            let xMin = Math.min(...coordinateList.map(item => { return item[0] }))
-            let yMax = Math.max(...coordinateList.map(item => { return item[1] }))
-            let yMin = Math.min(...coordinateList.map(item => { return item[1] }))
+            let xMax = Math.max(...points_prj.map(item => { return item[0] }))
+            let xMin = Math.min(...points_prj.map(item => { return item[0] }))
+            let yMax = Math.max(...points_prj.map(item => { return item[1] }))
+            let yMin = Math.min(...points_prj.map(item => { return item[1] }))
+            let width = xMax - xMin
+            let height = yMax - yMin
+            console.log(points_prj)
+            console.log(width,height)
             debugger
             
-            let projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
-            let path = d3.geo.path().projection(projection)
-            var canvas = d3.select("body").append("canvas")
-                .attr("width", 1200)
-                .attr("height", 800);
+            // let projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
+            console.log(d3)
+            let path = d3.geoPath().projection(null)
+            let canvas = d3.select("body").append("canvas")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("style", "display: none")
+            // canvas.style.display = "none"
+            let context = canvas.node().getContext('2d')
+            context.translate(width/2, height/2);
+            let canvasPath = path.context(context)
+            context.fillStyle = "#000"
+            context.beginPath(); 
+            canvasPath(feature);
+            context.fill();
+
 
 
 
@@ -340,7 +341,6 @@ export default ({
                 this.createInnerGlowMaterial(feature)
             })
             
-            console.log(data)
             console.log(features)
             
             let material = this.createSpreadCircleMaterial()
