@@ -9,11 +9,10 @@
 import axios from 'axios'
 
 export function  getPublicData(name) {
-    console.log(process.env.BASE_URL);
-    console.log( window.location.pathname);
+    // console.log(process.env.BASE_URL);
+    // console.log( window.location.pathname);
     let prefix = process.env.NODE_ENV === "production" ? window.location.pathname : "";
     return axios.get(prefix + `${name}`).then((data)=>{
-        console.log(data);
         if(data.data){
             return Promise.resolve(data.data)
         }
