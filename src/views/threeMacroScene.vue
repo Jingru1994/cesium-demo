@@ -179,6 +179,8 @@ export default ({
             this.renderer.render(this.scene,this.camera)
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
+
+            // this.texture.needsUpdate = true
             
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
@@ -241,7 +243,6 @@ export default ({
                         points.forEach(point => {
                             points_prj.push(this.projection(point, this.center))
                         })
-                        console.log(points_prj)
                         let item = this.drawExtrude(this.drawShape(points_prj))
                         item.label = feature.properties.name
 
@@ -285,11 +286,13 @@ export default ({
             plane.position.z = this.depth + 0.01
             this.scene.add(plane)
         },
-        createInnerGlowMaterial(feature) {
+        createInnerGlowMaterial(feature1) {
+            let feature = JSON.stringify(feature1)
+            feature = JSON.parse(feature)
             let center = this.computeFeatureCenter(feature)
 
+
             let length = feature.geometry.coordinates.length
-            console.log(length)
             let points_prj = []
             let projection = d3.geoMercator().center(center).translate([0, 0])
             for(let i = 0; i < length; i++){
@@ -301,19 +304,14 @@ export default ({
                 })
                 feature.geometry.coordinates[i][0] = points_prj
             }
-            console.log(feature)
             let xMax = Math.max(...points_prj.map(item => { return item[0] }))
             let xMin = Math.min(...points_prj.map(item => { return item[0] }))
             let yMax = Math.max(...points_prj.map(item => { return item[1] }))
             let yMin = Math.min(...points_prj.map(item => { return item[1] }))
-            let width = xMax - xMin
-            let height = yMax - yMin
-            console.log(points_prj)
-            console.log(width,height)
-            debugger
+            let width = (xMax - xMin).toFixed(2)
+            let height = (yMax - yMin).toFixed(2)
             
             // let projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
-            console.log(d3)
             let path = d3.geoPath().projection(null)
             let canvas = d3.select("body").append("canvas")
                 .attr("width", width)
@@ -323,11 +321,158 @@ export default ({
             let context = canvas.node().getContext('2d')
             context.translate(width/2, height/2);
             let canvasPath = path.context(context)
-            context.fillStyle = "#000"
+            context.fillStyle = "rgba(255,0,0)"
             context.beginPath(); 
             canvasPath(feature);
             context.fill();
+            let canvas1 = canvas._groups[0][0]
+            console.log(canvas1)
+            let texture = new THREE.Texture(canvas1)
+            texture.needsUpdate = true
 
+            let uniforms = {
+                // offset: {
+                //     type: 'f',
+                //     value: 1.0
+                // },
+                glowColor: {
+                    value: new THREE.Color('rgb(255,0,0)')
+                },
+                glowColorSize: {
+                    value: 0.15
+                },
+                glowThreshold: {
+                    value: 0.2
+                },
+                texture1: {
+                    value: texture
+                }
+                // radius: {
+                //     value: annulus_radius
+                // },
+                // width: {
+                //     value: width
+                // }
+            }
+            // this.uniforms = uniforms
+            let vertexShader = `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                void main(){
+                    vPosition = position;
+                    // vUv = vec2(position.x,position.y);
+                    vUv = uv;
+                    gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `
+            let fragmentShader = `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                uniform vec3 glowColor;
+                uniform float glowColorSize;
+                uniform float glowThreshold;
+                uniform sampler2D texture1;
+
+                /**
+                * 获取指定角度方向，距离为xxx的像素的透明度
+                *
+                * @param angle 角度 [0.0, 360.0]
+                * @param dist 距离 [0.0, 1.0]
+                *
+                * @return alpha [0.0, 1.0]
+                */
+                float getColorAlpha(float angle, float dist) {
+                    // 角度转弧度，公式为：弧度 = 角度 * (pi / 180)
+                    // float radian = radians(angle); // 这个浮点数是 pi / 180
+                    float radian = radians(angle);
+                    // vec4 color = getTextureColor(texture, v_uv0 + vec2(dist * cos(radian), dist * sin(radian)));
+                    vec4 color = texture2D(texture1, vUv + vec2(dist * cos(radian), dist * sin(radian))); 
+                    // vec4 color = texture2D(texture1, vUv); 
+                    return color.a;
+                }
+                // /**
+                // * 获取指定距离的周边像素的透明度平均值
+                // *
+                // * @param dist 距离 [0.0, 1.0]
+                // *
+                // * @return average alpha [0.0, 1.0]
+                // */
+                float getAverageAlpha(float dist) {
+                    float totalAlpha = 0.0;
+                    // 以30度为一个单位，那么「周边一圈」就由0到360度中共计12个点的组成
+                    totalAlpha += getColorAlpha(0.0, dist);
+                    totalAlpha += getColorAlpha(30.0, dist);
+                    totalAlpha += getColorAlpha(60.0, dist);
+                    totalAlpha += getColorAlpha(90.0, dist);
+                    totalAlpha += getColorAlpha(120.0, dist);
+                    totalAlpha += getColorAlpha(150.0, dist);
+                    totalAlpha += getColorAlpha(180.0, dist);
+                    totalAlpha += getColorAlpha(210.0, dist);
+                    totalAlpha += getColorAlpha(240.0, dist);
+                    totalAlpha += getColorAlpha(270.0, dist);
+                    totalAlpha += getColorAlpha(300.0, dist);
+                    totalAlpha += getColorAlpha(330.0, dist);
+                    return totalAlpha * 0.0833; // 1 / 12 = 0.08333
+                }
+                // /**
+                // * 获取发光的透明度
+                // */
+                float getGlowAlpha() {
+                    // 如果发光宽度为0，直接返回0.0透明度，减少计算量
+                    if (glowColorSize == 0.0) {
+                        return 0.0;
+                    }
+
+                    // 将传入的指定距离，平均分成10圈，求出每一圈的平均透明度，
+                    // 然后求和取平均值，那么就可以得到该点的平均透明度
+                    float totalAlpha = 0.0;
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.1);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.2);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.3);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.4);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.5);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.6);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.7);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.8);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.9);
+                    totalAlpha += getAverageAlpha(glowColorSize * 1.0);
+                    return totalAlpha * 0.1;
+                }
+
+
+                void main(){
+                    
+                    // gl_FragColor = vec4(vUv.x,vUv.y,0.0,1.0);
+                    float alpha = getGlowAlpha();
+                    // float alpha = getColorAlpha(0.0,1.0);
+                    alpha = 1.0 - alpha;
+                    alpha = -1.0 * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) + 1.0;
+      
+                    gl_FragColor = vec4(glowColor, alpha);
+
+                }
+            `
+
+            const material = new THREE.ShaderMaterial({
+                side: THREE.DoubleSide,
+                transparent: true,
+                // depthWrite: false,
+                // depthTest: false,
+                uniforms: uniforms,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                
+            });
+
+            // let texture = new THREE.Texture(canvas)
+            // texture.needsUpdate = true
+
+            // let rsMaterial = new THREE.MeshBasicMaterial({
+            //     map: texture,
+            //     // transparent: true,
+            //     // side: THREE.DoubleSide,
+            // })
+            return material
 
 
 
@@ -337,14 +482,7 @@ export default ({
         async drawGlowMap() {
             const group = new THREE.Group()
             let features = await this.getData('data/kerqin.geojson')
-            features.forEach(feature => {
-                this.createInnerGlowMaterial(feature)
-            })
             
-            console.log(features)
-            
-            let material = this.createSpreadCircleMaterial()
-
             let rsTexture = new THREE.TextureLoader().load(
                 '/images/kerqin.png'
             )
@@ -360,11 +498,20 @@ export default ({
                 opacity: 0.6
                 // side: THREE.DoubleSide,
             })
+
+            
+            // features.forEach((feature) => {
+            //     let material = this.createInnerGlowMaterial(feature)
+            // })
+            let material = this.createInnerGlowMaterial(features[0])
+            let aaaa = this.createSpreadCircleMaterial()
+            
             
 
 
 
             features.forEach((feature) => {
+                
                 feature.geometry.coordinates.forEach(coordinate => {
                     coordinate.forEach(points => {
                         let points_prj = []
@@ -378,7 +525,7 @@ export default ({
                         
                         // let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
                         
-                        let item = new THREE.Mesh(geometry, material)
+                        let item = new THREE.Mesh(geometry, rsMaterial)
                         item.label = feature.properties.name
 
                         item.position.z = this.depth + 0.01
@@ -387,6 +534,8 @@ export default ({
                         // item.position.y = item.position.y - this.offsetY
 
                         this.reMapUv(item.geometry)
+                        item.material = material
+                        item.renderOrder = 9
                         // item.position.set(0,0,this.depth+0.01)
 
                         //获取包围盒位置，获取几何中心坐标
@@ -627,13 +776,13 @@ export default ({
                 //     vec4 color = getTextureColor(texture, v_uv0 + vec2(dist * cos(radian), dist * sin(radian))); 
                 //     return color.a;
                 // }
-                // /**
-                // * 获取指定距离的周边像素的透明度平均值
-                // *
-                // * @param dist 距离 [0.0, 1.0]
-                // *
-                // * @return average alpha [0.0, 1.0]
-                // */
+                /**
+                * 获取指定距离的周边像素的透明度平均值
+                *
+                * @param dist 距离 [0.0, 1.0]
+                *
+                * @return average alpha [0.0, 1.0]
+                */
                 // float getAverageAlpha(float dist) {
                 //     float totalAlpha = 0.0;
                 //     // 以30度为一个单位，那么「周边一圈」就由0到360度中共计12个点的组成
@@ -651,9 +800,9 @@ export default ({
                 //     totalAlpha += getColorAlpha(330.0, dist);
                 //     return totalAlpha * 0.0833; // 1 / 12 = 0.08333
                 // }
-                // /**
-                // * 获取发光的透明度
-                // */
+                /**
+                * 获取发光的透明度
+                */
                 // float getGlowAlpha() {
                 //     // 如果发光宽度为0，直接返回0.0透明度，减少计算量
                 //     if (glowColorSize == 0.0) {
