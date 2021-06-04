@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import * as TWEEN from "@tweenjs/tween.js"
+import TweenEasingType from "./TweenEasingType.js"
 // var TWEEN = require('@tweenjs/tween.js')
 
 
@@ -12,15 +13,17 @@ class SpreadCircle {
      /**
      * SpreadCircle构造函数
      *
-     * @param {Vector3} center 扩散圆位置
-     * @param {Number} radius 扩散圆半径
      * @param {Object} options 阔散圆样式
+     * @param {Vector3} options.center 扩散圆位置
+     * @param {Number} options.radius 扩散圆半径
      * @param {Color} options.color 圆环颜色
-     * @param {Number} options.radius 圆环初始半径
+     * @param {Number} options.initRadius 圆环初始半径
      * @param {Number} options.width 圆环半径
      * @param {Number} options.duration 单个动画持续时间
+     * @param {String} options.easingType 动画类型，可选项可从TweenEasingType.js查看
      */
-    constructor(center, radius, options) {
+    constructor(options) {
+        let radius = options && options.radius || 20
         this.radius = radius
         this.options = options
         let material = this.createSpreadCircleMaterial(options)
@@ -28,23 +31,26 @@ class SpreadCircle {
         // const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
         let geometry = new THREE.CircleGeometry(radius,120)
         let mesh = new THREE.Mesh(geometry,material)
-        mesh.position.copy(center)
+        let position = options && options.center || new THREE.Vector3(0,0,0)
+        mesh.position.copy(position)
         this.mesh = mesh
-        let duration = options.duration || 3000
-        SpreadCircle.MY_TWEEN = new TWEEN.Tween(material.uniforms.radius) 
+        let duration = options && options.duration || 3000
+        let easingType = options && options.easingType || 'cubicOut'
+        SpreadCircle.MY_TWEEN = new TWEEN.Tween(material.uniforms.radius)
             .to({value:radius}, duration)
-            .easing(TWEEN.Easing.Cubic.Out)
+            .easing(TweenEasingType[easingType])
             .repeat(Infinity)
             .start()
-        this.animate(material,radius,options)
+        // this.animate(material,radius,options)
+        this.animate()
     }
     get mesh() {
         return this.mesh
     }
     createSpreadCircleMaterial(options) {
-        let color = options.color || new THREE.Color("rgb(255, 255, 255)")
-        let annulus_radius = options.radius || this.radius/10
-        let width = options.width || this.radius/10
+        let color = options && options.color || new THREE.Color("rgb(255, 255, 255)")
+        let annulus_radius = options && options.initRadius || this.radius/10
+        let width = options && options.width || this.radius/10
         console.log(annulus_radius)
         
         let uniforms = {
@@ -52,6 +58,9 @@ class SpreadCircle {
                 value: color
             },
             radius: {
+                value: annulus_radius
+            },
+            initRadius: {
                 value: annulus_radius
             },
             width: {
@@ -70,16 +79,22 @@ class SpreadCircle {
             varying vec3 vPosition;
             uniform vec3 color;
             uniform float radius;
+            uniform float initRadius;
             uniform float width;
 
             void main(){
                 float pct=distance(vec2(vPosition.x,vPosition.y),vec2(0.0));
-                if(pct>radius || pct<(radius-width)){
+                if(pct<initRadius){
                     gl_FragColor = vec4(1.0,0.0,0.0,0);
-                }else{
-                    float dis=(pct-(radius-width))/(radius-width);
-                    gl_FragColor = vec4(color,dis);
+                }else {
+                    if(pct>radius || pct<(radius-width)){
+                        gl_FragColor = vec4(1.0,0.0,0.0,0);
+                    }else{
+                        float dis=(pct-(radius-width))/(radius);
+                        gl_FragColor = vec4(color,dis);
+                    }
                 }
+                
             }
         `
 
@@ -98,8 +113,8 @@ class SpreadCircle {
         // this.material.uniforms.radius.value += 0.1;//不使用tween动画，线性扩散
 		// if (this.material.uniforms.radius.value >= this.radius) {
         //     console.log('a')
-        //     console.log(this.options.radius)
-		// 	this.material.uniforms.radius.value = this.options.radius || this.radius/10;
+        //     console.log(this.options.initRadius)
+		// 	this.material.uniforms.radius.value = this.options.initRadius || this.radius/10;
 		// }
         this.start = requestAnimationFrame(this.animate.bind(this))
         TWEEN.update()

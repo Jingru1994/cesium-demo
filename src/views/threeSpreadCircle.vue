@@ -324,9 +324,11 @@ export default ({
                 }
             }
             let options = {
+                center: circleCenter,
+                radius: 20,
                 color: new THREE.Color("rgb(204, 255, 0)")
             }
-            let spreadCircle = new SpreadCircle(circleCenter,20,options)
+            let spreadCircle = new SpreadCircle(options)
             console.log(spreadCircle)
             // SpreadCircle.animate()
             

@@ -17,9 +17,9 @@ class ODLine {
      * @param {Vector3} maxDistaces 所有线段中长度最大值
      * @param {Vector3} minDistance 所有线段中长度最小值
      * @param {Number} height 拉伸地图厚度，贝塞尔曲线辅助点高度基础高度
-     * @param {Element} options.element canvas容器
+     * @param {Element} dom canvas容器
      * @param {Object} options 线样式
-     * @param {Color} options.isHalf 高亮区域形状
+     * @param {Boolean} options.isHalf 高亮区域形状
      * @param {Number} options.length 高亮部分在飞线总长度占比
      * @param {Number} options.lineWidth 线宽
      * @param {Color} options.color 线颜色，只设置一个颜色，line和light是同一色系颜色
