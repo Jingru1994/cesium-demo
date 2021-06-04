@@ -10,8 +10,11 @@ import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
-import * as d3 from 'd3-geo'
+import * as d3 from 'd3'
 import * as dat from 'dat.gui'
+import InnerGlowMaterial from '@/utils/widgets/InnerGlow/InnerGlowMaterial.js'
+// const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
+
 // var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
@@ -44,7 +47,6 @@ export default ({
         
     },
     beforeDestroy() {
-        console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
         this.renderer = null
         this.scene = null
@@ -116,18 +118,18 @@ export default ({
         initControls(renderer) {
             let controls
             if(renderer) {
-                controls = new OrbitControls(this.camera, renderer.domElement)
-                // controls = new TrackballControls(this.camera, renderer.domElement)
+                // controls = new OrbitControls(this.camera, renderer.domElement)
+                controls = new TrackballControls(this.camera, renderer.domElement)
             }else {
-                controls = new OrbitControls(this.camera, this.renderer.domElement)
-                // controls = new TrackballControls(this.camera, this.renderer.domElement)
+                // controls = new OrbitControls(this.camera, this.renderer.domElement)
+                controls = new TrackballControls(this.camera, this.renderer.domElement)
             }
             //OrbitControls参数设置
-            controls.enableDamping = true
+            // controls.enableDamping = true
             //TrackballControls参数设置
-            // controls.rotateSpeed = 2.0
-            // controls.zoomSpeed = 2.0
-            // controls.panSpeed = 1.0
+            controls.rotateSpeed = 2.0
+            controls.zoomSpeed = 2.0
+            controls.panSpeed = 1.0
             this.controls = controls
         },
         initLight() {
@@ -150,7 +152,6 @@ export default ({
             // dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024)
             
             dirLight.target = this.target
-            console.log(dirLight.target)
             dirLight.shadow.camera.near = 10
             dirLight.shadow.camera.far = 50
             dirLight.shadow.camera.left = -10
@@ -179,6 +180,8 @@ export default ({
             this.renderer.render(this.scene,this.camera)
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
+
+            // this.texture.needsUpdate = true
             
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
@@ -232,24 +235,21 @@ export default ({
                 // side: THREE.DoubleSide,
 
             })
+            this.center = this.computeFeaturesCenter(features)
 
             features.forEach((feature) => {
                 feature.geometry.coordinates.forEach(coordinate => {
                     coordinate.forEach(points => {
                         let points_prj = []
                         points.forEach(point => {
-                            // let [x,y] 
-                            points_prj.push(this.projection(point))
+                            points_prj.push(this.projection(point, this.center))
                         })
                         let item = this.drawExtrude(this.drawShape(points_prj))
                         item.label = feature.properties.name
-                        debugger
-                        console.log(item)
+
                         // this.adjustModel(item)
-                        let bBox = new THREE.Box3()
-                        bBox.setFromObject(item)
-                        console.log(bBox)
-                        console.log(item)
+                        // item.position.z = this.depth/2
+
                         this.reMapUv(item.geometry)
 
                         item.material[0] = rsMaterial
@@ -285,13 +285,205 @@ export default ({
             })
             const plane = new THREE.Mesh( new THREE.PlaneGeometry( 12, 12.6 ), rsMaterial);
             plane.position.z = this.depth + 0.01
-            console.log(plane)
             this.scene.add(plane)
+        },
+        createInnerGlowMaterial(feature1) {
+            let feature = JSON.stringify(feature1)
+            feature = JSON.parse(feature)
+            let center = this.computeFeatureCenter(feature)
+
+
+            let length = feature.geometry.coordinates.length
+            let points_prj = []
+            let projection = d3.geoMercator().center(center).translate([0, 0])
+            for(let i = 0; i < length; i++){
+                let points = feature.geometry.coordinates[i][0]
+                points_prj = []
+                points.forEach(point => {
+                    let postPoint = projection(point)
+                    points_prj.push([postPoint[0]*50,postPoint[1]*50])
+                })
+                feature.geometry.coordinates[i][0] = points_prj
+            }
+            let xMax = Math.max(...points_prj.map(item => { return item[0] }))
+            let xMin = Math.min(...points_prj.map(item => { return item[0] }))
+            let yMax = Math.max(...points_prj.map(item => { return item[1] }))
+            let yMin = Math.min(...points_prj.map(item => { return item[1] }))
+            let width = (xMax - xMin).toFixed(2)
+            let height = (yMax - yMin).toFixed(2)
+            
+            // let projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
+            let path = d3.geoPath().projection(null)
+            let canvas = d3.select("body").append("canvas")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("style", "display: none")
+            // canvas.style.display = "none"
+            let context = canvas.node().getContext('2d')
+            context.translate(width/2, height/2);
+            let canvasPath = path.context(context)
+            context.fillStyle = "rgba(255,0,0)"
+            context.beginPath(); 
+            canvasPath(feature);
+            context.fill();
+            let canvas1 = canvas._groups[0][0]
+            console.log(canvas1)
+            let texture = new THREE.Texture(canvas1)
+            texture.needsUpdate = true
+
+            let uniforms = {
+                // offset: {
+                //     type: 'f',
+                //     value: 1.0
+                // },
+                glowColor: {
+                    value: new THREE.Color('rgb(255,0,0)')
+                },
+                glowColorSize: {
+                    value: 0.15
+                },
+                glowThreshold: {
+                    value: 0.2
+                },
+                texture1: {
+                    value: texture
+                }
+                // radius: {
+                //     value: annulus_radius
+                // },
+                // width: {
+                //     value: width
+                // }
+            }
+            // this.uniforms = uniforms
+            let vertexShader = `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                void main(){
+                    vPosition = position;
+                    // vUv = vec2(position.x,position.y);
+                    vUv = uv;
+                    gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `
+            let fragmentShader = `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                uniform vec3 glowColor;
+                uniform float glowColorSize;
+                uniform float glowThreshold;
+                uniform sampler2D texture1;
+
+                /**
+                * 获取指定角度方向，距离为xxx的像素的透明度
+                *
+                * @param angle 角度 [0.0, 360.0]
+                * @param dist 距离 [0.0, 1.0]
+                *
+                * @return alpha [0.0, 1.0]
+                */
+                float getColorAlpha(float angle, float dist) {
+                    // 角度转弧度，公式为：弧度 = 角度 * (pi / 180)
+                    // float radian = radians(angle); // 这个浮点数是 pi / 180
+                    float radian = radians(angle);
+                    // vec4 color = getTextureColor(texture, v_uv0 + vec2(dist * cos(radian), dist * sin(radian)));
+                    vec4 color = texture2D(texture1, vUv + vec2(dist * cos(radian), dist * sin(radian))); 
+                    // vec4 color = texture2D(texture1, vUv); 
+                    return color.a;
+                }
+                // /**
+                // * 获取指定距离的周边像素的透明度平均值
+                // *
+                // * @param dist 距离 [0.0, 1.0]
+                // *
+                // * @return average alpha [0.0, 1.0]
+                // */
+                float getAverageAlpha(float dist) {
+                    float totalAlpha = 0.0;
+                    // 以30度为一个单位，那么「周边一圈」就由0到360度中共计12个点的组成
+                    totalAlpha += getColorAlpha(0.0, dist);
+                    totalAlpha += getColorAlpha(30.0, dist);
+                    totalAlpha += getColorAlpha(60.0, dist);
+                    totalAlpha += getColorAlpha(90.0, dist);
+                    totalAlpha += getColorAlpha(120.0, dist);
+                    totalAlpha += getColorAlpha(150.0, dist);
+                    totalAlpha += getColorAlpha(180.0, dist);
+                    totalAlpha += getColorAlpha(210.0, dist);
+                    totalAlpha += getColorAlpha(240.0, dist);
+                    totalAlpha += getColorAlpha(270.0, dist);
+                    totalAlpha += getColorAlpha(300.0, dist);
+                    totalAlpha += getColorAlpha(330.0, dist);
+                    return totalAlpha * 0.0833; // 1 / 12 = 0.08333
+                }
+                // /**
+                // * 获取发光的透明度
+                // */
+                float getGlowAlpha() {
+                    // 如果发光宽度为0，直接返回0.0透明度，减少计算量
+                    if (glowColorSize == 0.0) {
+                        return 0.0;
+                    }
+
+                    // 将传入的指定距离，平均分成10圈，求出每一圈的平均透明度，
+                    // 然后求和取平均值，那么就可以得到该点的平均透明度
+                    float totalAlpha = 0.0;
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.1);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.2);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.3);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.4);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.5);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.6);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.7);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.8);
+                    totalAlpha += getAverageAlpha(glowColorSize * 0.9);
+                    totalAlpha += getAverageAlpha(glowColorSize * 1.0);
+                    return totalAlpha * 0.1;
+                }
+
+
+                void main(){
+                    
+                    // gl_FragColor = vec4(vUv.x,vUv.y,0.0,1.0);
+                    float alpha = getGlowAlpha();
+                    // float alpha = getColorAlpha(0.0,1.0);
+                    alpha = 1.0 - alpha;
+                    alpha = -1.0 * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) + 1.0;
+      
+                    gl_FragColor = vec4(glowColor, alpha);
+
+                }
+            `
+
+            const material = new THREE.ShaderMaterial({
+                side: THREE.DoubleSide,
+                transparent: true,
+                // depthWrite: false,
+                // depthTest: false,
+                uniforms: uniforms,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                
+            });
+
+            // let texture = new THREE.Texture(canvas)
+            // texture.needsUpdate = true
+
+            // let rsMaterial = new THREE.MeshBasicMaterial({
+            //     map: texture,
+            //     // transparent: true,
+            //     // side: THREE.DoubleSide,
+            // })
+            return material
+
+
+
+
+                
         },
         async drawGlowMap() {
             const group = new THREE.Group()
             let features = await this.getData('data/kerqin.geojson')
-
+            
             let rsTexture = new THREE.TextureLoader().load(
                 '/images/kerqin.png'
             )
@@ -301,38 +493,76 @@ export default ({
             rsTexture.generateMipmaps = true
             rsTexture.anisotropy= 4//使纹理斜着的时候不变模糊，沿纹理单元密度最高方向的轴线所取样本数，默认为1，通常为2的幂，越大越清晰，但需要更多的采样，为4时就比较清楚了
             // rsTexture.anisotropy= this.renderer.getMaxAnisotropy()//getMaxAnisotropy()找到GPU有效最大的anisotropy值，这个设备为16
-            
             let rsMaterial = new THREE.MeshBasicMaterial({
                 map: rsTexture,
                 transparent: true,
                 opacity: 0.6
                 // side: THREE.DoubleSide,
-
             })
 
+            
+            // features.forEach((feature) => {
+            //     let material = this.createInnerGlowMaterial(feature)
+            // })
+            // let material = this.createInnerGlowMaterial(features[0])
+            // let aaaa = this.createSpreadCircleMaterial()
+            
+            
+
+
+            let materialOptions = {
+                glowColor: new THREE.Color('#F3FC93')
+            }
             features.forEach((feature) => {
+                // let material = new InnerGlowMaterial(feature, materialOptions)
+                let material = new InnerGlowMaterial(feature, materialOptions).material
                 feature.geometry.coordinates.forEach(coordinate => {
                     coordinate.forEach(points => {
                         let points_prj = []
                         points.forEach(point => {
                             // let [x,y] 
-                            points_prj.push(this.projection(point))
+                            points_prj.push(this.projection(point, this.center))
                         })
+
                         let shape = this.drawShape(points_prj)
                         let geometry = new THREE.ShapeGeometry(shape)
                         
-                        let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
+                        // let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
                         
-                        let item = new THREE.Mesh(geometry, rsMaterial)
+                        let item = new THREE.Mesh(geometry, material)
                         item.label = feature.properties.name
 
                         item.position.z = this.depth + 0.01
                         // item.position.z = this.depth + 0.015
                         // item.position.x = item.position.x - this.offsetX
                         // item.position.y = item.position.y - this.offsetY
-                        
 
                         this.reMapUv(item.geometry)
+                        // item.material = material
+                        item.renderOrder = 9 //解决某些角度透明部分模型消失的问题
+                        // item.position.set(0,0,this.depth+0.01)
+
+                        //获取包围盒位置，获取几何中心坐标
+                        let bBox2 = new THREE.Box3()
+                        bBox2.setFromObject(item)
+                        let x = bBox2.min.x + (bBox2.max.x - bBox2.min.x)/2
+                        let y = bBox2.min.y + (bBox2.max.y - bBox2.min.y)/2
+                        
+
+                        // 调整模型中心
+                        item.traverse(function(o){
+                            if(o.isMesh) {
+                                // o.geometry.computeBoundingBox()
+                                o.geometry.center()
+                            }
+                        })
+
+                        //调整模型位置
+                        item.position.set(x,y, this.depth+0.01)
+
+                        // let boxHelper;
+                        // boxHelper = new THREE.BoxHelper( item, 0x000000 ); //显示包围盒
+                        // this.scene.add(boxHelper)
 
                         group.add(item)
                     })
@@ -357,24 +587,6 @@ export default ({
                 bevelEnabled: false
             }
             let geometry = new THREE.ExtrudeGeometry(shapeObj,extrudeSettings)
-            debugger
-
-            let rsTexture = new THREE.TextureLoader().load(
-                '/images/rs/tongliaioL10c.png'
-            )
-            rsTexture.wrapS = THREE.RepeatWrapping
-            rsTexture.wrapT = THREE.RepeatWrapping
-            rsTexture.flipY = true
-            rsTexture.generateMipmaps = true
-            rsTexture.anisotropy= 4//使纹理斜着的时候不变模糊，沿纹理单元密度最高方向的轴线所取样本数，默认为1，通常为2的幂，越大越清晰，但需要更多的采样，为4时就比较清楚了
-            // rsTexture.anisotropy= this.renderer.getMaxAnisotropy()//getMaxAnisotropy()找到GPU有效最大的anisotropy值，这个设备为16
-            
-            let rsMaterial = new THREE.MeshBasicMaterial({
-                map: rsTexture,
-                transparent: true,
-                // side: THREE.DoubleSide,
-
-            })
 
             let material1 = new THREE.MeshPhongMaterial({
                 color: new THREE.Color( 'rgba(33,76,65,1)' ),
@@ -389,11 +601,10 @@ export default ({
                 // specular: new THREE.Color('rgba(0,0,0,1)'),
                 shininess: 32.0
             })
-            let shapeGeometryObj = new THREE.Mesh(geometry, [rsMaterial, material2])
+            let shapeGeometryObj = new THREE.Mesh(geometry, [material1, material2])
             // shapeGeometryObj.position = geometry.boundingSphere.center
             // let shapeGeometryObj = new THREE.Mesh(geometry, material1)
             shapeGeometryObj.name = 'board'
-            console.log(shapeGeometryObj)
             return shapeGeometryObj
         },
         drawLine(posArr) {
@@ -431,82 +642,202 @@ export default ({
                 uvArray.array[i] = i % 2 ? (uvArray.array[i]+ offset.y) / range.y  : (uvArray.array[i] + offset.x) / range.x
                 // uvArray.array[i] = i % 2 ? uvArray.array[i] / range.y + offset.y : uvArray.array[i] / range.x + offset.x
             }
-            // uvArray.array = uvArray.array.map((item, index) => {
-            //     // index % 2 ? item / range.y + offset.y : item / range.x + offset.x
-            //     if(index % 2) {
-            //         item = item / range.y + offset.y 
-            //     }else{
-            //         item = item / range.x + offset.x
-            //     }
-            // })
-            
             geometry.setAttribute('uv', uvArray)
+            // console.log(geometry.getAttribute('uv'))
         },
-        projection(point) {
+        projection(point, center) {
+            const projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
             // const projection = d3.geoMercator().center([104.0, 37.5]).translate([0, 0]).reflectY(90)
-            const projection = d3.geoMercator().center([121.475, 43.955]).translate([0, 0]).reflectY(90)
             // const projection = d3.geoMercator().center([104.0, 37.5]).scale(10).translate([0, 0]).reflectY(90)
             return projection(point)
-
         },
         adjustModel(model) {
+            model.traverse(function(o){
+                if(o.isMesh) {
+                    // o.geometry.computeBoundingBox()
+                    o.geometry.center()
+                }
+            })
+            if(model.geometry.attributes.uv) {//uv列表更新，线框不需要这个步骤
+                let positionArray = model.geometry.getAttribute('position')
+                let uvArray = []
+                positionArray.array.forEach((item, index) => {
+                    if((index+1)%3) {
+                        uvArray.push(item)
+                    }
+                })
+                uvArray = new Float32Array(uvArray)
+                model.geometry.attributes.uv.array = uvArray
+            }
+            
             //调整模型位置至场景中心
-            let bBox = new THREE.Box3()
-            bBox.setFromObject(model)
-            let mLen = bBox.max.x - bBox.min.x
-            let mWid = bBox.max.z - bBox.min.z
-            let mHei = bBox.max.y - bBox.min.y
-            let x = bBox.min.x + mLen/2
-            let y = bBox.min.y + mHei/2
-            let z = bBox.min.z + mWid/2
+            let bBox1 = new THREE.Box3()
+            bBox1.setFromObject(model)
+            let mLen = bBox1.max.x - bBox1.min.x
+            let mWid = bBox1.max.z - bBox1.min.z
+            let mHei = bBox1.max.y - bBox1.min.y
+            let x = bBox1.min.x + mLen/2
+            let y = bBox1.min.y + mHei/2
+            let z = bBox1.min.z + mWid/2
 
             this.offsetX = model.position.x - (-x)
             this.offsetY = model.position.y - (-y)
 
             model.position.set(-x,-y,0)
+        },
+        computeFeatureCenter(feature) {
+            let coordinateList = []
+            feature.geometry.coordinates.forEach(coordinate => {
+                coordinate.forEach(points => {
+                    coordinateList.push(...points)
+                })
+            })
             
+            let xMax = Math.max(...coordinateList.map(item => { return item[0] }))
+            let xMin = Math.min(...coordinateList.map(item => { return item[0] }))
+            let yMax = Math.max(...coordinateList.map(item => { return item[1] }))
+            let yMin = Math.min(...coordinateList.map(item => { return item[1] }))
+            //计算最值的另一种方法
+            // let xMax1 = coordinateList.sort((a,b) => { return b[0]-a[0]})[0][0]
+            // let xMin1 = coordinateList.sort((a,b) => { return a[0]-b[0]})[0][0]
+            let center = [(xMax + xMin)/2, (yMax + yMin)/2]
+            return center
+        },
+        computeFeaturesCenter(features) {
+            let coordinateList = []
+            features.forEach(feature => {
+                feature.geometry.coordinates.forEach(coordinate => {
+                    coordinate.forEach(points => {
+                        coordinateList.push(...points)
+                    })
+                })
+            })
+            let xMax = Math.max(...coordinateList.map(item => { return item[0] }))
+            let xMin = Math.min(...coordinateList.map(item => { return item[0] }))
+            let yMax = Math.max(...coordinateList.map(item => { return item[1] }))
+            let yMin = Math.min(...coordinateList.map(item => { return item[1] }))
+            //计算最值的另一种方法
+            // let xMax1 = coordinateList.sort((a,b) => { return b[0]-a[0]})[0][0]
+            // let xMin1 = coordinateList.sort((a,b) => { return a[0]-b[0]})[0][0]
+            let center = [(xMax + xMin)/2, (yMax + yMin)/2]
+            return center
         },
         createSpreadCircleMaterial(options) {
-            let color = options.color || new THREE.Color("rgb(255, 255, 255)")
-            let annulus_radius = 6
-            let width = 2
-            console.log(annulus_radius)
+            // let color = options.color || new THREE.Color("rgb(255, 255, 255)")
+            // let annulus_radius = 6
+            // let width = 2
             
             let uniforms = {
-                color: {
-                    value: color
+                // offset: {
+                //     type: 'f',
+                //     value: 1.0
+                // },
+                glowColor: {
+                    value: new THREE.Color('rgb(255,0,0)')
                 },
-                radius: {
-                    value: annulus_radius
-                },
-                width: {
-                    value: width
+                glowColorSize: {
+                    value: 2.0
                 }
+                // radius: {
+                //     value: annulus_radius
+                // },
+                // width: {
+                //     value: width
+                // }
             }
             this.uniforms = uniforms
             let vertexShader = `
                 varying vec3 vPosition;
+                // varying vec3 vNormal;
+                // varying vec3 vUv;
+                // uniform float offset;
                 void main(){
                     vPosition=position;
+
+                    // vNormal = normal;
                     gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `
             let fragmentShader = `
                 varying vec3 vPosition;
-                uniform vec3 color;
-                uniform float radius;
-                uniform float width;
+                // varying vec3 vNormal;
+                // uniform vec3 color;
+                // uniform float radius;
+                // uniform float width;
+
+                /**
+                * 获取指定角度方向，距离为xxx的像素的透明度
+                *
+                * @param angle 角度 [0.0, 360.0]
+                * @param dist 距离 [0.0, 1.0]
+                *
+                * @return alpha [0.0, 1.0]
+                */
+                // float getColorAlpha(float angle, float dist) {
+                //     // 角度转弧度，公式为：弧度 = 角度 * (pi / 180)
+                //     // float radian = radians(angle); // 这个浮点数是 pi / 180
+                //     float radian = radians(angle);
+                //     vec4 color = getTextureColor(texture, v_uv0 + vec2(dist * cos(radian), dist * sin(radian))); 
+                //     return color.a;
+                // }
+                /**
+                * 获取指定距离的周边像素的透明度平均值
+                *
+                * @param dist 距离 [0.0, 1.0]
+                *
+                * @return average alpha [0.0, 1.0]
+                */
+                // float getAverageAlpha(float dist) {
+                //     float totalAlpha = 0.0;
+                //     // 以30度为一个单位，那么「周边一圈」就由0到360度中共计12个点的组成
+                //     totalAlpha += getColorAlpha(0.0, dist);
+                //     totalAlpha += getColorAlpha(30.0, dist);
+                //     totalAlpha += getColorAlpha(60.0, dist);
+                //     totalAlpha += getColorAlpha(90.0, dist);
+                //     totalAlpha += getColorAlpha(120.0, dist);
+                //     totalAlpha += getColorAlpha(150.0, dist);
+                //     totalAlpha += getColorAlpha(180.0, dist);
+                //     totalAlpha += getColorAlpha(210.0, dist);
+                //     totalAlpha += getColorAlpha(240.0, dist);
+                //     totalAlpha += getColorAlpha(270.0, dist);
+                //     totalAlpha += getColorAlpha(300.0, dist);
+                //     totalAlpha += getColorAlpha(330.0, dist);
+                //     return totalAlpha * 0.0833; // 1 / 12 = 0.08333
+                // }
+                /**
+                * 获取发光的透明度
+                */
+                // float getGlowAlpha() {
+                //     // 如果发光宽度为0，直接返回0.0透明度，减少计算量
+                //     if (glowColorSize == 0.0) {
+                //         return 0.0;
+                //     }
+
+                //     // 将传入的指定距离，平均分成10圈，求出每一圈的平均透明度，
+                //     // 然后求和取平均值，那么就可以得到该点的平均透明度
+                //     float totalAlpha = 0.0;
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.1);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.2);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.3);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.4);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.5);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.6);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.7);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.8);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 0.9);
+                //     totalAlpha += getAverageAlpha(glowColorSize * 1.0);
+                //     return totalAlpha * 0.1;
+                // }
+
 
                 void main(){
-                    gl_FragColor = vec4(1,1,1,1);
-                    // float pct=distance(vec2(vPosition.x,vPosition.y),vec2(0.0));
-                    // if(pct>radius || pct<(radius-width)){
-                    //     gl_FragColor = vec4(1.0,0.0,0.0,0);
-                    // }else{
-                    //     float dis=(pct-(radius-width))/(radius-width);
-                    //     // gl_FragColor = vec4(color,dis);
-                    //     gl_FragColor = vec4(color,1);
-                    // }
+                    
+                    gl_FragColor = vec4(vPosition.x,vPosition.y,0.0,1.0);
+                    // float alpha = getGlowAlpha();
+                    // alpha = 1.0 - alpha;
+      
+                    // gl_FragColor = glowColor * alpha;
+
                 }
             `
 
