@@ -10,17 +10,20 @@ import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
+// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+// import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
 import * as d3 from 'd3'
 import * as dat from 'dat.gui'
 import InnerGlowMaterial from '@/utils/widgets/InnerGlow/InnerGlowMaterial.js'
-import GradientCircle from '@/utils/widgets/GradientCircle/GradientCircle.js'
-import SpreadCircle from '@/utils/widgets/SpreadCircle/SpreadCircle.js'
+import ColumnCircleMark from '@/utils/widgets/ColumnCircleMark/ColumnCircleMark.js'
 // const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
 
 // var TWEEN = require('@tweenjs/tween.js');
 
 export default ({
-    name: "ThreeScanCircle",
+    name: "ThreeMacroScene",
     data() {
         return {
         }
@@ -35,7 +38,8 @@ export default ({
         this.addState()
         this.initControls()
         await this.drawMap()
-        this.drawColumnCircle()
+        // await this.drawColumnCircle()
+        this.createColumnCircleMark()
         this.initLight()
 
         this.addClickListener()
@@ -111,6 +115,18 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
+
+            //抗锯齿
+            // let composer = new EffectComposer(renderer)
+            // const renderPass = new RenderPass( scene, camera );
+            // composer.addPass( renderPass );
+            // // let FXAAShaderPass = new ShaderPass(FXAAShader)//对线没用
+            // // FXAAShaderPass.uniforms['resolution'].value.set(1/width, 1/height)
+            // // FXAAShaderPass.renderToScreen = true
+            // // composer.addPass(FXAAShaderPass)
+            // const pass = new SMAAPass( width * renderer.getPixelRatio(), height * renderer.getPixelRatio() );
+            // composer.addPass( pass );
+            // this.composer = composer
         },
         addState(){
             let state = new Stats()
@@ -176,11 +192,11 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            //GUI参数调整
-            // this.dirLight.position.x = this.guiControls.lightX
-            // this.dirLight.position.y = this.guiControls.lightY
-            // this.dirLight.position.z = this.guiControls.lightZ
+            // this.rippleCircleOpacityChange()
             this.renderer.render(this.scene,this.camera)
+
+            // this.composer.render()//抗锯齿
+            
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
 
@@ -419,75 +435,18 @@ export default ({
             let center = [(xMax + xMin)/2, (yMax + yMin)/2]
             return center
         },
-        drawColumnCircle(coordinate, options) {
-            let group = new THREE.Group()
-            // options.color
-            // let size = options.size
-            // let bottomCircle
-            
-            let topRing
-            let text
-            let gradientCircleOptions = {
-                center: new THREE.Vector3(0,0, this.depth+0.01),
-                color: new THREE.Color('rgb(255,67,46)'),
-                radius: 0.2
+        createColumnCircleMark() {
+            let options = {
+                size: 1.5,
+                text: '公司村',
+                position: new THREE.Vector3(2.32, -1.0, this.depth + 0.02)
+                // position: new THREE.Vector3(0, 0, this.depth + 0.1)
             }
-            let bottomCircle = new GradientCircle(gradientCircleOptions)
-            let spreadCircleeOptions = {
-                center: new THREE.Vector3(0,0, this.depth+0.01),
-                color: new THREE.Color('rgb(255,67,46)'),
-                radius: 0.5,
-                initRadius: 0.2,
-                width: 0.2
-            }
-            let bottomSpreadCircle = new SpreadCircle(spreadCircleeOptions)
-            let columnOptions = {
-                height: 1.5,
-                color: new THREE.Color('rgb(247,147,89)')
-            }
-            let column = this.creatteColumn(columnOptions)
-            let sqaureOptions = {
-                color: new THREE.Color('rgb(247,147,89)'),
-                size: 0.15,
-                height: 1.5,
-            }
-            let sqaure = this.createSqaure(sqaureOptions)
-            
-            group.add(bottomCircle.mesh)
-            group.add(bottomSpreadCircle.mesh)
-            group.add(column)
-            group.add(sqaure)
-            // group.position.set(0,0,this.depth+0.01)
-            this.scene.add(group)
+            let mark = new ColumnCircleMark(options)
+            mark.renderOrder = 50
+            console.log(mark.mesh)
+            this.scene.add(mark.mesh)
         },
-        creatteColumn(options){
-            let height = options.height
-            let color = options.color
-            let radius = options.height/80
-            console.log(radius)
-
-            let columnGoemetry = new THREE.CylinderGeometry(radius,radius,height)
-            let material = new THREE.MeshBasicMaterial({color: color})
-            let mesh = new THREE.Mesh(columnGoemetry,material)
-            mesh.rotation.x = Math.PI / 2
-            mesh.position.set(0,0,this.depth+height/2)
-            return mesh
-        },
-        createSqaure(options) {
-            let size = options.size
-            let color = options.color
-            let height = options.height
-
-            let sqaureGeometry = new THREE.PlaneGeometry(size, size)
-            let material = new THREE.MeshBasicMaterial({
-                color: color,
-                side: THREE.DoubleSide
-            })
-            let mesh = new THREE.Mesh(sqaureGeometry, material)
-            mesh.position.set(0,0,height*0.98 + this.depth)
-            return mesh
-
-        }
     }
 })
 </script>
