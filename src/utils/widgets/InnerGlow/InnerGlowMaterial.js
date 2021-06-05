@@ -119,7 +119,7 @@ class InnerGlowMaterial {
                 float alpha = getGlowAlpha();
 
                 alpha = 1.0 - alpha;
-                alpha = -1.0 * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) + 1.0;
+                // alpha = -1.0 * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) * (alpha - 1.0) + 1.0;
   
                 gl_FragColor = vec4(glowColor, alpha);
             }
