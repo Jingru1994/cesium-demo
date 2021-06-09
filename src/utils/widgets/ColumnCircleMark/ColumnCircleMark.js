@@ -69,11 +69,7 @@ class ColumnCircleMark {
         }
         let label = this.createText(textOptions)
         
-        mesh.add(bottomCircle.mesh)
-        mesh.add(bottomSpreadCircle.mesh)
-        mesh.add(column)
-        mesh.add(sqaure)
-        mesh.add(rippleCircle)
+        mesh.add(bottomCircle.mesh,bottomSpreadCircle.mesh,column,sqaure,rippleCircle)
         mesh.position.copy(position)
         this.mesh = mesh
         this.animate()
@@ -87,7 +83,7 @@ class ColumnCircleMark {
         let radius = options.height/80
         console.log(radius)
 
-        let columnGoemetry = new THREE.CylinderGeometry(radius,radius,height)
+        let columnGoemetry = new THREE.CylinderGeometry(radius,radius,height,32)
         let material = new THREE.MeshBasicMaterial({color: color})
         let mesh = new THREE.Mesh(columnGoemetry,material)
         mesh.rotation.x = Math.PI / 2
@@ -160,8 +156,8 @@ class ColumnCircleMark {
                 let textOptions = {
                     font: loadedFont,
 
-                    size: 0.2,
-                    height: 0.02,
+                    size: height*0.13,
+                    height: height*0.013,
                 }
                 let textGeometry = new THREE.TextGeometry(text,textOptions)
                 let material1 = new THREE.MeshBasicMaterial({color: new THREE.Color('rgb(242,242,242)')})
