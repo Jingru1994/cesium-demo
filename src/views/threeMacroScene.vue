@@ -10,17 +10,22 @@ import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-// import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { HorizontalTiltShiftShader } from 'three/examples/jsm/shaders/HorizontalTiltShiftShader.js'
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js'
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js'
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
+
 import * as d3 from 'd3'
 import * as dat from 'dat.gui'
 import InnerGlowMaterial from '@/utils/widgets/InnerGlow/InnerGlowMaterial.js'
 import ColumnCircleMark from '@/utils/widgets/ColumnCircleMark/ColumnCircleMark.js'
-// const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
+import BottomCircle from '@/utils/widgets/BottomCircle/BottomCircle.js'
 
-// var TWEEN = require('@tweenjs/tween.js');
+// const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
 
 export default ({
     name: "ThreeMacroScene",
@@ -32,23 +37,25 @@ export default ({
         
     },
     async mounted() {
-        this.depth = 0.2 //拉伸地图的厚度
+        this.interval = 0
+        this.depth = 1.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
         this.initScene()
+        // this.addPostProcessing()
         this.addState()
         this.initControls()
         await this.drawMap()
-        // await this.drawColumnCircle()
         this.createColumnCircleMark()
         this.initLight()
+        this.createBottomElements()
 
         this.addClickListener()
 
-        // let GUI = document.querySelector('.dg.main.a')
-        // if(GUI) {
-        //     GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
-        // }
-        // this.initGUI()
+        let GUI = document.querySelector('.dg.main.a')
+        if(GUI) {
+            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
+        }
+        this.initGUI()
         
         this.animate()
         
@@ -60,18 +67,25 @@ export default ({
         this.camera = null
     },
     methods: {
+        tenStepEasing(amount) {
+            const s = 1.70158 * 1.525
+			if ((amount *= 2) < 0.5) {
+				return 0.5 * (amount * amount * ((s + 1) * amount - s))
+			}
+			return 0.5 * ((amount -= 2) * amount * ((s + 1) * amount + s) + 2)
+        },
         initGUI() {
             let guiControls = {
-                lightX: -16,
-                lightY: -12,
-                lightZ: 0
+                focus: 10,
+                aperture: 5,
+                maxblur: 0.01
             }
             if(!this.guiControls) {
                 this.guiControls = guiControls
                 const gui = new dat.GUI()
-                gui.add(guiControls,'lightX', -100, 100)
-                gui.add(guiControls,'lightY', -100, 100)
-                gui.add(guiControls,'lightZ', -100, 100)
+                gui.add(guiControls,'focus', -10.0, 500.0, 0.01)
+                gui.add(guiControls,'aperture', 0, 10, 0.1)
+                gui.add(guiControls,'maxblur', 0.0, 0.01, 0.001)
             }
         },
         addClickListener() {
@@ -94,8 +108,12 @@ export default ({
             
             //调整camera视角
             // camera.position.set(0, 0, 50)//camera默认放在中心点(0,0,0)，挪一下位置
-            camera.position.set(-2.2074636356036743, -13.61776549393699, 5.261517580471185)
+            // camera.position.set(-2.2074636356036743, -13.61776549393699, 5.261517580471185)
+            // camera.up.set(0.16088540643481214, 0.9834879892160223, -0.12234075798377202)
+            camera.position.set(-15.997960866903403, -98.69085766710411, 38.13134268455713)
             camera.up.set(0.16088540643481214, 0.9834879892160223, -0.12234075798377202)
+            // camera.position.set(1.606828255310402, -4.518303653785982, 1.7902960442277334)
+            // camera.up.set(-0.29788731450878764, 0.9515273167190416, -0.1181478454820007)
             //下面参数对于调整camera视角没有作用
             // camera.rotation.set(1.148468910298315, -0.1261940903609752, -0.06956724055338868, "XYZ")
             // camera.quaternion.set(0.5436244764554815, -0.03405684915269789, -0.06337099294858563, 0.836239604944064)
@@ -116,17 +134,70 @@ export default ({
             }
             window.addEventListener( 'resize', this.onWindowResize )
 
+            
+        },
+        addPostProcessing() {
+            let width = window.innerWidth
+			let height = window.innerHeight
+            const composer = new EffectComposer( this.renderer )
+            const renderPass = new RenderPass( this.scene, this.camera )
+            composer.addPass( renderPass )
+
+            
+
+            //散景效果
+            const bokehPass = new BokehPass( this.scene, this.camera, {
+                focus: 1.0,
+                aspect: this.camera.aspect,
+                aperture: 0.025,
+                maxblur: 0.01,
+                width: width,
+                height: height
+            } )
+            bokehPass.renderToScreen = true
+            // bokehPass.renderToScreen = false
+            composer.addPass( bokehPass )
+            this.bokehPass = bokehPass
+
             //抗锯齿
-            // let composer = new EffectComposer(renderer)
-            // const renderPass = new RenderPass( scene, camera );
-            // composer.addPass( renderPass );
-            // // let FXAAShaderPass = new ShaderPass(FXAAShader)//对线没用
-            // // FXAAShaderPass.uniforms['resolution'].value.set(1/width, 1/height)
-            // // FXAAShaderPass.renderToScreen = true
-            // // composer.addPass(FXAAShaderPass)
-            // const pass = new SMAAPass( width * renderer.getPixelRatio(), height * renderer.getPixelRatio() );
-            // composer.addPass( pass );
-            // this.composer = composer
+            const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
+            // pass.renderToScreen = false
+            pass.renderToScreen = true
+            composer.addPass( pass )
+
+            // const bloomPass = new BloomPass(
+            //     1,    // strength
+            //     25,   // kernel size
+            //     4,    // sigma ?
+            //     256,  // blur render target resolution
+            // );
+            // bloomPass.renderToScreen = true
+            // // bloomPass.renderToScreen = false
+            // composer.addPass(bloomPass);
+
+            // const effectCopy = new ShaderPass( CopyShader )
+            // effectCopy.renderToScreen = true
+            // composer.addPass(effectCopy)
+
+            // const hTilt = new ShaderPass(HorizontalTiltShiftShader);
+            // // hTilt.enabled = false;
+            // hTilt.uniforms.h.value = 1 / window.innerHeight;
+            // hTilt.uniforms.r.value = 0.6
+            // composer.addPass(hTilt)
+            
+            // composer.addPass( effectCopy )
+            // effectCopy.renderToScreen = true
+            
+            this.composer = composer
+
+            // 避免模型很模糊的现象
+            let canvas = this.renderer.domElement
+            let canvasPixelWidth = canvas.width / window.devicePixelRatio
+            let canvasPixelHeight = canvas.height / window.devicePixelRatio
+            const needResize = canvasPixelWidth !== width || canvasPixelHeight !== height
+            if (needResize) {
+                this.composer.setSize(width, height, false)
+            }
         },
         addState(){
             let state = new Stats()
@@ -192,10 +263,12 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            // this.rippleCircleOpacityChange()
-            this.renderer.render(this.scene,this.camera)
+            // this.bokehPass.uniforms[ "focus" ].value = this.guiControls.focus
+            // this.bokehPass.uniforms[ "aperture" ].value = this.guiControls.aperture * 0.00001
+            // this.bokehPass.uniforms[ "maxblur" ].value = this.guiControls.maxblur
 
-            // this.composer.render()//抗锯齿
+            this.renderer.render(this.scene,this.camera)
+            // this.composer.render(this.clock.getDelta())//后处理
             
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
@@ -204,6 +277,19 @@ export default ({
             
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
+
+            // this.interval+=0.02
+            // this.triangle1.time += (2*(Math.sin(this.interval))+Math.cos(0.5*this.interval+0.2)+Math.sin(0.8*this.interval)+0.7)*0.01
+            // this.triangle2.time += (2*(Math.sin(this.interval+2))+Math.cos(0.5*this.interval+0.2+2)+Math.sin(0.8*this.interval+2)+0.7)*0.01
+            // // console.log(this.interval.value)
+            // this.triangle1.position.x = Math.cos(this.triangle1.time)*42
+            // this.triangle1.position.y = Math.sin(this.triangle1.time)*42
+            // this.triangle1.rotation.z = this.triangle1.time
+            // this.triangle2.position.x = Math.cos(this.triangle2.time)*42
+            // this.triangle2.position.y = Math.sin(this.triangle2.time)*42
+            // this.triangle2.rotation.z = this.triangle2.time
+            // this.arc.rotation.z += (2*(Math.sin(this.interval+3.5))+Math.cos(0.5*this.interval+0.2+3.5)+0.7)*0.01
+
         },
         resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement
@@ -219,7 +305,8 @@ export default ({
             return needResize
         },
         onWindowResize() {
-            this.renderer.setSize( window.innerWidth, window.innerHeight )
+            this.composer.setSize( window.innerWidth, window.innerHeight )
+            // this.renderer.setSize( window.innerWidth, window.innerHeight )
             this.camera.aspect = window.innerWidth / window.innerHeight
             this.camera.updateProjectionMatrix()
         },
@@ -311,7 +398,7 @@ export default ({
                     item.position.z = this.depth + 0.01
 
                     this.reMapUv(item.geometry)
-                    item.renderOrder = 9 
+                    item.renderOrder = 10
 
                     //获取包围盒位置，获取几何中心坐标
                     let bBox2 = new THREE.Box3()
@@ -411,7 +498,7 @@ export default ({
             // console.log(geometry.getAttribute('uv'))
         },
         projection(point, center) {
-            const projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90)
+            const projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90).scale(1000)
             // const projection = d3.geoMercator().center([104.0, 37.5]).translate([0, 0]).reflectY(90)
             // const projection = d3.geoMercator().center([104.0, 37.5]).scale(10).translate([0, 0]).reflectY(90)
             return projection(point)
@@ -437,16 +524,27 @@ export default ({
         },
         createColumnCircleMark() {
             let options = {
-                size: 1.5,
+                size: 12,
                 text: '公司村',
-                position: new THREE.Vector3(2.32, -1.0, this.depth + 0.02)
-                // position: new THREE.Vector3(0, 0, this.depth + 0.1)
+                // position: new THREE.Vector3(2.3, -1.0, this.depth + 0.05)
+                position: new THREE.Vector3(13, -7, this.depth + 0.1)
             }
             let mark = new ColumnCircleMark(options)
             mark.renderOrder = 50
             console.log(mark.mesh)
             this.scene.add(mark.mesh)
         },
+        createBottomElements() {
+            let options = {
+                radius: 44,
+                position: new THREE.Vector3(0,0,-0.01)
+            }
+            let bottomCircle = new BottomCircle(options)
+            this.scene.add(bottomCircle.mesh)
+
+        },
+        
+
     }
 })
 </script>

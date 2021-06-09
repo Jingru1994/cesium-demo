@@ -105,6 +105,11 @@
       {
         "name": "adjustLight",
         "label": "调整灯光"
+      },
+      {
+        "name": "macroScene",
+        "label": "场景1",
+        "suffix": "gif"
       }
     ]
   }
