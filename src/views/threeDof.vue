@@ -44,13 +44,9 @@ export default ({
         this.interval = 0
         this.depth = 1.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
-
-        let GUI = document.querySelector('.dg.main.a')
-        if(GUI) {
-            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
-        }
         
         this.initScene()
+        
         
         this.addState()
         this.initControls()
@@ -61,6 +57,12 @@ export default ({
 
         this.addClickListener()
 
+        let GUI = document.querySelector('.dg.main.a')
+        if(GUI) {
+            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
+        }
+        
+        this.addPostProcessing()
         this.cameraAnimate()
         this.animate()
         
@@ -108,36 +110,6 @@ export default ({
             // camera.matrixWorld.fromArray([0.9896484965570014, -0.143014941797194, -0.01194067356609442, 0, 0.06895839463575923, 0.40091309170242784, 0.9135170675531243, 0, -0.12585941789046107, -0.9048842021630976, 0.406625119248588, 0, -1.858292035616543, -13.360455134937972, 6.003747937551419, 1])
             // camera.matrixWorldInverse.fromArray([0.9896484965570015, 0.06895839463575924, -0.1258594178904611, 0, -0.14301494179719404, 0.40091309170242795, -0.904884202163098, 0, -0.011940673566094424, 0.9135170675531245, 0.4066251192485881, 0, -4.996003610813205e-16, 3.552713678800502e-15, -14.7648230602327, 1])
             
-            // let effectController = {
-            //     pX: -12.177223995222219,
-            //     pY: -99.31689762849348,
-            //     pZ: 37.9168629387508,
-            //     uX: 0.12505401667885055,
-            //     uY: 0.9889423359324844,
-            //     uZ: -0.12022707312745105
-            // }
-
-            // const matChanger = function () {
-            //     camera.position.x = effectController.pX
-            //     camera.position.y = effectController.pY
-            //     camera.position.z = effectController.pZ
-            //     camera.up.x = effectController.uX
-            //     camera.up.x = effectController.uY
-            //     camera.up.x = effectController.uZ
-
-            // };
-
-            // const gui = new dat.GUI()
-            // gui.add( effectController, "pX", -100.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pY", -200.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pZ", -50.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "uX", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uY", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uZ", -1, 1, 0.01 ).onChange( matChanger )
-
-            // matChanger()
-
-
             // 避免模型很模糊的现象
             let width = window.innerWidth
             let height = window.innerHeight
@@ -148,6 +120,51 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
+        },
+        addPostProcessing() {
+            let width = window.innerWidth
+			let height = window.innerHeight
+            const composer = new EffectComposer( this.renderer )
+            const renderPass = new RenderPass( this.scene, this.camera )
+            composer.addPass( renderPass )
+
+            const bokehPass = new BokehPass( this.scene, this.camera, {
+                focus: 1.0,
+                aperture: 0.025,
+                maxblur: 0.01,
+
+                width: width,
+                height: height
+            } );
+
+            composer.addPass( bokehPass )
+
+            let effectController = {
+                focus: 105,
+                aperture: 5,
+                maxblur: 0.01
+            }
+
+            const matChanger = function () {
+                bokehPass.uniforms[ "focus" ].value = effectController.focus
+                bokehPass.uniforms[ "aperture" ].value = effectController.aperture * 0.00001
+                bokehPass.uniforms[ "maxblur" ].value = effectController.maxblur
+
+            };
+
+            const gui = new dat.GUI()
+            gui.add( effectController, "focus", 0.0, 250.0, 1 ).onChange( matChanger )
+            gui.add( effectController, "aperture", 0, 10, 0.1 ).onChange( matChanger )
+            gui.add( effectController, "maxblur", 0.0, 0.01, 0.001 ).onChange( matChanger )
+
+            matChanger()
+
+            //抗锯齿
+            // const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
+            // pass.renderToScreen = true
+            // composer.addPass( pass )
+
+            this.composer = composer
         },
         addState(){
             let state = new Stats()
@@ -213,8 +230,8 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            this.renderer.render(this.scene,this.camera)
-            // this.composer.render(this.clock.getDelta())//后处理
+            // this.renderer.render(this.scene,this.camera)
+            this.composer.render(this.clock.getDelta())//后处理
             
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
@@ -512,6 +529,21 @@ export default ({
                     .easing(TWEEN.Easing.Sinusoidal.InOut)
                     .delay(500)
                     .start()
+
+                    // const tween4 = new TWEEN.Tween(that.camera.position)
+                    // .to({x: -2.945877994129454,
+                    //     y: -100.07244304364247,
+                    //     z: 37.77098595503165}, 2000)
+                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
+                    // .delay(500)
+                    // .start()//8500
+                    // const tween5 = new TWEEN.Tween(that.camera.up)
+                    // .to({x: 0.04198973871347512,
+                    //     y: 0.996073299733798,
+                    //     z: -0.11905815133834842}, 2000)
+                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
+                    // .delay(500)
+                    // .start()
 
                     // const tween4 = new TWEEN.Tween(that.camera.position)
                     // .to({x: -15.997960866903403,

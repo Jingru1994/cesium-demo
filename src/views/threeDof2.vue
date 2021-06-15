@@ -44,13 +44,9 @@ export default ({
         this.interval = 0
         this.depth = 1.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
-
-        let GUI = document.querySelector('.dg.main.a')
-        if(GUI) {
-            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
-        }
         
         this.initScene()
+        
         
         this.addState()
         this.initControls()
@@ -61,6 +57,13 @@ export default ({
 
         this.addClickListener()
 
+        let GUI = document.querySelector('.dg.main.a')
+        if(GUI) {
+            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
+        }
+
+        this.initPostProcessing()
+        // this.addPostProcessing()
         this.cameraAnimate()
         this.animate()
         
@@ -72,6 +75,154 @@ export default ({
         this.camera = null
     },
     methods: {
+        initPostProcessing() {
+            const postprocessing = { enabled: true }
+            let materialDepth
+            const shaderSettings = {
+				rings: 3,
+				samples: 4
+			}
+            const depthShader = BokehDepthShader;
+            materialDepth = new THREE.ShaderMaterial( {
+					uniforms: depthShader.uniforms,
+					vertexShader: depthShader.vertexShader,
+					fragmentShader: depthShader.fragmentShader
+				} );
+
+            materialDepth.uniforms[ 'mNear' ].value = this.camera.near;
+            materialDepth.uniforms[ 'mFar' ].value = this.camera.far;
+            this.materialDepth = materialDepth
+
+
+            postprocessing.scene = new THREE.Scene();
+
+            postprocessing.camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, - 10000, 10000 );
+            postprocessing.camera.position.z = 100;
+
+            postprocessing.scene.add( postprocessing.camera );
+
+            const pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+            postprocessing.rtTextureDepth = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, pars );
+            postprocessing.rtTextureColor = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, pars );
+
+            const bokeh_shader = BokehShader;
+
+            postprocessing.bokeh_uniforms = THREE.UniformsUtils.clone( bokeh_shader.uniforms );
+
+            postprocessing.bokeh_uniforms[ 'tColor' ].value = postprocessing.rtTextureColor.texture;
+            postprocessing.bokeh_uniforms[ 'tDepth' ].value = postprocessing.rtTextureDepth.texture;
+            postprocessing.bokeh_uniforms[ 'textureWidth' ].value = window.innerWidth;
+            postprocessing.bokeh_uniforms[ 'textureHeight' ].value = window.innerHeight;
+
+            postprocessing.materialBokeh = new THREE.ShaderMaterial( {
+
+                uniforms: postprocessing.bokeh_uniforms,
+                vertexShader: bokeh_shader.vertexShader,
+                fragmentShader: bokeh_shader.fragmentShader,
+                defines: {
+                    RINGS: shaderSettings.rings,
+                    SAMPLES: shaderSettings.samples
+                }
+
+            } );
+
+            postprocessing.quad = new THREE.Mesh( new THREE.PlaneGeometry( window.innerWidth, window.innerHeight ), postprocessing.materialBokeh );
+            postprocessing.quad.position.z =  -500;
+            postprocessing.scene.add( postprocessing.quad );
+            this.postprocessing = postprocessing
+
+
+            let effectController = {
+
+                enabled: true,
+                jsDepthCalculation: true,
+                shaderFocus: false,
+
+                fstop: 2.2,
+                maxblur: 1.0,
+
+                showFocus: false,
+                focalDepth: 12.0,
+                manualdof: false,
+                vignetting: true,
+                depthblur: false,
+
+                threshold: 0.5,
+                gain: 2.0,
+                bias: 0.5,
+                fringe: 0.0,
+
+                focalLength: 35,
+                noise: true,
+                pentagon: false,
+
+                dithering: 0.0001
+
+            };
+            const that = this
+
+            const shaderUpdate = function () {
+
+				postprocessing.materialBokeh.defines.RINGS = shaderSettings.rings;
+				postprocessing.materialBokeh.defines.SAMPLES = shaderSettings.samples;
+				postprocessing.materialBokeh.needsUpdate = true;
+
+			}
+
+            const matChanger = function () {
+
+                for ( const e in effectController ) {
+
+                    if ( e in postprocessing.bokeh_uniforms ) {
+
+                        postprocessing.bokeh_uniforms[ e ].value = effectController[ e ];
+
+                    }
+
+                }
+
+                postprocessing.enabled = effectController.enabled;
+                postprocessing.bokeh_uniforms[ 'znear' ].value = that.camera.near;
+                postprocessing.bokeh_uniforms[ 'zfar' ].value = that.camera.far;
+                // that.camera.setFocalLength( effectController.focalLength );
+
+            };
+
+            const gui = new dat.GUI();
+
+            gui.add( effectController, 'enabled' ).onChange( matChanger );
+            gui.add( effectController, 'jsDepthCalculation' ).onChange( matChanger );
+            gui.add( effectController, 'shaderFocus' ).onChange( matChanger );
+            gui.add( effectController, 'focalDepth', -10.0, 50.0, 0.01).listen().onChange( matChanger );
+
+            gui.add( effectController, 'fstop', 0.1, 22, 0.001 ).onChange( matChanger );
+            gui.add( effectController, 'maxblur', 0.0, 5.0, 0.025 ).onChange( matChanger );
+
+            gui.add( effectController, 'showFocus' ).onChange( matChanger );
+            gui.add( effectController, 'manualdof' ).onChange( matChanger );
+            gui.add( effectController, 'vignetting' ).onChange( matChanger );
+
+            gui.add( effectController, 'depthblur' ).onChange( matChanger );
+
+            gui.add( effectController, 'threshold', 0, 1, 0.001 ).onChange( matChanger );
+            gui.add( effectController, 'gain', 0, 100, 0.001 ).onChange( matChanger );
+            gui.add( effectController, 'bias', 0, 3, 0.001 ).onChange( matChanger );
+            gui.add( effectController, 'fringe', 0, 5, 0.001 ).onChange( matChanger );
+
+            gui.add( effectController, 'focalLength', 16, 80, 0.001 ).onChange( matChanger );
+
+            gui.add( effectController, 'noise' ).onChange( matChanger );
+
+            gui.add( effectController, 'dithering', 0, 0.001, 0.0001 ).onChange( matChanger );
+
+            gui.add( effectController, 'pentagon' ).onChange( matChanger );
+
+            gui.add( shaderSettings, 'rings', 1, 8 ).step( 1 ).onChange( shaderUpdate );
+            gui.add( shaderSettings, 'samples', 1, 13 ).step( 1 ).onChange( shaderUpdate );
+
+            matChanger();
+            
+        },
         addClickListener() {
             this.renderer.domElement.addEventListener('click',e => {
                 console.log(this.camera)
@@ -108,36 +259,6 @@ export default ({
             // camera.matrixWorld.fromArray([0.9896484965570014, -0.143014941797194, -0.01194067356609442, 0, 0.06895839463575923, 0.40091309170242784, 0.9135170675531243, 0, -0.12585941789046107, -0.9048842021630976, 0.406625119248588, 0, -1.858292035616543, -13.360455134937972, 6.003747937551419, 1])
             // camera.matrixWorldInverse.fromArray([0.9896484965570015, 0.06895839463575924, -0.1258594178904611, 0, -0.14301494179719404, 0.40091309170242795, -0.904884202163098, 0, -0.011940673566094424, 0.9135170675531245, 0.4066251192485881, 0, -4.996003610813205e-16, 3.552713678800502e-15, -14.7648230602327, 1])
             
-            // let effectController = {
-            //     pX: -12.177223995222219,
-            //     pY: -99.31689762849348,
-            //     pZ: 37.9168629387508,
-            //     uX: 0.12505401667885055,
-            //     uY: 0.9889423359324844,
-            //     uZ: -0.12022707312745105
-            // }
-
-            // const matChanger = function () {
-            //     camera.position.x = effectController.pX
-            //     camera.position.y = effectController.pY
-            //     camera.position.z = effectController.pZ
-            //     camera.up.x = effectController.uX
-            //     camera.up.x = effectController.uY
-            //     camera.up.x = effectController.uZ
-
-            // };
-
-            // const gui = new dat.GUI()
-            // gui.add( effectController, "pX", -100.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pY", -200.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pZ", -50.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "uX", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uY", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uZ", -1, 1, 0.01 ).onChange( matChanger )
-
-            // matChanger()
-
-
             // 避免模型很模糊的现象
             let width = window.innerWidth
             let height = window.innerHeight
@@ -213,7 +334,7 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            this.renderer.render(this.scene,this.camera)
+            // this.renderer.render(this.scene,this.camera)
             // this.composer.render(this.clock.getDelta())//后处理
             
             // this.controls.update()//OrbitControls
@@ -223,6 +344,42 @@ export default ({
             
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
+
+            if ( this.postprocessing.enabled ) {
+
+                this.renderer.clear();
+
+                // render scene into texture
+
+                this.renderer.setRenderTarget( this.postprocessing.rtTextureColor );
+                this.renderer.clear();
+                this.renderer.render( this.scene, this.camera );
+                
+
+                // render depth into texture
+
+                this.scene.overrideMaterial = this.materialDepth;
+                this.renderer.setRenderTarget( this.postprocessing.rtTextureDepth );
+                this.renderer.clear();
+                this.renderer.render( this.scene, this.camera );
+                this.scene.overrideMaterial = null;
+
+                // render bokeh composite
+
+                this.renderer.setRenderTarget( null );
+                this.renderer.render( this.postprocessing.scene, this.postprocessing.camera );
+                // this.composer.render(this.clock.getDelta())//后处理
+
+
+            } else {
+
+                this.scene.overrideMaterial = null;
+
+                this.renderer.setRenderTarget( null );
+                this.renderer.clear();
+                this.renderer.render( this.scene, this.camera );
+
+            }
 
         },
         resizeRendererToDisplaySize(renderer) {
@@ -512,6 +669,21 @@ export default ({
                     .easing(TWEEN.Easing.Sinusoidal.InOut)
                     .delay(500)
                     .start()
+
+                    // const tween4 = new TWEEN.Tween(that.camera.position)
+                    // .to({x: -2.945877994129454,
+                    //     y: -100.07244304364247,
+                    //     z: 37.77098595503165}, 2000)
+                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
+                    // .delay(500)
+                    // .start()//8500
+                    // const tween5 = new TWEEN.Tween(that.camera.up)
+                    // .to({x: 0.04198973871347512,
+                    //     y: 0.996073299733798,
+                    //     z: -0.11905815133834842}, 2000)
+                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
+                    // .delay(500)
+                    // .start()
 
                     // const tween4 = new TWEEN.Tween(that.camera.position)
                     // .to({x: -15.997960866903403,

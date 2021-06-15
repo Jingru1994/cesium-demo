@@ -44,13 +44,9 @@ export default ({
         this.interval = 0
         this.depth = 1.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
-
-        let GUI = document.querySelector('.dg.main.a')
-        if(GUI) {
-            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
-        }
         
         this.initScene()
+        
         
         this.addState()
         this.initControls()
@@ -61,6 +57,12 @@ export default ({
 
         this.addClickListener()
 
+        let GUI = document.querySelector('.dg.main.a')
+        if(GUI) {
+            GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
+        }
+
+        this.addPostProcessing()
         this.cameraAnimate()
         this.animate()
         
@@ -108,36 +110,6 @@ export default ({
             // camera.matrixWorld.fromArray([0.9896484965570014, -0.143014941797194, -0.01194067356609442, 0, 0.06895839463575923, 0.40091309170242784, 0.9135170675531243, 0, -0.12585941789046107, -0.9048842021630976, 0.406625119248588, 0, -1.858292035616543, -13.360455134937972, 6.003747937551419, 1])
             // camera.matrixWorldInverse.fromArray([0.9896484965570015, 0.06895839463575924, -0.1258594178904611, 0, -0.14301494179719404, 0.40091309170242795, -0.904884202163098, 0, -0.011940673566094424, 0.9135170675531245, 0.4066251192485881, 0, -4.996003610813205e-16, 3.552713678800502e-15, -14.7648230602327, 1])
             
-            // let effectController = {
-            //     pX: -12.177223995222219,
-            //     pY: -99.31689762849348,
-            //     pZ: 37.9168629387508,
-            //     uX: 0.12505401667885055,
-            //     uY: 0.9889423359324844,
-            //     uZ: -0.12022707312745105
-            // }
-
-            // const matChanger = function () {
-            //     camera.position.x = effectController.pX
-            //     camera.position.y = effectController.pY
-            //     camera.position.z = effectController.pZ
-            //     camera.up.x = effectController.uX
-            //     camera.up.x = effectController.uY
-            //     camera.up.x = effectController.uZ
-
-            // };
-
-            // const gui = new dat.GUI()
-            // gui.add( effectController, "pX", -100.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pY", -200.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "pZ", -50.00, 100.00, 1 ).onChange( matChanger )
-            // gui.add( effectController, "uX", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uY", -1, 1, 0.01 ).onChange( matChanger )
-            // gui.add( effectController, "uZ", -1, 1, 0.01 ).onChange( matChanger )
-
-            // matChanger()
-
-
             // 避免模型很模糊的现象
             let width = window.innerWidth
             let height = window.innerHeight
@@ -148,6 +120,51 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
+        },
+        addPostProcessing() {
+            let width = window.innerWidth
+			let height = window.innerHeight
+            const composer = new EffectComposer( this.renderer )
+            const renderPass = new RenderPass( this.scene, this.camera )
+            composer.addPass( renderPass )
+
+            //抗锯齿 smaapass
+            const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
+            pass.renderToScreen = true
+            composer.addPass( pass )
+
+            //抗锯齿 fxaapass
+            const fxaaPass = new ShaderPass( FXAAShader )
+            let pixelRatio = window.devicePixelRatio
+            // fxaaPass.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+            fxaaPass.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
+            fxaaPass.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
+            fxaaPass.renderToScreen = true;
+            composer.addPass( fxaaPass )
+
+            let hTilt = new ShaderPass(HorizontalTiltShiftShader)
+            hTilt.enabled = true
+            hTilt.uniforms.h.value = 1 / window.innerHeight
+            hTilt.uniforms.r.value = 0.55
+            composer.addPass(hTilt)
+
+            // let effectCopy = new ShaderPass(CopyShader)
+            // effectCopy.renderToScreen = true
+            // composer.addPass(effectCopy)
+
+            let controls = new function () {
+                this.hTilt = true
+                this.hTiltR = 0.55
+                this.onChange = function () {
+                    hTilt.enabled = controls.hTilt;
+                    hTilt.uniforms.r.value = controls.hTiltR;
+                }
+            }
+            let gui = new dat.GUI();
+            gui.add(controls, 'hTilt').onChange(controls.onChange)
+            gui.add(controls, 'hTiltR', 0, 1).onChange(controls.onChange)
+
+            this.composer = composer
         },
         addState(){
             let state = new Stats()
@@ -213,8 +230,8 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            this.renderer.render(this.scene,this.camera)
-            // this.composer.render(this.clock.getDelta())//后处理
+            // this.renderer.render(this.scene,this.camera)
+            this.composer.render(this.clock.getDelta())//后处理
             
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls

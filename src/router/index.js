@@ -131,6 +131,24 @@ const routes = [
     name: "adjustLight",
     component: () =>
     import(/* webpackChunkName: "adjustLight" */ "@/views/threeAdjustLight.vue")
+  },
+  {
+    path: "/dof",
+    name: "dof",
+    component: () =>
+    import(/* webpackChunkName: "dof" */ "@/views/threeDof.vue")
+  },
+  {
+    path: "/dof2",
+    name: "dof2",
+    component: () =>
+    import(/* webpackChunkName: "dof" */ "@/views/threeDof2.vue")
+  },
+  {
+    path: "/hTilt",
+    name: "hTilt",
+    component: () =>
+    import(/* webpackChunkName: "dof" */ "@/views/threeHTilt.vue")
   }
 ];
 

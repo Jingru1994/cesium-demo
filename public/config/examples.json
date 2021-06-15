@@ -110,6 +110,18 @@
         "name": "macroScene",
         "label": "场景1",
         "suffix": "gif"
+      },
+      {
+        "name": "dof",
+        "label": "dof"
+      },
+      {
+        "name": "dof2",
+        "label": "dof2"
+      },
+      {
+        "name": "hTilt",
+        "label": "hTilt"
       }
     ]
   }
