@@ -14,13 +14,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { HorizontalTiltShiftShader } from 'three/examples/jsm/shaders/HorizontalTiltShiftShader.js'
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js'
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js'
-import { BokehShader, BokehDepthShader } from 'three/examples/jsm/shaders/BokehShader2.js';
-import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js'
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 
 import * as d3 from 'd3'
 import * as dat from 'dat.gui'

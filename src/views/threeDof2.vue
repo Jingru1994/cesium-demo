@@ -12,15 +12,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { HorizontalTiltShiftShader } from 'three/examples/jsm/shaders/HorizontalTiltShiftShader.js'
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js'
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js'
-import { BokehShader, BokehDepthShader } from 'three/examples/jsm/shaders/BokehShader2.js';
-import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js'
+import { BokehShader, BokehDepthShader } from 'three/examples/jsm/shaders/BokehShader2.js'
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 
 import * as d3 from 'd3'
 import * as dat from 'dat.gui'
@@ -63,7 +56,7 @@ export default ({
         }
 
         this.initPostProcessing()
-        // this.addPostProcessing()
+        this.addPostProcessing()
         this.cameraAnimate()
         this.animate()
         
@@ -75,6 +68,20 @@ export default ({
         this.camera = null
     },
     methods: {
+        addPostProcessing() {
+            let width = window.innerWidth
+			let height = window.innerHeight
+            const composer = new EffectComposer( this.renderer )
+            const renderPass = new RenderPass( this.scene, this.camera )
+            composer.addPass( renderPass )
+
+            //抗锯齿
+            const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
+            pass.renderToScreen = true
+            composer.addPass( pass )
+
+            this.composer = composer
+        },
         initPostProcessing() {
             const postprocessing = { enabled: true }
             let materialDepth
@@ -84,10 +91,10 @@ export default ({
 			}
             const depthShader = BokehDepthShader;
             materialDepth = new THREE.ShaderMaterial( {
-					uniforms: depthShader.uniforms,
-					vertexShader: depthShader.vertexShader,
-					fragmentShader: depthShader.fragmentShader
-				} );
+                uniforms: depthShader.uniforms,
+                vertexShader: depthShader.vertexShader,
+                fragmentShader: depthShader.fragmentShader
+            } );
 
             materialDepth.uniforms[ 'mNear' ].value = this.camera.near;
             materialDepth.uniforms[ 'mFar' ].value = this.camera.far;
@@ -367,8 +374,8 @@ export default ({
                 // render bokeh composite
 
                 this.renderer.setRenderTarget( null );
-                this.renderer.render( this.postprocessing.scene, this.postprocessing.camera );
-                // this.composer.render(this.clock.getDelta())//后处理
+                this.renderer.render( this.postprocessing.scene, this.postprocessing.camera )
+                // this.composer.render( this.postprocessing.scene, this.postprocessing.camera )//后处理
 
 
             } else {
