@@ -13,6 +13,10 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js'
+import { MaskPass, ClearMaskPass } from 'three/examples/jsm/postprocessing/MaskPass.js'
+// import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
 
 import * as d3 from 'd3'
@@ -75,7 +79,9 @@ export default ({
         },
         initScene() {
             const scene = new THREE.Scene()
+            const maskScene = new THREE.Scene()
             this.scene = scene
+            this.maskScene = maskScene
             scene.background = new THREE.Color('rgba(27,70,74,1)')
             const canvas = document.querySelector('#three')
             const renderer = new THREE.WebGLRenderer({canvas,antialias: true, alpha: true})
@@ -117,24 +123,55 @@ export default ({
         addPostProcessing() {
             let width = window.innerWidth
 			let height = window.innerHeight
-            const composer = new EffectComposer( this.renderer )
+            
+
             const renderPass = new RenderPass( this.scene, this.camera )
-            composer.addPass( renderPass )
+            renderPass.clear = false
+            
+            const maskRenderPass = new RenderPass(this.maskScene, this.camera)
+            maskRenderPass.clear = false
+
+            const maskPass = new MaskPass(this.maskScene, this.camera)
+            const clearPass = new ClearMaskPass()
 
             const bokehPass = new BokehPass( this.scene, this.camera, {
-                focus: 1.0,
-                aperture: 0.025,
+                focus: 100,
+                aperture: 10,
                 maxblur: 0.01,
 
                 width: width,
                 height: height
-            } );
+            } )
+            bokehPass.renderToScreen = true
 
+            const copyPass = new ShaderPass( CopyShader )
+
+            //抗锯齿
+            // const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
+            // pass.renderToScreen = true
+            // composer.addPass( pass )
+            const parameters = {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBFormat,
+                stencilBuffer: true
+            };
+            const renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, parameters );
+            const composer = new EffectComposer( this.renderer, renderTarget )
+            // composer.renderTarget1.stencilBuffer = true
+            // composer.renderTarget2.stencilBuffer = true
+
+            composer.addPass( renderPass )
+            composer.addPass( maskRenderPass )
+            composer.addPass( maskPass )
             composer.addPass( bokehPass )
+            composer.addPass( clearPass )
+            composer.addPass( copyPass )
+            this.composer = composer
 
             let effectController = {
-                focus: 105,
-                aperture: 5,
+                focus: 100,
+                aperture: 10,
                 maxblur: 0.01
             }
 
@@ -151,13 +188,6 @@ export default ({
             gui.add( effectController, "maxblur", 0.0, 0.01, 0.001 ).onChange( matChanger )
 
             matChanger()
-
-            //抗锯齿
-            // const pass = new SMAAPass( width * this.renderer.getPixelRatio(), height * this.renderer.getPixelRatio() )
-            // pass.renderToScreen = true
-            // composer.addPass( pass )
-
-            this.composer = composer
         },
         addState(){
             let state = new Stats()
@@ -191,6 +221,7 @@ export default ({
             //环境光
             const ambientLight = new THREE.AmbientLight("#ffffff");
             this.scene.add(ambientLight)
+            this.maskScene.add(ambientLight)
         },
         initDirectionalLight() {
             //方向光
@@ -210,6 +241,7 @@ export default ({
             dirLight.shadow.camera.bottom = -10
             this.dirLight = dirLight
             this.scene.add(dirLight)
+            this.maskScene.add(dirLight)
             //显示灯光范围
             // const debugCamera = new THREE.CameraHelper(dirLight.shadow.camera)
             // this.scene.add(debugCamera)
@@ -223,8 +255,9 @@ export default ({
             // this.scene.add(debugCamera)
         },
         animate() {//three需要动画循环函数，每一帧都执行这个函数
-            // this.renderer.render(this.scene,this.camera)
+            
             this.composer.render(this.clock.getDelta())//后处理
+            // this.renderer.render(this.maskScene,this.camera)
             
             // this.controls.update()//OrbitControls
             this.controls.update(this.clock.getDelta())//TrackballControls
@@ -309,8 +342,9 @@ export default ({
                 }) 
             })
             this.target = group
-            this.scene.add(group)
-            this.scene.add(lineGroup)
+            // this.scene.add(group)
+            this.maskScene.add(group)
+            // this.scene.add(lineGroup)
         },
         async drawGlowMap() {
             const group = new THREE.Group()
@@ -366,7 +400,8 @@ export default ({
                 }) 
             })
 
-            this.scene.add(group)
+            // this.scene.add(group)
+            this.maskScene.add(group)
         },
         drawShape(posArr) {
             var shape = new THREE.Shape()
@@ -472,6 +507,7 @@ export default ({
             mark.renderOrder = 50
             console.log(mark.mesh)
             this.scene.add(mark.mesh)
+            // this.maskScene.add(mark.mesh)
         },
         createBottomElements() {
             let options = {
@@ -480,6 +516,7 @@ export default ({
             }
             let bottomCircle = new BottomCircle(options)
             this.scene.add(bottomCircle.mesh)
+            // this.maskScene.add(bottomCircle.mesh)
 
         },
         cameraAnimate() {

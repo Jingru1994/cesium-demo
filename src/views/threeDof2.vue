@@ -25,7 +25,7 @@ import BottomCircle from '@/utils/widgets/BottomCircle/BottomCircle.js'
 // const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"));
 
 export default ({
-    name: "ThreeMacroScene",
+    name: "ThreeDof2",
     data() {
         return {
         }
