@@ -122,6 +122,16 @@
       {
         "name": "hTilt",
         "label": "hTilt"
+      },
+      {
+        "name": "glowShield",
+        "label": "光罩",
+        "suffix": "gif"
+      },
+      {
+        "name": "curveMove",
+        "label": "轨迹移动",
+        "suffix": "gif"
       }
     ]
   }

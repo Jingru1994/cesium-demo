@@ -142,13 +142,31 @@ const routes = [
     path: "/dof2",
     name: "dof2",
     component: () =>
-    import(/* webpackChunkName: "dof" */ "@/views/threeDof2.vue")
+    import(/* webpackChunkName: "dof2" */ "@/views/threeDof2.vue")
   },
   {
     path: "/hTilt",
     name: "hTilt",
     component: () =>
-    import(/* webpackChunkName: "dof" */ "@/views/threeHTilt.vue")
+    import(/* webpackChunkName: "hTilt" */ "@/views/threeHTilt.vue")
+  },
+  {
+    path: "/dofMask",
+    name: "dofMask",
+    component: () =>
+    import(/* webpackChunkName: "dofMask" */ "@/views/threeDofMask.vue")
+  },
+  {
+    path: "/glowShield",
+    name: "glowShield",
+    component: () =>
+    import(/* webpackChunkName: "glowShield" */ "@/views/threeGlowShield.vue")
+  },
+  {
+    path: "/curveMove",
+    name: "curveMove",
+    component: () =>
+    import(/* webpackChunkName: "curveMove" */ "@/views/threeCurveMove.vue")
   }
 ];
 
