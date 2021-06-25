@@ -505,7 +505,7 @@ export default ({
                 })
             })
         },
-        cameraAnimate1() {
+        cameraAnimate1() {//链式调用，不需要一层层回调
             const that = this
             const tween1 = new TWEEN.Tween(this.camera.position)
             .to({x: -5.107771978991797,
