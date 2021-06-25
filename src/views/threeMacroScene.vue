@@ -50,7 +50,7 @@ export default ({
 
         this.addClickListener()
 
-        this.cameraAnimate()
+        this.cameraAnimate1()
         this.animate()
         
     },
@@ -502,36 +502,50 @@ export default ({
                     .delay(500)
                     .start()
 
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.997960866903403,
-                    //     y: -98.69085766710411,
-                    //     z: 38.13134268455713}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()//8500
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.16088540643481214,
-                    //     y:0.9834879892160223,
-                    //     z: -0.12234075798377202}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()
-                    
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.453969669715695,
-                    //     y: -96.90948039589603,
-                    //     z: 42.6561468576288}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.1575359286856687,
-                    //     y: 0.9773202696986771,
-                    //     z: -0.16771261612998487}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
                 })
             })
+        },
+        cameraAnimate1() {
+            const that = this
+            const tween1 = new TWEEN.Tween(this.camera.position)
+            .to({x: -5.107771978991797,
+                y: -101.78726500331169,
+                z: 80.17137817728137}, 2000)
+            .easing(TWEEN.Easing.Quartic.InOut)
+            .start()
+
+
+            const tween2 = new TWEEN.Tween(that.camera.position)
+            .to({x: -39.286488503979823,
+                y: -81.27763802537058,
+                z: 33.539098370323748}, 2000)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .delay(500)
+            .onStart(function() {
+                new TWEEN.Tween(that.camera.up)
+                .to({x: 0.4362048516687863,
+                    y: 0.897157348161131,
+                    z: -0.11372783309517592}, 2000)
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .start()
+            })
+            tween1.chain(tween2)
+
+            const tween4 = new TWEEN.Tween(that.camera.position)
+            .to({x: -12.177223995222219,
+                y: -99.31689762849348,
+                z: 37.9168629387508}, 2000)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .delay(500)
+            .onStart(function() {
+                new TWEEN.Tween(that.camera.up)
+                .to({x: 0.12505401667885055,
+                    y: 0.9889423359324844,
+                    z: -0.12022707312745105}, 2000)
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .start()
+            })
+            tween2.chain(tween4)
         }
         
 
