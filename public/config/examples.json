@@ -132,6 +132,10 @@
         "name": "curveMove",
         "label": "轨迹移动",
         "suffix": "gif"
+      },
+      {
+        "name": "cylinderChart",
+        "label": "3D统计柱形图"
       }
     ]
   }

@@ -167,6 +167,12 @@ const routes = [
     name: "curveMove",
     component: () =>
     import(/* webpackChunkName: "curveMove" */ "@/views/threeCurveMove.vue")
+  },
+  {
+    path: "/cylinderChart",
+    name: "cylinderChart",
+    component: () =>
+    import(/* webpackChunkName: "cylinderChart" */ "@/views/threeCylinderChart.vue")
   }
 ];
 
