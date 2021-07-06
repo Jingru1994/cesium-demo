@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "beijing_around_line",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 0 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 116.393831139196166, 39.929088469926228 ], [ 117.323867267935114, 40.848036310378014 ], [ 117.811485075589601, 40.801239106326022 ] ] ] } },
+{ "type": "Feature", "properties": { "Id": 1 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 116.393831139196166, 39.929088469926228 ], [ 116.201776909878973, 39.357724361669462 ], [ 116.004891694207544, 39.184093305329313 ] ] ] } },
+{ "type": "Feature", "properties": { "Id": 2 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 116.393831139196166, 39.929088469926228 ], [ 117.188262269527598, 39.641506312897718 ] ] ] } },
+{ "type": "Feature", "properties": { "Id": 3 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 116.393831139196166, 39.929088469926228 ], [ 115.630706268479642, 40.523660254526447 ] ] ] } }
+]
+}

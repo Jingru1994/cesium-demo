@@ -70,74 +70,109 @@
   {
     "name": "three",
     "label": "Three示例",
-    "examples": [
+    "children":[
       {
-        "name": "threeModel",
-        "label": "模型加载显示"
+        "name": "model1",
+        "label": "模型",
+        "examples":[
+          {
+            "name": "threeModel",
+            "label": "模型加载显示"
+          },
+          {
+            "name": "pickModel",
+            "label": "模型拾取1"
+          },
+          {
+            "name": "pickModel1",
+            "label": "模型拾取2"
+          }
+        ]
       },
       {
-        "name": "pickModel",
-        "label": "模型拾取1"
+        
+        "name": "feature1",
+        "label": "要素",
+        "examples":[
+          {
+            "name": "ODline",
+            "label": "OD线",
+            "suffix": "gif"
+          },
+          {
+            "name": "spreadCircle",
+            "label": "扩散圆",
+            "suffix": "gif"
+          },
+          {
+            "name": "scanCircle",
+            "label": "扫描圆",
+            "suffix": "gif"
+          },
+          {
+            "name": "glowShield",
+            "label": "光罩",
+            "suffix": "gif"
+          },
+          {
+            "name": "curveMove",
+            "label": "轨迹移动",
+            "suffix": "gif"
+          }
+        ]
       },
       {
-        "name": "pickModel1",
-        "label": "模型拾取2"
+        "name": "scene",
+        "label": "场景",
+        "examples":[
+          {
+            "name": "3DMap",
+            "label": "3D地图"
+          },
+          {
+            "name": "cylinderChart",
+            "label": "3D统计柱形图"
+          },
+          {
+            "name": "macroScene",
+            "label": "场景1",
+            "suffix": "gif"
+          },
+          {
+            "name": "scene2",
+            "label": "场景2",
+            "suffix": "gif"
+          }
+        ]
       },
       {
-        "name": "3DMap",
-        "label": "3D地图"
+        "name": "effect",
+        "label": "效果",
+        "examples":[
+          {
+            "name": "dof",
+            "label": "dof"
+          },
+          {
+            "name": "dof2",
+            "label": "dof2"
+          },
+          {
+            "name": "hTilt",
+            "label": "hTilt"
+          }
+        ]
       },
       {
-        "name": "ODline",
-        "label": "OD线",
-        "suffix": "gif"
-      },
-      {
-        "name": "spreadCircle",
-        "label": "扩散圆",
-        "suffix": "gif"
-      },
-      {
-        "name": "scanCircle",
-        "label": "扫描圆",
-        "suffix": "gif"
-      },
-      {
-        "name": "adjustLight",
-        "label": "调整灯光"
-      },
-      {
-        "name": "macroScene",
-        "label": "场景1",
-        "suffix": "gif"
-      },
-      {
-        "name": "dof",
-        "label": "dof"
-      },
-      {
-        "name": "dof2",
-        "label": "dof2"
-      },
-      {
-        "name": "hTilt",
-        "label": "hTilt"
-      },
-      {
-        "name": "glowShield",
-        "label": "光罩",
-        "suffix": "gif"
-      },
-      {
-        "name": "curveMove",
-        "label": "轨迹移动",
-        "suffix": "gif"
-      },
-      {
-        "name": "cylinderChart",
-        "label": "3D统计柱形图"
+        "name": "other",
+        "label": "其他",
+        "examples":[
+          {
+            "name": "adjustLight",
+            "label": "调整灯光"
+          }
+        ]
       }
     ]
   }
-
 ]

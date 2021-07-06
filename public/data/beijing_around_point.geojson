@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "beijing_around_point",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 2, "NAME": "滨海新区" }, "geometry": { "type": "Point", "coordinates": [ 117.072064772761564, 39.749145697128561 ] } },
+{ "type": "Feature", "properties": { "Id": 1, "NAME": "保定" }, "geometry": { "type": "Point", "coordinates": [ 116.034619774219394, 39.40233925552878 ] } },
+{ "type": "Feature", "properties": { "Id": 1, "NAME": "廊坊" }, "geometry": { "type": "Point", "coordinates": [ 116.268996683293707, 39.395795737762747 ] } },
+{ "type": "Feature", "properties": { "Id": 1, "NAME": "雄安新区" }, "geometry": { "type": "Point", "coordinates": [ 116.155377420265296, 39.254217807915822 ] } },
+{ "type": "Feature", "properties": { "Id": 3, "NAME": "张家口" }, "geometry": { "type": "Point", "coordinates": [ 115.611670580433, 40.604561928724685 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "NAME": "承德" }, "geometry": { "type": "Point", "coordinates": [ 117.144638333439403, 40.835369646290268 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "NAME": "秦皇岛" }, "geometry": { "type": "Point", "coordinates": [ 117.685965712265912, 40.681894411414177 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "NAME": "唐山" }, "geometry": { "type": "Point", "coordinates": [ 117.526541824875281, 40.90675347646517 ] } }
+]
+}

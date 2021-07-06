@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "beijing_around_point1",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 0, "NAME": "天津市" }, "geometry": { "type": "Point", "coordinates": [ 117.252903809204568, 39.509415000791215 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "NAME": "河北省" }, "geometry": { "type": "Point", "coordinates": [ 115.324350663979118, 40.402307743229045 ] } }
+]
+}

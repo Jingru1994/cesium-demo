@@ -173,6 +173,12 @@ const routes = [
     name: "cylinderChart",
     component: () =>
     import(/* webpackChunkName: "cylinderChart" */ "@/views/threeCylinderChart.vue")
+  },
+  {
+    path: "/scene2",
+    name: "scene2",
+    component: () =>
+    import(/* webpackChunkName: "cylinderChart" */ "@/views/threeScene2.vue")
   }
 ];
 
