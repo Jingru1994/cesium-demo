@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "macro_point1",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Id": 0, "Name": "公司村养殖场", "Type": "farm" }, "geometry": { "type": "Point", "coordinates": [ 122.210176081238032, 43.421131295326717 ] } },
+{ "type": "Feature", "properties": { "Id": 0, "Name": "大林养殖场", "Type": "farm" }, "geometry": { "type": "Point", "coordinates": [ 122.204675776208106, 43.450890630390504 ] } }
+]
+}
