@@ -179,6 +179,12 @@ const routes = [
     name: "scene2",
     component: () =>
     import(/* webpackChunkName: "cylinderChart" */ "@/views/threeScene2.vue")
+  },
+  {
+    path: "/3DHeatMap",
+    name: "3DHeatMap",
+    component: () =>
+    import(/* webpackChunkName: "cylinderChart" */ "@/views/threeHeatmap.vue")
   }
 ];
 

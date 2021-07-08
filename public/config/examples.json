@@ -119,6 +119,11 @@
             "label": "轨迹移动",
             "suffix": "gif"
           }
+          ,
+          {
+            "name": "3DHeatMap",
+            "label": "3D热力图"
+          }
         ]
       },
       {
