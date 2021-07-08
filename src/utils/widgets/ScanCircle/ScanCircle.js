@@ -74,11 +74,11 @@ class ScanCircle {
                 float theta0 = theta;
                 vec2 d = position - center;
                 float r = sqrt( dot( d, d ) );
-                if(r<20.0)
+                if(r<radius)
                 {
                     //compute the distance to the line theta=theta0
-                    vec2 p = radius*vec2(cos(theta0*M_PI/180.0), -sin(theta0*M_PI/180.0));
-                    float l = length( d - p*clamp( dot(d,p)/dot(p,p), 0.0, 1.0) );
+                    // vec2 p = radius*vec2(cos(theta0*M_PI/180.0), sin(theta0*M_PI/180.0));
+                    // float l = length( d - p*clamp( dot(d,p)/dot(p,p), 0.0, 1.0) );
                     d = normalize(d);
                     //compute gradient based on angle difference to theta0
                     float theta = mod(180.0*atan(d.y,d.x)/M_PI+theta0,360.0);
