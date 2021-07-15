@@ -17,7 +17,6 @@ class PopupLegend {
         labelDiv.className = 'three-popup-legend'
         const label = new CSS2DObject( labelDiv )
         this.label = label
-        console.log(label)
 
         let labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize( window.innerWidth, window.innerHeight );
@@ -28,14 +27,14 @@ class PopupLegend {
             let panelColor = label.element.style.backgroundColor
             let rgb = panelColor.match(/\d+(.\d+)?/g).map(x => Number(x))
             let hsl = this.rgbToHsl(rgb)
-            console.log(rgb)
-            console.log(hsl)
             let hScale = hsl[2] < 40 ? 2.5 : (hsl[2] > 80 ? 0.7 : 1.25)
             label.element.style.borderColor = `hsl(${hsl[0]},${hsl[1]*0.7}%,${hsl[2]*hScale}%)`
-            console.log(`hsl(${hsl[0]},${hsl[1]*0.7}%,${hsl[2]*hScale}%)`)
         }
         dom.appendChild( labelRenderer.domElement );
         this.#labelRenderer = labelRenderer
+        window.addEventListener( 'resize', () => {
+            this.onWindowResize()
+        })
         this.animate()
         
     }
@@ -49,23 +48,19 @@ class PopupLegend {
         // s = (max-min)/(1-Math.abs(2*l-1))
         // h = Math.round(Math.atan2(Math.sqrt(3)*(g-b),2*g-g-b)*180/Math.PI)
 
-        debugger
         if(max == min){
             h = s = 0; // achromatic
         }else{
             var d = max - min;
             s =  d / (1 - Math.abs(2*l - 1))
-            debugger
             switch(max){
                 
                 case r: h = ((g - b) / d) + (g<b ? 6 : 0); break;
                 case g: h = (b - r) / d + 2; break;
                 case b: h = (r - g) / d + 4; break;
             }
-            console.log(h)
             h *= 60;
         }
-        console.log(r,' ',g,' ',b,' ',d);
         return [Math.floor(h), Math.round(s*100), Math.round(l*100)];
     }
     getCSS2DRenderer() {
@@ -94,7 +89,9 @@ class PopupLegend {
     removeFrom(object) {
         object.remove(this.label)
     }
-    
+    onWindowResize() {
+        this.#labelRenderer.setSize( window.innerWidth, window.innerHeight )
+    }
     animate() {
         requestAnimationFrame( this.animate.bind(this) )
         this.#labelRenderer.render( this.#scene, this.#camera );

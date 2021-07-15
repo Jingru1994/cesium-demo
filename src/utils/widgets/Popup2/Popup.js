@@ -19,12 +19,14 @@ class Popup {
         this.label = label
 
         let labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize( window.innerWidth, window.innerHeight );
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        console.log(dom)
-        dom.appendChild( labelRenderer.domElement );
+        labelRenderer.setSize( window.innerWidth, window.innerHeight )
+        labelRenderer.domElement.style.position = 'absolute'
+        labelRenderer.domElement.style.top = '0px'
+        dom.appendChild( labelRenderer.domElement )
         this.#labelRenderer = labelRenderer
+        window.addEventListener( 'resize', () => {
+            this.onWindowResize()
+        })
         this.animate()
         
     }
@@ -42,7 +44,9 @@ class Popup {
     removeFrom(object) {
         object.remove(this.label)
     }
-    
+    onWindowResize() {
+        this.#labelRenderer.setSize( window.innerWidth, window.innerHeight )
+    }
     animate() {
         requestAnimationFrame( this.animate.bind(this) )
         this.#labelRenderer.render( this.#scene, this.#camera );
