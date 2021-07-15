@@ -178,13 +178,31 @@ const routes = [
     path: "/scene2",
     name: "scene2",
     component: () =>
-    import(/* webpackChunkName: "cylinderChart" */ "@/views/threeScene2.vue")
+    import(/* webpackChunkName: "scene2" */ "@/views/threeScene2.vue")
   },
   {
     path: "/3DHeatMap",
     name: "3DHeatMap",
     component: () =>
-    import(/* webpackChunkName: "cylinderChart" */ "@/views/threeHeatmap.vue")
+    import(/* webpackChunkName: "3DHeatMap" */ "@/views/threeHeatmap.vue")
+  },
+  {
+    path: "/deviceControl",
+    name: "deviceControl",
+    component: () =>
+    import(/* webpackChunkName: "deviceControl" */ "@/views/threeDeviceControl.vue")
+  },
+  {
+    path: "/deviceCondition",
+    name: "deviceCondition",
+    component: () =>
+    import(/* webpackChunkName: "deviceCondition" */ "@/views/threeDeviceCondition.vue")
+  },
+  {
+    path: "/pathInspection",
+    name: "pathInspection",
+    component: () =>
+    import(/* webpackChunkName: "pathInspection" */ "@/views/threePathInspection.vue")
   }
 ];
 

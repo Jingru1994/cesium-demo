@@ -140,12 +140,25 @@
           },
           {
             "name": "macroScene",
-            "label": "场景1",
-            "suffix": "gif"
+            "label": "场景1"
           },
           {
             "name": "scene2",
             "label": "场景2",
+            "suffix": "gif"
+          },
+          {
+            "name": "deviceControl",
+            "label": "设备控制"
+          },
+          {
+            "name": "deviceCondition",
+            "label": "设备状态显示"
+          }
+          ,
+          {
+            "name": "pathInspection",
+            "label": "路径巡检",
             "suffix": "gif"
           }
         ]
