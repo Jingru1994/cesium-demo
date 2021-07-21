@@ -19,6 +19,12 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 import * as TWEEN from "@tweenjs/tween.js"
 
 import LineBezierCurve3 from '@/utils/widgets/threeLineBezierCurve3/LineBezierCurve3.js'
+import GPUParticleSystem from '@/utils/widgets/ParticleFire/GPUParticleSystem/ParticleFire.js'
+import VolumetricFire from '@/utils/widgets/ParticleFire/VolumetricFire/VolumetricFire.js'
+import FlameEmitter from '@/utils/widgets/ParticleFire/FlameEmitter/libs/emitters/flame.js'
+// import ParticleSystem from '@/utils/widgets/ParticleFire/FlameEmitter/libs/system'
+import ParticleSystem from '@/utils/widgets/ParticleFire/my/ParticleSystem.js'
+
 // const h337 = require("heatmap.js")
 
 export default ({
@@ -31,6 +37,7 @@ export default ({
     created() {
     },
     async mounted() {
+        this._previousAnimate = null
         this.prevTime = 0;
         this.interval = 0
         this.depth = 0.5 //拉伸地图的厚度
@@ -42,7 +49,7 @@ export default ({
         this.initControls()
         this.initLight()
 
-        this.loadModels()
+        // this.loadModels()
         // this.pickObject()
 
         this.addClickListener()
@@ -52,10 +59,83 @@ export default ({
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
         
-        this.inspectionAnimation()
+        // fire1
+        // const fire = new FlameEmitter()
+        // console.log(fire)
+
+        // const textureLoader = new THREE.TextureLoader()
+        // const options = {
+        //     maxParticles: 1000,
+        //     position: new THREE.Vector3(0,0,0),
+        //     positionRandomness: 0.0,
+        //     baseVelocity: new THREE.Vector3(0.0, 1.0, 0.0),
+        //     velocity: new THREE.Vector3(0.0, 1.0, 0.0),
+        //     velocityRandomness: 0.3,
+        //     acceleration: new THREE.Vector3(0.0,0.0,0.0),
+        //     color: new THREE.Color(0.5,0.3,0.0),
+        //     endColor: new THREE.Color(0.5,0.0,0.0),
+        //     colorRandomness: 0.5,
+        //     lifetime: 3.0,
+        //     size: 500,
+        //     sizeRandomness: 1.0,
+        //     particleSpriteTex: textureLoader.load('images/particle2.png'),
+        //     blending: THREE.AdditiveBlending,
+        //     onTick:(system,time) => {
+        //         options.velocity.x = options.baseVelocity.x + system.random() * options.velocityRandomness
+        //         options.velocity.y = options.baseVelocity.y + system.random() * options.velocityRandomness*2.0
+        //         options.velocity.z = options.baseVelocity.z + system.random() * options.velocityRandomness
+        //         system.spawnParticle( options );
+        //     }
+        // }
+
+        // fire2
+        // const fire = new GPUParticleSystem(options)
+        // this.scene.add(fire)
+        // this.fire = fire
+
+        // var fireWidth  = 60;
+        // var fireHeight = 120;
+        // var fireDepth  = 60;
+        // var sliceSpacing = 0.5;
+
+        // var fire = new VolumetricFire(
+        //     fireWidth,
+        //     fireHeight,
+        //     fireDepth,
+        //     sliceSpacing,
+        //     this.camera
+        // );
+        // this.scene.add( fire.mesh );
+        // console.log(fire.mesh)
+
+        // fire.mesh.position.set(0,200,0)
+        // this.fire = fire
+
+        //fire3
+        // this.ps = new ParticleSystem({
+        //     emitter: new FlameEmitter()
+        // })
+        // this.scene.add(this.ps.mesh)
+        // this.ps.start()
+        const params = {
+            camera: this.camera,
+            parent: this.scene
+        }
+        
+        const fire = new ParticleSystem(params)
+        this.fire = fire
+
+        
+
+        this.controls.addEventListener('change',()=>{
+            
+        })
+
+
 
         this.animate()
     },
+
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
         this.renderer = null
@@ -111,7 +191,19 @@ export default ({
         initScene() {
             const scene = new THREE.Scene()
             this.scene = scene
-            scene.background = new THREE.Color(0xeeeeee)
+
+            const loader = new THREE.CubeTextureLoader();
+            const texture = loader.load([
+                './images/posx.jpg',
+                './images/negx.jpg',
+                './images/posy.jpg',
+                './images/negy.jpg',
+                './images/posz.jpg',
+                './images/negz.jpg',
+            ]);
+            this.scene.background = texture;
+
+            // scene.background = new THREE.Color(0x000000)
             const canvas = document.querySelector('#three')
             const renderer = new THREE.WebGLRenderer({canvas,antialias: true, alpha: true})
             this.renderer = renderer
@@ -122,7 +214,7 @@ export default ({
             this.camera = camera
             
             //调整camera视角
-            camera.position.set(0, 0, 500)
+            camera.position.set(0, 0, 100)
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -157,7 +249,7 @@ export default ({
         },
         initAmbientLight() {
             //环境光
-            const ambientLight = new THREE.AmbientLight("#ffffff",0.7);
+            const ambientLight = new THREE.AmbientLight("#ffffff",0.5);
             this.scene.add(ambientLight)
         },
         initDirectionalLight() {
@@ -173,10 +265,16 @@ export default ({
             dirLight.shadow.camera.top = 500
             dirLight.shadow.camera.bottom = -500
             //显示灯光方向
-            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            // this.scene.add(debugCamera1)
+            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            this.scene.add(debugCamera1)
         },
-        animate() {//three需要动画循环函数，每一帧都执行这个函数
+        step(timeElapsed) {
+            const timeElapseds = timeElapsed * 0.001
+            this.fire.Step(timeElapseds)
+
+        },
+        animate(time) {//three需要动画循环函数，每一帧都执行这个函数
+        
             let delta = this.clock.getDelta()
 
             this.renderer.render(this.scene,this.camera)
@@ -185,6 +283,28 @@ export default ({
 
             TWEEN.update()
             this.mixer && this.mixer.update(delta)
+            
+
+            // if(this.fire) {
+            //     this.fire._AddParticles()
+
+            //     var elapsed = this.clock.getElapsedTime()
+            //     this.fire._UpdateParticles(elapsed)
+            //     this.fire._UpadteGeometry()
+                
+            // }
+            if(this._previousAnimate === null) {
+                this._previousAnimate = time
+            }
+            this.step(time - this._previousAnimate)
+            this._previousAnimate = time
+            
+            //fire2
+            // var elapsed = this.clock.getElapsedTime();
+            // this.fire.update( elapsed );
+
+            //fire1
+            // this.fire.update(time)
             
             this.state.update()
             this.myAnimate = requestAnimationFrame(this.animate)

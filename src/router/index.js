@@ -203,6 +203,12 @@ const routes = [
     name: "pathInspection",
     component: () =>
     import(/* webpackChunkName: "pathInspection" */ "@/views/threePathInspection.vue")
+  },
+  {
+    path: "/fireParticle",
+    name: "fireParticle",
+    component: () =>
+    import(/* webpackChunkName: "pathInspection" */ "@/views/threeFireParticle.vue")
   }
 ];
 

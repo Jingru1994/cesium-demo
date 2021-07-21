@@ -154,8 +154,7 @@
           {
             "name": "deviceCondition",
             "label": "设备状态显示"
-          }
-          ,
+          },
           {
             "name": "pathInspection",
             "label": "路径巡检",
