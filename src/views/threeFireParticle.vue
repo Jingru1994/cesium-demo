@@ -125,12 +125,6 @@ export default ({
         const fire = new ParticleSystem(params)
         this.fire = fire
 
-        
-
-        this.controls.addEventListener('change',()=>{
-            
-        })
-
 
 
         this.animate()
@@ -293,12 +287,17 @@ export default ({
             //     this.fire._UpadteGeometry()
                 
             // }
-            if(this._previousAnimate === null) {
+            debugger
+            if(time) {
+                if(this._previousAnimate === null) {
+                    this._previousAnimate = time
+                }
+                this.step(time - this._previousAnimate)
                 this._previousAnimate = time
+
             }
-            this.step(time - this._previousAnimate)
-            this._previousAnimate = time
             
+
             //fire2
             // var elapsed = this.clock.getElapsedTime();
             // this.fire.update( elapsed );
