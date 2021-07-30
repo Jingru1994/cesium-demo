@@ -37,11 +37,25 @@ export default ({
     },
     beforeDestroy() {
         console.log(this.myAnimate)
-        SpreadCircle.stop()//停止动画，里面也有一个cancelAnimationFrame
+        this.spreadCircle.stop()//停止动画，里面也有一个cancelAnimationFrame
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         initScene() {
@@ -247,30 +261,6 @@ export default ({
             line2.name = 'line'
             return [line1, line2]
         },
-        // drawLine(posArr,offsetX,offsetY) {
-        //     let geometry1 = new THREE.BufferGeometry()
-        //     let geometry2 = new THREE.BufferGeometry()
-        //     let verticesList1 = []
-        //     let verticesList2 = []
-        //     posArr.forEach(item => {
-        //         verticesList1.push(item[0]+offsetX)
-        //         verticesList1.push(item[1]+offsetY)
-        //         verticesList1.push(this.depth)
-        //         verticesList2.push(item[0]+offsetX)
-        //         verticesList2.push(item[1]+offsetY)
-        //         verticesList2.push(-0.001)
-        //     })
-        //     const vertices1 = new Float32Array(verticesList1)
-        //     const vertices2 = new Float32Array(verticesList2)
-        //     geometry1.setAttribute('position',new THREE.BufferAttribute(vertices1,3))
-        //     geometry2.setAttribute('position',new THREE.BufferAttribute(vertices2,3))
-        //     let lineMaterial = new THREE.LineBasicMaterial({ color: 0x008bfb })
-        //     let line1 = new THREE.Line(geometry1, lineMaterial)
-        //     let line2 = new THREE.Line(geometry2, lineMaterial)
-        //     line1.name = 'line'
-        //     line2.name = 'line'
-        //     return [line1, line2]
-        // },
         addPickObject() {
             const that = this
             const raycaster = new THREE.Raycaster()
@@ -329,8 +319,7 @@ export default ({
                 color: new THREE.Color("rgb(204, 255, 0)")
             }
             let spreadCircle = new SpreadCircle(options)
-            console.log(spreadCircle)
-            // SpreadCircle.animate()
+            this.spreadCircle = spreadCircle
             
             this.scene.add(spreadCircle.mesh)
         }

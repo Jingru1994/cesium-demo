@@ -183,6 +183,9 @@ class CylinderChart {
     addTo(scene) {
         scene.add(this.mesh)
     }
+    stop() {
+        cancelAnimationFrame(this.start)
+    }
 }
 
 export default CylinderChart

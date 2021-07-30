@@ -61,9 +61,29 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.pyramid.stop()
+        this.semiRing1.stop()
+        this.semiRing2.stop()
+        this.semiRing3.stop()
+        this.dashArc1.stop()
+        this.dashArc2.stop()
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         addClickListener() {
@@ -483,6 +503,7 @@ export default ({
                 position: new THREE.Vector3(-1.5,-8,this.depth+0.1)
             }
             let pyramid = new Pyramid(options)
+            this.pyramid = pyramid
             this.scene.add(pyramid.mesh)
         },
         createSemiRing() {
@@ -509,6 +530,9 @@ export default ({
                 scale: 2.3
             }
             const semiRing3 = new SemiRing(options3)
+            this.semiRing1 = semiRing1
+            this.semiRing2 = semiRing2
+            this.semiRing3 = semiRing3
             this.scene.add(semiRing1.mesh,semiRing2.mesh,semiRing3.mesh)
         },
         createDashArc() {
@@ -518,6 +542,7 @@ export default ({
             }
             const dashArc1 = new DashArc(options1)
             dashArc1.mesh.rotation.x = Math.PI*0.05
+            this.dashArc1 = dashArc1
             this.scene.add(dashArc1.mesh)
             const options2 = {
                 radius: 41,
@@ -525,6 +550,7 @@ export default ({
                 speed: 0.005
             }
             const dashArc2 = new DashArc(options2)
+            this.dashArc2 = dashArc2
             dashArc2.mesh.rotation.x = Math.PI*0.05
             this.scene.add(dashArc2.mesh)
             

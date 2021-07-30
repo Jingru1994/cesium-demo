@@ -38,9 +38,24 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.scanCircle.stop()
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         initScene() {
@@ -326,8 +341,7 @@ export default ({
                 color: new THREE.Color("rgb(255, 0, 0)")
             }
             let scanCircle = new ScanCircle(circleCenter,20.0,options)
-            console.log(scanCircle)
-            // SpreadCircle.animate()
+            this.scanCircle = scanCircle
             
             this.scene.add(scanCircle.mesh)
         }

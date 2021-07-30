@@ -68,9 +68,25 @@ export default ({
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.mark.stop()
+        this.bottomCircle.stop()
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         addClickListener() {
@@ -476,7 +492,7 @@ export default ({
             }
             let mark = new ColumnCircleMark(options)
             mark.renderOrder = 50
-            console.log(mark.mesh)
+            this.mark = mark
             this.scene.add(mark.mesh)
         },
         createBottomElements() {
@@ -485,6 +501,7 @@ export default ({
                 position: new THREE.Vector3(0,0,-0.01)
             }
             let bottomCircle = new BottomCircle(options)
+            this.bottomCircle = bottomCircle
             this.scene.add(bottomCircle.mesh)
 
         },
@@ -528,35 +545,6 @@ export default ({
                     .easing(TWEEN.Easing.Sinusoidal.InOut)
                     .delay(500)
                     .start()
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.997960866903403,
-                    //     y: -98.69085766710411,
-                    //     z: 38.13134268455713}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()//8500
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.16088540643481214,
-                    //     y:0.9834879892160223,
-                    //     z: -0.12234075798377202}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()
-                    
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.453969669715695,
-                    //     y: -96.90948039589603,
-                    //     z: 42.6561468576288}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.1575359286856687,
-                    //     y: 0.9773202696986771,
-                    //     z: -0.16771261612998487}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
                 })
             })
         }

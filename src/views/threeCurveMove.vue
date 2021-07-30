@@ -54,9 +54,24 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
+        
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         addClickListener() {
@@ -377,7 +392,7 @@ export default ({
                 tween.to({ t: 1 }, duration);
                 tween.onUpdate(({ t }) => {
                     object.position.copy(curve.getPoint(t)) // 每帧更新位置
-                    if(t !== 1) {
+                    if(t < 0.99) {
                         object.lookAt(curve.getPoint(t+0.01))// 朝向
                     }
                     

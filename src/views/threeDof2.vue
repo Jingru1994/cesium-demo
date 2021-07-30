@@ -67,9 +67,25 @@ export default ({
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.mark.stop()
+        this.bottomCircle.stop()
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         addPostProcessing() {
@@ -255,21 +271,8 @@ export default ({
             
             //调整camera视角
             // camera.position.set(0, 0, 50)//camera默认放在中心点(0,0,0)，挪一下位置
-            // camera.position.set(-2.2074636356036743, -13.61776549393699, 5.261517580471185)
-            // camera.up.set(0.16088540643481214, 0.9834879892160223, -0.12234075798377202)
-            // camera.position.set(-15.997960866903403, -98.69085766710411, 38.13134268455713)
-            // camera.up.set(0.16088540643481214, 0.9834879892160223, -0.12234075798377202)
             camera.position.set(-38.25374545966521, -762.3175314965309, 600.429209948726)
             camera.up.set(0.0604152972374721, 0.9128441505074004, -0.4137215836084547)
-            //下面参数对于调整camera视角没有作用
-            // camera.rotation.set(1.148468910298315, -0.1261940903609752, -0.06956724055338868, "XYZ")
-            // camera.quaternion.set(0.5436244764554815, -0.03405684915269789, -0.06337099294858563, 0.836239604944064)
-            // camera.projectionMatrix.fromArray([1.0465640544361754, 0, 0, 0, 0, 2.1445069205095586, 0, 0, 0, 0, -1.00010000500025, -1, 0, 0, -0.200010000500025, 0])
-            // camera.projectionMatrixInverse.fromArray([0.9555076880017046, -0, -0, -0, -0, 0.4663076581549986, -0, -0, -0, -0, -0, -4.999750000000001, -0, -0, -1.0000000000000002, 5.000250000000001])
-            // camera.matrix.fromArray([0.9896484965570014, -0.143014941797194, -0.01194067356609442, 0, 0.06895839463575923, 0.40091309170242784, 0.9135170675531243, 0, -0.12585941789046107, -0.9048842021630976, 0.406625119248588, 0, -1.858292035616543, -13.360455134937972, 6.003747937551419, 1])
-            // camera.matrixWorld.fromArray([0.9896484965570014, -0.143014941797194, -0.01194067356609442, 0, 0.06895839463575923, 0.40091309170242784, 0.9135170675531243, 0, -0.12585941789046107, -0.9048842021630976, 0.406625119248588, 0, -1.858292035616543, -13.360455134937972, 6.003747937551419, 1])
-            // camera.matrixWorldInverse.fromArray([0.9896484965570015, 0.06895839463575924, -0.1258594178904611, 0, -0.14301494179719404, 0.40091309170242795, -0.904884202163098, 0, -0.011940673566094424, 0.9135170675531245, 0.4066251192485881, 0, -4.996003610813205e-16, 3.552713678800502e-15, -14.7648230602327, 1])
-            
             // 避免模型很模糊的现象
             let width = window.innerWidth
             let height = window.innerHeight
@@ -628,7 +631,7 @@ export default ({
             }
             let mark = new ColumnCircleMark(options)
             mark.renderOrder = 50
-            console.log(mark.mesh)
+            this.mark = mark
             this.scene.add(mark.mesh)
         },
         createBottomElements() {
@@ -637,6 +640,7 @@ export default ({
                 position: new THREE.Vector3(0,0,-0.01)
             }
             let bottomCircle = new BottomCircle(options)
+            this.bottomCircle = bottomCircle
             this.scene.add(bottomCircle.mesh)
 
         },
@@ -680,50 +684,6 @@ export default ({
                     .easing(TWEEN.Easing.Sinusoidal.InOut)
                     .delay(500)
                     .start()
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -2.945877994129454,
-                    //     y: -100.07244304364247,
-                    //     z: 37.77098595503165}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()//8500
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.04198973871347512,
-                    //     y: 0.996073299733798,
-                    //     z: -0.11905815133834842}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.997960866903403,
-                    //     y: -98.69085766710411,
-                    //     z: 38.13134268455713}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()//8500
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.16088540643481214,
-                    //     y:0.9834879892160223,
-                    //     z: -0.12234075798377202}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .delay(500)
-                    // .start()
-                    
-
-                    // const tween4 = new TWEEN.Tween(that.camera.position)
-                    // .to({x: -15.453969669715695,
-                    //     y: -96.90948039589603,
-                    //     z: 42.6561468576288}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
-                    // const tween5 = new TWEEN.Tween(that.camera.up)
-                    // .to({x: 0.1575359286856687,
-                    //     y: 0.9773202696986771,
-                    //     z: -0.16771261612998487}, 2000)
-                    // .easing(TWEEN.Easing.Sinusoidal.InOut)
-                    // .start()
                 })
             })
         }

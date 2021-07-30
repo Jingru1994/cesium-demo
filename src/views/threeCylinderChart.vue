@@ -62,9 +62,24 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
+        this.cylinderChart.stop()
+        this.scene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+            }
+        })
+        THREE.Cache.clear()
+        this.scene.clear()
         this.scene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
         initScene() {
