@@ -1,9 +1,6 @@
 <template>
     <div class="three-view">
         <canvas id="three"></canvas>
-        <div class="operation-panel">
-            <el-button @click="animationAgain" :disabled="!isClick">再次巡检</el-button>
-        </div>
     </div>
 </template>
 <script>
@@ -18,12 +15,9 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
 import * as TWEEN from "@tweenjs/tween.js"
 
-import LineBezierCurve3 from '@/utils/widgets/threeLineBezierCurve3/LineBezierCurve3.js'
-import GPUParticleSystem from '@/utils/widgets/ParticleFire/GPUParticleSystem/ParticleFire.js'
-import VolumetricFire from '@/utils/widgets/ParticleFire/VolumetricFire/VolumetricFire.js'
-import FlameEmitter from '@/utils/widgets/ParticleFire/FlameEmitter/libs/emitters/flame.js'
-// import ParticleSystem from '@/utils/widgets/ParticleFire/FlameEmitter/libs/system'
-import ParticleSystem from '@/utils/widgets/ParticleFire/my/ParticleSystem.js'
+import ParticleSystem from '@/utils/widgets/ParticleFire/ParticleFire1/ParticleSystem.js'
+import {SmokeOptions, FireOptions, SparkOptions} from '@/utils/widgets/ParticleFire/ParticleFire1/ParticleType.js'
+import ParticleSystem2 from '@/utils/widgets/ParticleFire/ParticleFire2/ParticleSystem.js'
 
 // const h337 = require("heatmap.js")
 
@@ -37,10 +31,6 @@ export default ({
     created() {
     },
     async mounted() {
-        this._previousAnimate = null
-        this.prevTime = 0;
-        this.interval = 0
-        this.depth = 0.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
         this.clock.autoStart = true
         
@@ -49,8 +39,10 @@ export default ({
         this.initControls()
         this.initLight()
 
-        // this.loadModels()
-        // this.pickObject()
+        this.loadModels()
+        this.addFire()
+        this.addFire2()
+        this.addPlanes()
 
         this.addClickListener()
         
@@ -58,123 +50,181 @@ export default ({
         if(GUI) {
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
-        
-        // fire1
-        // const fire = new FlameEmitter()
-        // console.log(fire)
 
-        // const textureLoader = new THREE.TextureLoader()
-        // const options = {
-        //     maxParticles: 1000,
-        //     position: new THREE.Vector3(0,0,0),
-        //     positionRandomness: 0.0,
-        //     baseVelocity: new THREE.Vector3(0.0, 1.0, 0.0),
-        //     velocity: new THREE.Vector3(0.0, 1.0, 0.0),
-        //     velocityRandomness: 0.3,
-        //     acceleration: new THREE.Vector3(0.0,0.0,0.0),
-        //     color: new THREE.Color(0.5,0.3,0.0),
-        //     endColor: new THREE.Color(0.5,0.0,0.0),
-        //     colorRandomness: 0.5,
-        //     lifetime: 3.0,
-        //     size: 500,
-        //     sizeRandomness: 1.0,
-        //     particleSpriteTex: textureLoader.load('images/particle2.png'),
-        //     blending: THREE.AdditiveBlending,
-        //     onTick:(system,time) => {
-        //         options.velocity.x = options.baseVelocity.x + system.random() * options.velocityRandomness
-        //         options.velocity.y = options.baseVelocity.y + system.random() * options.velocityRandomness*2.0
-        //         options.velocity.z = options.baseVelocity.z + system.random() * options.velocityRandomness
-        //         system.spawnParticle( options );
-        //     }
-        // }
-
-        // fire2
-        // const fire = new GPUParticleSystem(options)
-        // this.scene.add(fire)
-        // this.fire = fire
-
-        // var fireWidth  = 60;
-        // var fireHeight = 120;
-        // var fireDepth  = 60;
-        // var sliceSpacing = 0.5;
-
-        // var fire = new VolumetricFire(
-        //     fireWidth,
-        //     fireHeight,
-        //     fireDepth,
-        //     sliceSpacing,
-        //     this.camera
-        // );
-        // this.scene.add( fire.mesh );
-        // console.log(fire.mesh)
-
-        // fire.mesh.position.set(0,200,0)
-        // this.fire = fire
-
-        //fire3
-        // this.ps = new ParticleSystem({
-        //     emitter: new FlameEmitter()
-        // })
-        // this.scene.add(this.ps.mesh)
-        // this.ps.start()
-        const params = {
-            camera: this.camera,
-            parent: this.scene
-        }
-        
-        const fire = new ParticleSystem(params)
-        this.fire = fire
-
-
-
-        this.animate()
+        this.animate();
     },
 
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
-        this.renderer = null
-        this.scene = null
+
+        this.fireGroup.forEach(item => {
+            console.log(item)
+            item.destroy()
+        })
+        this.fire.destroy()
+        
+        this.opaqueScene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+                console.log('dispose1')
+            }
+        })
+        this.transparentScene.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose()
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose()
+                    })
+                }else{
+                    item.material.dispose()
+                }
+                console.log('dispose2')
+            }
+        })
+        THREE.Cache.clear()
+        this.opaqueScene.clear()
+        this.transparentScene.clear()
+        
+        this.transparentScene = null
+        this.opaqueScene = null
         this.camera = null
+        this.renderer = null
     },
     methods: {
-        animationAgain() {
-            this.isClick = false
-            this.tween.start()
+        addPlanes() {
+            const canvas1 = document.createElement('canvas')
+            canvas1.width = 800
+            canvas1.height = 1200
+            
+            const ctx1 = canvas1.getContext('2d')
+            ctx1.fillStyle = "rgba(0,0,0,0.5)"
+            ctx1.fillRect(0,0,2000,2000)
+            ctx1.fillStyle = "#ffffff"
+            ctx1.font = "60px bold 微软雅黑"
+            ctx1.fillText("三个粒子系统", 80,160)
+            ctx1.font = "48px bold 微软雅黑"
+            ctx1.fillText("◆ 可实现软粒子效果，火焰与", 80,300)
+            ctx1.fillText("模型相接处无明显边界", 120,370)
+            ctx1.fillText("◆ 火焰与烟雾分离，上下拖拽", 80,470)
+            ctx1.fillText("鼠标可观察，火焰与烟雾整", 120,540)
+            ctx1.fillText("体相互遮盖，且遮盖顺序随", 120,610)
+            ctx1.fillText("距相机的距离改变而变化", 120,680)
+            ctx1.fillText("◆ 软粒子与火焰、烟雾融合目", 80,830)
+            ctx1.fillText("前无法做到同时实现，根据", 120,900)
+            ctx1.fillText("需求选择使用哪种实现方式", 120,970)
+            ctx1.fillText("更合适", 120,1040)
+
+            const texture1 = new THREE.CanvasTexture(canvas1)
+            const material1 = new THREE.SpriteMaterial( { map: texture1 } );
+
+            const sprite1 = new THREE.Sprite( material1 );
+            sprite1.center.set(0,1)
+            sprite1.position.set(-230,150,300)
+            sprite1.scale.set(200,300)
+            this.transparentScene.add( sprite1 );
+
+            const canvas2 = document.createElement('canvas')
+            canvas2.width = 800
+            canvas2.height = 1200
+            
+            const ctx2 = canvas2.getContext('2d')
+            ctx2.fillStyle = "rgba(0,0,0,0.5)"
+            ctx2.fillRect(0,0,2000,2000)
+            ctx2.fillStyle = "#ffffff"
+            ctx2.font = "60px bold 微软雅黑"
+            ctx2.fillText("一个粒子系统", 80,160)
+            ctx2.font = "48px bold 微软雅黑"
+            ctx2.fillText("◆ 不能实现软粒子效果，火焰", 80,300)
+            ctx2.fillText("与模型相接处有明显边界", 120,370)
+            ctx2.fillText("◆ 火焰与烟雾融合，每个粒子", 80,470)
+            ctx2.fillText("根据距相机距离绘制，不区", 120,540)
+            ctx2.fillText("分是火焰还是烟雾", 120,610)
+            ctx2.fillText("◆ 软粒子与火焰、烟雾融合目", 80,830)
+            ctx2.fillText("前无法做到同时实现，根据", 120,900)
+            ctx2.fillText("需求选择使用哪种实现方式", 120,970)
+            ctx2.fillText("更合适", 120,1040)
+
+            const texture2 = new THREE.CanvasTexture(canvas2)
+            const material2 = new THREE.SpriteMaterial( { map: texture2 } );
+
+            const sprite2 = new THREE.Sprite( material2 );
+            sprite2.center.set(0,1)
+            sprite2.position.set(250,150,300)
+            sprite2.scale.set(200,300)
+            this.transparentScene.add( sprite2 );
         },
-        inspectionAnimation() {
-            const curve = this.createPath()
-            this.pathAnimation(curve)
+        addFire2() {
+            const params = {
+                camera: this.camera,
+                parent: this.transparentScene
+            }
+            const fire = new ParticleSystem2(params)
+            fire.points.position.set(150, -300, 300)
+            fire.points.scale.set(10,10,10)
+            this.transparentScene.add(fire.points)
+            fire.update()
+            this.fire = fire
+            console.log('s')
+            
         },
-        createPath() {
-            let nodeList = [
-                [-1600,-80,-2500],
-                [-1600,-80,1100],
-                [2700,-80,1100],
-                [2700,-80,-1500]
-            ]
-            let curve = new LineBezierCurve3(nodeList)
-            return curve
-        },
-        pathAnimation(curve) {
-            const that = this
-            const tween = new TWEEN.Tween({ t: 0 })
-                .to({ t: 0.99 }, 40000)
-                .onUpdate(({ t }) => {
-                    that.camera.position.copy(curve.getPoint(t))
-                    that.controls.target.copy(curve.getPoint(t))
-                    // object.position.copy(curve.getPoint(t)) // 每帧更新位置
-                    if(t !== 1) {
-                        that.camera.lookAt(curve.getPoint(t+0.01))
-                        that.controls.target.copy(curve.getPoint(t+0.01))
-                    }
-                })
-                .onComplete(()=>{
-                    that.controls.target.set(0,0,0)
-                    that.camera.position.set(5174,3205,8210)
-                    that.isClick = true
-                })
-                .start()
-            this.tween = tween
+        addFire() {
+            const depthTexture = new THREE.DepthTexture();
+            depthTexture.type = THREE.UnsignedShortType
+            depthTexture.minFilter = THREE.NearestFilter
+            depthTexture.maxFilter = THREE.NearestFilter
+            this.target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+                minFilter: THREE.NearestFilter,
+                maxFilter: THREE.NearestFilter,
+                format: THREE.RGBAFormat,
+                depthTexture: depthTexture,
+                depthBuffer: true
+            })
+
+            const fireParams = {
+                camera: this.camera,
+                depthTexture: this.target.depthTexture,
+                options: FireOptions
+            }
+            const sparkParams = {
+                camera: this.camera,
+                depthTexture: this.target.depthTexture,
+                options: SparkOptions
+            }
+            const smokeParams = {
+                camera: this.camera,
+                depthTexture: this.target.depthTexture,
+                options: SmokeOptions
+            }
+
+            const fire = new ParticleSystem(fireParams)
+            fire.setScale(10)
+            fire.update()
+            fire.points.position.set(0,-300,0)
+            
+            const spark = new ParticleSystem(sparkParams)
+            spark.setScale(10)
+            spark.update()
+            spark.points.position.set(0,-170,0)
+            
+            const smoke = new ParticleSystem(smokeParams)
+            smoke.setScale(10)
+            smoke.update()
+            smoke.points.position.set(0,-170,0)
+
+            const group = new THREE.Group()
+            group.add(fire.points, spark.points, smoke.points)
+            group.position.set(-350,0,300)
+            this.transparentScene.add(group)
+
+            this.fireGroup = [fire,spark,smoke]
         },
         addClickListener() {
             this.renderer.domElement.addEventListener('click',e => {
@@ -183,21 +233,14 @@ export default ({
             })
         },
         initScene() {
-            const scene = new THREE.Scene()
-            this.scene = scene
+            // const scene = new THREE.Scene()
+            // this.scene = scene
+            const opaqueScene = new THREE.Scene()
+            this.opaqueScene = opaqueScene
+            const transparentScene = new THREE.Scene()
+            this.transparentScene = transparentScene
 
-            const loader = new THREE.CubeTextureLoader();
-            const texture = loader.load([
-                './images/posx.jpg',
-                './images/negx.jpg',
-                './images/posy.jpg',
-                './images/negy.jpg',
-                './images/posz.jpg',
-                './images/negz.jpg',
-            ]);
-            this.scene.background = texture;
-
-            // scene.background = new THREE.Color(0x000000)
+            this.opaqueScene.background = new THREE.Color(0x333333)
             const canvas = document.querySelector('#three')
             const renderer = new THREE.WebGLRenderer({canvas,antialias: true, alpha: true})
             this.renderer = renderer
@@ -244,66 +287,43 @@ export default ({
         initAmbientLight() {
             //环境光
             const ambientLight = new THREE.AmbientLight("#ffffff",0.5);
-            this.scene.add(ambientLight)
+            // this.scene.add(ambientLight)
+            this.opaqueScene.add(ambientLight)
         },
         initDirectionalLight() {
             //方向光
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.5)
             //光源位置
             dirLight.position.set(3000, 2000, 2500)
-            this.scene.add(dirLight)
+            // this.scene.add(dirLight)
+            this.opaqueScene.add(dirLight)
             dirLight.shadow.camera.near = 100
-            dirLight.shadow.camera.far = 3000
+            dirLight.shadow.camera.far = 5000
             dirLight.shadow.camera.left = -500
             dirLight.shadow.camera.right = 500
             dirLight.shadow.camera.top = 500
             dirLight.shadow.camera.bottom = -500
             //显示灯光方向
-            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            this.scene.add(debugCamera1)
+            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            // this.opaqueScene.add(debugCamera1)
         },
-        step(timeElapsed) {
-            const timeElapseds = timeElapsed * 0.001
-            this.fire.Step(timeElapseds)
-
-        },
-        animate(time) {//three需要动画循环函数，每一帧都执行这个函数
+        animate() {//three需要动画循环函数，每一帧都执行这个函数
         
             let delta = this.clock.getDelta()
+            this.renderer.clear()
 
-            this.renderer.render(this.scene,this.camera)
+            this.renderer.setRenderTarget(this.target)
+            this.renderer.render(this.opaqueScene, this.camera)
+            this.renderer.setRenderTarget(null)
+            this.renderer.render(this.opaqueScene, this.camera)
+            this.renderer.autoClear = false
+            this.renderer.render(this.transparentScene,this.camera)
+            
+            // this.renderer.render(this.scene,this.camera)
             
             this.controls.update(delta)//TrackballControls
 
             TWEEN.update()
-            this.mixer && this.mixer.update(delta)
-            
-
-            // if(this.fire) {
-            //     this.fire._AddParticles()
-
-            //     var elapsed = this.clock.getElapsedTime()
-            //     this.fire._UpdateParticles(elapsed)
-            //     this.fire._UpadteGeometry()
-                
-            // }
-            debugger
-            if(time) {
-                if(this._previousAnimate === null) {
-                    this._previousAnimate = time
-                }
-                this.step(time - this._previousAnimate)
-                this._previousAnimate = time
-
-            }
-            
-
-            //fire2
-            // var elapsed = this.clock.getElapsedTime();
-            // this.fire.update( elapsed );
-
-            //fire1
-            // this.fire.update(time)
             
             this.state.update()
             this.myAnimate = requestAnimationFrame(this.animate)
@@ -323,7 +343,9 @@ export default ({
             model.scale.set(0.1,0.1,0.1)
             this.setContent(model)
             model.visible = true
-            this.scene.add(model)
+
+            // this.scene.add(model)
+            this.opaqueScene.add(model)
 
             this.factory = model
         },
@@ -335,7 +357,7 @@ export default ({
                     (gltf) => {
                         const model = gltf.scene || gltf.scene[0]
 
-                        if (!this.scene) {
+                        if (!gltf.scene) {
                             // Valid, but not supported by this viewer.
                             throw new Error(
                             'This model contains no scene, and cannot be viewed here. However,'
@@ -366,6 +388,7 @@ export default ({
             return p
         },
         setContent ( object ) {
+            console.log(object)
             const box = new THREE.Box3().setFromObject(object);
             const size = box.getSize(new THREE.Vector3()).length();
             const center = box.getCenter(new THREE.Vector3());
@@ -373,15 +396,14 @@ export default ({
             object.position.x += (object.position.x - center.x);
             object.position.y += (object.position.y - center.y);
             object.position.z += (object.position.z - center.z);
+            this.controls.mimDistance = 10
             this.controls.maxDistance = size * 10;
             this.camera.near = size / 100;
             this.camera.far = size * 100;
             this.camera.updateProjectionMatrix();
 
-            this.camera.position.copy(center);
-            this.camera.position.x += size / 3.0;
-            this.camera.position.y += size / 7.5;
-            this.camera.position.z += size / 1.5;
+            this.camera.position.set(1.0597310110771188, 208.92874400450108, 1095.6604754734267)
+            
             this.camera.lookAt(center);
             this.controls.saveState();
 
@@ -389,43 +411,6 @@ export default ({
             this.content = object
 
             console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
-
-        },
-        pickObject() {
-            const that = this
-            const raycaster = new THREE.Raycaster()
-            let selectedObject
-            this.renderer.domElement.addEventListener('mousemove',onPointerMove)
-            // this.renderer.domElement.addEventListener('click',onPointerClick)
-            const selectObjects = ['Object_124', 'Object_148']
-            function onPointerMove(event) {
-                let mouse = new THREE.Vector2();
-                if ( event.isPrimary === false ) return;
-                mouse.x = (event.clientX/window.innerWidth)*2 - 1
-                mouse.y = -(event.clientY/window.innerHeight)*2 + 1
-                
-                raycaster.setFromCamera(mouse,that.camera)
-                const intersects = raycaster.intersectObject(that.factory,true)
-                // const intersects = raycaster.intersectObject()
-                
-                if(intersects.length > 0) {
-                    if(selectedObject && selectedObject !== intersects[0].object) {
-                        selectedObject.material.color.set(selectedObject.currentColor)
-                        console.log(selectedObject)
-                    }
-                    if(!selectedObject || selectedObject !== intersects[0].object) {
-                        selectedObject = intersects[0].object
-                        selectedObject.currentColor = selectedObject.material.color.getStyle()
-                        selectedObject.material.color.set("#ff5e61")
-                    }
-                }else {
-                    if(selectedObject) {
-                        selectedObject.material.color.set(selectedObject.currentColor)
-                    }
-                    
-                    selectedObject = null
-                }
-            }
         },
         
     }

@@ -159,6 +159,10 @@
             "name": "pathInspection",
             "label": "路径巡检",
             "suffix": "gif"
+          },
+          {
+            "name": "fireParticle",
+            "label": "火焰烟雾"
           }
         ]
       },

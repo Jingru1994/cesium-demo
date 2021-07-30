@@ -6,13 +6,36 @@ import LinearSpline from './LinerSpline.js'
 class ParticleSystem {
     constructor(params) {
         this.PARTICLE_LIFE = 5.0
+        this._camera = params.camera
         const uniforms = {
             diffuseTexture: {
                 value: new THREE.TextureLoader().load('images/fire3.png')
             },
+            depthTexture: {
+                value: null
+            },
             pointMultiplier: {
                 value: window.innerHeight/ (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
+            },
+            resolution: {
+                value: new THREE.Vector2(window.innerWidth, window.innerHeight)
+            },
+            nf: {
+                value: this._camera.near * this._camera.far
+            },
+            f_sub_n: {
+                value: this._camera.far - this._camera.near
+            },
+            f: {
+                value: this._camera.far
+            },
+            cameraNear: {
+                value: this._camera.near
+            },
+            cameraFar: {
+                value: this._camera.far
             }
+
         }
 
         this._material = new THREE.ShaderMaterial({
@@ -23,13 +46,14 @@ class ParticleSystem {
             blendEquation: THREE.AddEquation,
             blendSrc: THREE.OneFactor,
             blendDst: THREE.OneMinusSrcAlphaFactor,
+            // blendDst: THREE.OneFactor,
             depthTest: true,
             depthWrite: false,
             transparent: true,
             vertexColors: true
         })
 
-        this._camera = params.camera
+        
         this._particles = []
 
         this._geometry = new THREE.BufferGeometry()
@@ -233,7 +257,6 @@ class ParticleSystem {
 
         for(let p of this._particles) {
             const t = 1.0 - p.life / p.maxLife
-            debugger
 
             p.rotation += timeElapsed * 0.5
 
