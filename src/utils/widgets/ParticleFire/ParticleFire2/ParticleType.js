@@ -7,8 +7,8 @@ const SmokeOptions = {
     yVelocity: 5.0,
     zVelocity: 0.0,
     blend: 1.0,
-    position: [0,12,0]
-    
+    position: [0,12,0],
+    type: 'smoke'    
 }
 
 const SmokeSpline = {
@@ -24,7 +24,8 @@ const FireOptions = {
     yVelocity: 5.0,
     zVelocity: 0.0,
     blend: 0.0,
-    position: [0,0,0]
+    position: [0,0,0],
+    type: 'fire'
 }
 
 const FireSpline = {
@@ -35,14 +36,14 @@ const FireSpline = {
 
 const SparkOptions = {
     life: 2.0,
-    size: 0.5,
+    size: 0.8,
     velocity: new THREE.Vector3(0, 5, 0),
     xVelocity: 4.0,
     yVelocity: 10.0,
     zVelocity: 4.0,
     blend: 0.0,
-    position: [0,10,0]
-    
+    position: [0,10,0],
+    type: 'spark'
 }
 
 const SparkSpline = {
@@ -51,4 +52,10 @@ const SparkSpline = {
     sizeTween: [[0.0, 1.0], [1.0, 1.0]]
 }
 
-export {SmokeOptions, FireOptions, SparkOptions, SmokeSpline, FireSpline, SparkSpline}
+const Splines = {
+    smoke: SmokeSpline,
+    fire: FireSpline,
+    spark: SparkSpline
+}
+
+export {SmokeOptions, FireOptions, SparkOptions, SmokeSpline, FireSpline, SparkSpline, Splines}

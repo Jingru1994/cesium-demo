@@ -29,7 +29,6 @@ class ParticleSystem {
     _CreateMaterial(params) {
         const diffuseTexture = params.options.diffuseTexture || new THREE.TextureLoader().load('images/fire3.png')
         this._texture = diffuseTexture
-        const blend = params.options.blend
         const uniforms = {
             diffuseTexture: {
                 value: diffuseTexture
@@ -51,10 +50,6 @@ class ParticleSystem {
             },
             sizeFactor: {
                 value: 1.0,
-                type: 'f'
-            },
-            blend: {
-                value: blend,
                 type: 'f'
             }
         }
@@ -108,7 +103,6 @@ class ParticleSystem {
         const xVelocity = this._options.xVelocity * (Math.random() * 2.0 - 1.0)
         const yVelocity = this._options.yVelocity
         const zVelocity = this._options.zVelocity * (Math.random() * 2.0 - 1.0)
-        const blend = this._options.blend
         return {
             position: new THREE.Vector3(
                 (Math.random() * 2 - 1) * 4.0,
@@ -121,7 +115,6 @@ class ParticleSystem {
             maxLife: life,
             rotation: Math.random() * 2.0 * Math.PI,
             velocity: new THREE.Vector3(xVelocity, yVelocity, zVelocity),
-            blend: blend
         };
     }
 

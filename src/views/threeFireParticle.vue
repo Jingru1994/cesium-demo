@@ -168,11 +168,11 @@ export default ({
             }
             const fire = new ParticleSystem2(params)
             fire.points.position.set(150, -300, 300)
-            fire.points.scale.set(10,10,10)
+            // fire.points.scale.set(10,10,10)
+            fire.setScale(10)
             this.transparentScene.add(fire.points)
             fire.update()
             this.fire = fire
-            console.log('s')
             
         },
         addFire() {
@@ -388,7 +388,6 @@ export default ({
             return p
         },
         setContent ( object ) {
-            console.log(object)
             const box = new THREE.Box3().setFromObject(object);
             const size = box.getSize(new THREE.Vector3()).length();
             const center = box.getCenter(new THREE.Vector3());

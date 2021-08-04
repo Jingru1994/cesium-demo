@@ -1,5 +1,6 @@
 export const vertexShader = `
   uniform float pointMultiplier;
+  uniform float sizeFactor;
 
   attribute float size;
   attribute float angle;
@@ -19,7 +20,7 @@ export const vertexShader = `
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = size * pointMultiplier / gl_Position.w * 10.0;
+    gl_PointSize = size * pointMultiplier / gl_Position.w * sizeFactor;
     vAngle = vec2(cos(angle), sin(angle));
     vColour = colour;
     vBlend = blend;
@@ -34,9 +35,6 @@ export const fragmentShader = `
   #include <map_particle_pars_fragment>
 
   uniform sampler2D diffuseTexture;
-  uniform float nf;
-  uniform float f_sub_n;
-  uniform float f;
   uniform vec2 resolution;
 
   uniform float fCamNear;

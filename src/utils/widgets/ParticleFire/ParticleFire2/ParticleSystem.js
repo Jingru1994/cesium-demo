@@ -1,12 +1,14 @@
 import * as THREE from 'three'
 import { vertexShader, fragmentShader } from './shader.js'
 import LinearSpline from './LinearSpline.js'
-import {SmokeOptions, FireOptions, SparkOptions, SmokeSpline, FireSpline, SparkSpline} from './ParticleType';
+import {SmokeOptions, FireOptions, SparkOptions, SmokeSpline, FireSpline, SparkSpline, Splines} from './ParticleType';
 
 class ParticleSystem {
     constructor(params) {
+        if(!params) {
+            throw Error('Creating ParticleSystem instance must provide parameters')
+        }
         this._camera = params.camera
-        
         
         this._particles = []
         this._material = this._createMaterial()
@@ -39,7 +41,11 @@ class ParticleSystem {
             },
             cameraFar: {
                 value: this._camera.far
-            }
+            },
+            sizeFactor: {
+                value: 1.0,
+                type: 'f'
+            },
         }
 
         const material = new THREE.ShaderMaterial({
@@ -70,17 +76,17 @@ class ParticleSystem {
     }
 
     _CreateParamSpline() {
-        this._alphaSplineS = new LinearSpline(SmokeSpline.alphaTween)
-        this._colourSplineS = new LinearSpline(SmokeSpline.colorTween)
-        this._sizeSplineS = new LinearSpline(SmokeSpline.sizeTween)
-
-        this._alphaSplineF = new LinearSpline(FireSpline.alphaTween)
-        this._colourSplineF = new LinearSpline(FireSpline.colorTween)
-        this._sizeSplineF = new LinearSpline(FireSpline.sizeTween)
-
-        this._alphaSplineX = new LinearSpline(SparkSpline.alphaTween)
-        this._colourSplineX = new LinearSpline(SparkSpline.colorTween)
-        this._sizeSplineX = new LinearSpline(SparkSpline.sizeTween)
+        this._splines = {}
+        Object.keys(Splines).forEach(key => {
+            const alphaSpline = new LinearSpline(Splines[key].alphaTween)
+            const colourSpline = new LinearSpline(Splines[key].colorTween)
+            const sizeSpline = new LinearSpline(Splines[key].sizeTween)
+            this._splines[key] = {
+                alpha: alphaSpline,
+                color: colourSpline,
+                size: sizeSpline
+            }
+        })
     }
 
     _CreateParticle(options) {
@@ -92,6 +98,7 @@ class ParticleSystem {
         const zVelocity = options.zVelocity * (Math.random() * 2.0 - 1.0)
         const position = options.position
         const blend = options.blend
+        const type = options.type
         return {
             position: new THREE.Vector3(
                 (Math.random() * 2 - 1) * 4.0 + position[0],
@@ -105,6 +112,7 @@ class ParticleSystem {
             rotation: Math.random() * 2.0 * Math.PI,
             velocity: new THREE.Vector3(xVelocity, yVelocity, zVelocity),
             blend: blend,
+            type: type
         };
     }
 
@@ -173,21 +181,9 @@ class ParticleSystem {
 
             p.rotation += timeElapsed * 0.5
 
-            if (p.blend == 0.0) {
-                if (p.velocity.x != 0.0) {
-                    p.alpha = this._alphaSplineX.get(t);
-                    p.currentSize = p.size * this._sizeSplineX.get(t);
-                    p.colour.copy(this._colourSplineX.get(t));
-                } else {
-                    p.alpha = this._alphaSplineF.get(t);
-                    p.currentSize = p.size * this._sizeSplineF.get(t);
-                    p.colour.copy(this._colourSplineF.get(t));
-                }
-            } else {
-                p.alpha = this._alphaSplineS.get(t);
-                p.currentSize = p.size * this._sizeSplineS.get(t);
-                p.colour.copy(this._colourSplineS.get(t));
-            }
+            p.alpha = this._splines[p.type]['alpha'].get(t)
+            p.currentSize = p.size * this._splines[p.type]['size'].get(t)
+            p.colour.copy(this._splines[p.type]['color'].get(t))
 
             p.position.add(p.velocity.clone().multiplyScalar(timeElapsed))
 
@@ -217,6 +213,13 @@ class ParticleSystem {
         this._UpdateParticles(timeElapsed)
         this._UpadteGeometry()
 
+    }
+    setScale(sizeFactor) {
+        this._material.uniforms.sizeFactor.value = sizeFactor
+        this._points.scale.set(sizeFactor,sizeFactor,sizeFactor)
+    }
+    setSize(sizeFactor) {
+        this._material.uniforms.sizeFactor.value = sizeFactor
     }
     update(time) {
         this._material.uniforms.resolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight)

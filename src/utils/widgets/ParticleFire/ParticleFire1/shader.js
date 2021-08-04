@@ -4,7 +4,6 @@ export const vertexShader = `
 
   attribute float size;
   attribute float angle;
-  attribute float blend;
   attribute vec4 colour;
 
   varying vec4 vColour;
@@ -39,7 +38,6 @@ export const fragmentShader = `
   uniform vec2 resolution;
   uniform float cameraNear;
   uniform float cameraFar;
-  uniform float blend;
 
   varying vec4 vColour;
   varying vec2 vAngle;
