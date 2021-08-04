@@ -13,22 +13,22 @@ class ParticleSystem {
         this._options = params.options
         
         this._particles = []
-        this._material = this._CreateMaterial(params)
-        this._geometry = this._CreateGeometry()
+        this._material = this._createMaterial(params)
+        this._geometry = this._createGeometry()
 
         this._points = new THREE.Points(this._geometry, this._material)
         this.points = this._points
-        this._CreateParamSpline(params)
+        this._createParamSpline(params)
 
         this._quantityFactor = params.options.quantityFactor
         this._rateLimiter = 0.0;
         this._previousAnimate = null
 
-        this._UpadteGeometry()
+        this._upadteGeometry()
     }
-    _CreateMaterial(params) {
+    _createMaterial(params) {
         const diffuseTexture = params.options.diffuseTexture || new THREE.TextureLoader().load('images/fire3.png')
-        this._texture = diffuseTexture
+        this._diffuseTexture = diffuseTexture
         const uniforms = {
             diffuseTexture: {
                 value: diffuseTexture
@@ -76,8 +76,7 @@ class ParticleSystem {
         const material = new THREE.ShaderMaterial(options)
         return material
     }
-
-    _CreateGeometry() {
+    _createGeometry() {
         const geometry = new THREE.BufferGeometry()
         geometry.setAttribute('position', new THREE.Float32BufferAttribute([],3))
         geometry.setAttribute('size', new THREE.Float32BufferAttribute([], 1))
@@ -86,8 +85,7 @@ class ParticleSystem {
         return geometry
 
     }
-
-    _CreateParamSpline(params) {
+    _createParamSpline(params) {
         const alphaLegend = params.options.alphaLegend
         const colourLegend = params.options.colourLegend
         const sizeLegend = params.options.sizeLegend
@@ -95,8 +93,7 @@ class ParticleSystem {
         this._colourSpline = new LinearSpline(colourLegend)
         this._sizeSpline = new LinearSpline(sizeLegend)
     }
-
-    _CreateParticle() {
+    _createParticle() {
         const lifeFactor = this._options.life
         const life = (Math.random() * 0.75 + 0.25) * lifeFactor;
         const sizeFactor = this._options.size
@@ -117,20 +114,18 @@ class ParticleSystem {
             velocity: new THREE.Vector3(xVelocity, yVelocity, zVelocity),
         };
     }
-
-    _AddParticles(timeElapsed) {
+    _addParticles(timeElapsed) {
 
         this._rateLimiter += timeElapsed;
         const n = Math.floor(this._rateLimiter * 100.0);
         this._rateLimiter -= n / 100.0;
 
         for (let i = 0; i < n * this._quantityFactor; i++) {
-            const p = this._CreateParticle();
+            const p = this._createParticle();
             this._particles.push(p);
         }
     }
-
-    _UpadteGeometry() {
+    _upadteGeometry() {
         const positions = []
         const sizes = []
         const colours = []
@@ -151,8 +146,7 @@ class ParticleSystem {
         this._geometry.attributes.colour.needsUpdate = true
         this._geometry.attributes.angle.needsUpdate = true
     }
-
-    _UpdateParticles(timeElapsed) {
+    _updateParticles(timeElapsed) {
         for(let p of this._particles) {
             p.life -= timeElapsed
         }
@@ -192,7 +186,6 @@ class ParticleSystem {
         })
 
     }
-    
     setScale(sizeFactor) {
         this._material.uniforms.sizeFactor.value = sizeFactor
         this._points.scale.set(sizeFactor,sizeFactor,sizeFactor)
@@ -211,9 +204,9 @@ class ParticleSystem {
                 this._previousAnimate = time
             }
             this._timeElapsed = (time - this._previousAnimate) / 1000
-            this._AddParticles(this._timeElapsed)
-            this._UpdateParticles(this._timeElapsed)
-            this._UpadteGeometry()
+            this._addParticles(this._timeElapsed)
+            this._updateParticles(this._timeElapsed)
+            this._upadteGeometry()
 
             this._previousAnimate = time
         }
@@ -228,7 +221,8 @@ class ParticleSystem {
         this.points.parent.remove(this.points)
         this._material.dispose()
         this._geometry.dispose()
-        this._texture.dispose()
+        this._diffuseTexture.dispose()
+        this._depthTexture.dispose()
     }
 }
 

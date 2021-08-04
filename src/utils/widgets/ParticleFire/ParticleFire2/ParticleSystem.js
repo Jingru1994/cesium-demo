@@ -18,17 +18,19 @@ class ParticleSystem {
 
         this.points = this._points
 
-        this._CreateParamSpline()
+        this._createParamSpline()
     
         this._rateLimiter = 0.0;
         this._previousAnimate = null
         
-        this._UpadteGeometry()
+        this._upadteGeometry()
     }
     _createMaterial() {
+        const diffuseTexture = new THREE.TextureLoader().load('images/fire3.png')
+        this._diffuseTexture = diffuseTexture
         const uniforms = {
             diffuseTexture: {
-                value: new THREE.TextureLoader().load('images/fire3.png')
+                value: diffuseTexture
             },
             pointMultiplier: {
                 value: window.innerHeight/ (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -64,7 +66,6 @@ class ParticleSystem {
         return material
 
     }
-
     _createGeometry() {
         const geometry = new THREE.BufferGeometry()
         geometry.setAttribute('position', new THREE.Float32BufferAttribute([],3))
@@ -74,8 +75,7 @@ class ParticleSystem {
         geometry.setAttribute('blend', new THREE.Float32BufferAttribute([], 1))
         return geometry
     }
-
-    _CreateParamSpline() {
+    _createParamSpline() {
         this._splines = {}
         Object.keys(Splines).forEach(key => {
             const alphaSpline = new LinearSpline(Splines[key].alphaTween)
@@ -88,8 +88,7 @@ class ParticleSystem {
             }
         })
     }
-
-    _CreateParticle(options) {
+    _createParticle(options) {
         const lifeFactor = options.life
         const life = (Math.random() * 0.75 + 0.25) * lifeFactor;
         const sizeFactor = options.size
@@ -115,28 +114,26 @@ class ParticleSystem {
             type: type
         };
     }
-
-
-    _AddParticles(timeElapsed) {
+    _addParticles(timeElapsed) {
 
         this._rateLimiter += timeElapsed;
         const n = Math.floor(this._rateLimiter * 100.0);
         this._rateLimiter -= n / 100.0;
 
         for (let i = 0; i < n; i++) {
-            const p = this._CreateParticle(FireOptions);
+            const p = this._createParticle(FireOptions);
             this._particles.push(p);
         }
         for (let i = 0; i < n; i++) {
-            const p = this._CreateParticle(SmokeOptions);
+            const p = this._createParticle(SmokeOptions);
             this._particles.push(p);
         }
         for (let i = 0; i < n * 2; i++) {
-            const p = this._CreateParticle(SparkOptions);
+            const p = this._createParticle(SparkOptions);
             this._particles.push(p);
         }
     }
-    _UpadteGeometry() {
+    _upadteGeometry() {
         const positions = []
         const sizes = []
         const colours = []
@@ -168,7 +165,7 @@ class ParticleSystem {
         // this._geometry.boundingSphere = new THREE.Sphere()
         // box.getBoundingSphere(this._geometry.boundingSphere)
     }
-    _UpdateParticles(timeElapsed) {
+    _updateParticles(timeElapsed) {
         for(let p of this._particles) {
             p.life -= timeElapsed
         }
@@ -208,12 +205,6 @@ class ParticleSystem {
         })
 
     }
-    Step(timeElapsed) {
-        this._AddParticles(timeElapsed)
-        this._UpdateParticles(timeElapsed)
-        this._UpadteGeometry()
-
-    }
     setScale(sizeFactor) {
         this._material.uniforms.sizeFactor.value = sizeFactor
         this._points.scale.set(sizeFactor,sizeFactor,sizeFactor)
@@ -231,9 +222,9 @@ class ParticleSystem {
                 this._previousAnimate = time
             }
             this._timeElapsed = (time - this._previousAnimate) / 1000
-            this._AddParticles(this._timeElapsed)
-            this._UpdateParticles(this._timeElapsed)
-            this._UpadteGeometry()
+            this._addParticles(this._timeElapsed)
+            this._updateParticles(this._timeElapsed)
+            this._upadteGeometry()
 
             this._previousAnimate = time
         }
@@ -246,10 +237,9 @@ class ParticleSystem {
     destroy() {
         this.stop()
         this.points.parent.remove(this.mesh)
-        console.log(this._geometry)
-        console.log(this._material)
-        // this._material.dispose()
-        // this._geometry.dispose()
+        this._material.dispose()
+        this._geometry.dispose()
+        this._diffuseTexture.dispose()
     }
 }
 
