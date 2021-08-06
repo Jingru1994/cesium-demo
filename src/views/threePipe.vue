@@ -4,18 +4,17 @@
     </div>
 </template>
 <script>
-import {getPublicData} from "@/api/requestData.js";
 
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import * as TWEEN from "@tweenjs/tween.js"
 
-import LineBezierCurve3 from '@/utils/widgets/threeLineBezierCurve3/LineBezierCurve3.js'
+import LineBezierCurve3 from '@/utils/widgets/threeLineBezierCurve3/LineBezierCurve3Copy.js'
 
 export default ({
-    name: "ThreeMacroScene",
+    name: "ThreePipe",
     data() {
         return {
         }
@@ -33,6 +32,7 @@ export default ({
         this.initLight()
 
         this.createPipe()
+        this.createCylinder()
         
         this.addClickListener()
         
@@ -62,7 +62,6 @@ export default ({
         this.scene = null
         this.camera = null
         this.renderer = null
-        console.log('AAAAAAAAAAAA')
     },
     methods: {
         addClickListener() {
@@ -80,12 +79,13 @@ export default ({
             this.renderer = renderer
             renderer.shadowMap.enabled = true;
             renderer.autoClear = false;
+            renderer.sortObject = false
             //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
             const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight,0.1,2000)
             this.camera = camera
             
             //调整camera视角
-            camera.position.set(0, 0, 50)
+            camera.position.set(0, 20, 50)
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -107,15 +107,10 @@ export default ({
         initControls(renderer) {
             let controls
             if(renderer) {
-                // controls = new OrbitControls(this.camera, renderer.domElement)
-                controls = new TrackballControls(this.camera, renderer.domElement)
+                controls = new OrbitControls(this.camera, renderer.domElement)
             }else {
-                // controls = new OrbitControls(this.camera, this.renderer.domElement)
-                controls = new TrackballControls(this.camera, this.renderer.domElement)
+                controls = new OrbitControls(this.camera, this.renderer.domElement)
             }
-            controls.rotateSpeed = 2.0
-            controls.zoomSpeed = 2.0
-            controls.panSpeed = 1.0
             this.controls = controls
         },
         initLight() {
@@ -164,9 +159,8 @@ export default ({
             this.renderer.render(this.scene,this.camera)
             
             this.controls.update(this.clock.getDelta())//TrackballControls
-
-            this.innerPipe.material.map.offset.x -= 0.01
-            // this.texture.offset.x -= 0.01
+            
+            this.texture.offset.x -= 0.005
 
 
             TWEEN.update()
@@ -180,62 +174,116 @@ export default ({
             this.camera.aspect = window.innerWidth / window.innerHeight
             this.camera.updateProjectionMatrix()
         },
+        createCylinder() {
+            const group = new THREE.Group()
+            const innerGeometry1 = new THREE.CylinderGeometry(4,4,20,32)
+            const innerMaterial = new THREE.MeshPhongMaterial({color: 0x049EF4})
+            const innerCylinder1 = new THREE.Mesh(innerGeometry1, innerMaterial)
+            const innerGeometry2 = new THREE.CylinderGeometry(4,4,10,32)
+            const innerCylinder2 = new THREE.Mesh(innerGeometry2, innerMaterial)
+            
+            const outGeometry = new THREE.CylinderGeometry(5,5,24,32)
+            const outMaterial = new THREE.MeshPhongMaterial({color: 0xc6c6c6, transparent: true, opacity: 0.5})
+            const outCylinder1 = new THREE.Mesh(outGeometry, outMaterial)
+            const outCylinder2 = new THREE.Mesh(outGeometry, outMaterial)
+            
+
+            const boxGeometry = new THREE.BoxGeometry(4,2,4)
+            const boxMaterial = new THREE.MeshPhongMaterial({color: 0xA0A9B8})
+            const box1 = new THREE.Mesh(boxGeometry, boxMaterial)
+            const box2 = new THREE.Mesh(boxGeometry, boxMaterial)
+
+            const 
+
+            innerCylinder1.position.set(-8,-1.9,0)
+            innerCylinder2.position.set(8,-6.9,0)
+            outCylinder1.position.set(-8,0,0)
+            outCylinder2.position.set(8,0,0)
+            box1.position.set(-8,13,0)
+            box2.position.set(8,13,0)
+            group.add(innerCylinder1,innerCylinder2,outCylinder1,outCylinder2,box1,box2)
+            this.scene.add(group)
+            // group.position.set(20,10,-20)
+        },
         createPipe() {
             const nodeList = [
-                [-20,0,-10],
+                [-30,0,10],
                 [-20,0,10],
-                [0,0,10],
-                [0,0,-10],
+                [-20,0,-10],
                 [20,0,-10],
-                [20,0,10]
+                [20,20,-10],
+                [20,20,-15]
             ]
-            
-            const curve = new LineBezierCurve3(nodeList, 0.5)
-            const outerGeometry = new THREE.TubeGeometry(curve, 128, 1, 8, false)
-            const outerMaterial = new THREE.MeshPhongMaterial({
-                color: 0xc6c6c6,
-                emissive: 0x0,
-                specular: 0x666666,
-                shiniess: 60,
-                transparent: true,
-                opacity: 0.5,
-                depthWrite: true,
-                depthTest: true,
-                // side: THREE.DoubleSide
-            })
-            const outerPipe = new THREE.Mesh(outerGeometry,outerMaterial)
-            outerPipe.renderOrder = 2
-            this.scene.add(outerPipe)
-
-            const innerGeometry = new THREE.TubeGeometry(curve, 152, 0.8, 8, false)
+            const curve = new LineBezierCurve3(nodeList, 5)
             const canvas = document.createElement('canvas')
-            document.body.appendChild(canvas)
             canvas.width = 200
             canvas.height = 5
             const ctx = canvas.getContext('2d')
-            ctx.fillStyle = "#00C8FF"
+            ctx.fillStyle = "#049EF4"
             ctx.fillRect(0,0,100,40)
-            ctx.fillStyle = "rgba(1,1,1,0.1)"
-            ctx.fillRect(100,0,200,40)
+            // ctx.fillStyle = "rgba(255,255,255,0.1)"
+            // ctx.fillRect(100,0,200,40)
             const texture = new THREE.CanvasTexture(canvas)
             texture.wrapT = THREE.RepeatWrapping
             texture.wrapS = THREE.RepeatWrapping
             texture.repeat.x = 10;
-            const innerMaterial = new THREE.MeshPhongMaterial({
+            this.texture = texture
+
+            const innerGeometry = new THREE.TubeGeometry(curve, 152, 0.8, 8, false)
+            const innerMaterial1 = new THREE.MeshPhongMaterial({
                 map: texture,
                 transparent: true,
                 emissive: 0x0,
                 specular: 0x2d2d2d,
-                shiniess: 37,
+                shininess: 60,
                 depthWrite: true,
                 depthTest: true,
-                // side: THREE.DoubleSide
+                side: THREE.BackSide
 
             })
-            const innerPipe = new THREE.Mesh(innerGeometry, innerMaterial)
-            innerPipe.renderOrder = 1
-            this.scene.add(innerPipe)
-            this.innerPipe = innerPipe
+            const innerMaterial2 = new THREE.MeshPhongMaterial({
+                map: texture,
+                transparent: true,
+                emissive: 0x0,
+                specular: 0x2d2d2d,
+                shininess: 60,
+                depthWrite: true,
+                depthTest: true,
+                side: THREE.FrontSide
+
+            })
+            const innerPipe1 = new THREE.Mesh(innerGeometry, innerMaterial1)
+            this.scene.add(innerPipe1)
+            const innerPipe2 = new THREE.Mesh(innerGeometry, innerMaterial2)
+            this.scene.add(innerPipe2)
+
+            const outerGeometry = new THREE.TubeGeometry(curve, 128, 1, 8, false)
+            const outerMaterial1 = new THREE.MeshPhongMaterial({
+                color: 0xc6c6c6,
+                emissive: 0x0,
+                specular: 0x666666,
+                shininess: 60,
+                transparent: true,
+                opacity: 0.5,
+                depthWrite: true,
+                depthTest: true,
+                side: THREE.FrontSide
+            })
+            const outerMaterial2 = new THREE.MeshPhongMaterial({
+                color: 0xc6c6c6,
+                emissive: 0x0,
+                specular: 0x666666,
+                shininess: 60,
+                transparent: true,
+                opacity: 0.5,
+                depthWrite: true,
+                depthTest: true,
+                side: THREE.BackSide
+            })
+            const outerPipe1 = new THREE.Mesh(outerGeometry,outerMaterial1)
+            this.scene.add(outerPipe1)
+            const outerPipe2 = new THREE.Mesh(outerGeometry,outerMaterial2)
+            this.scene.add(outerPipe2)
 
         }
     }
