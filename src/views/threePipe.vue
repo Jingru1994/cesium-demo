@@ -79,13 +79,13 @@ export default ({
             this.renderer = renderer
             renderer.shadowMap.enabled = true;
             renderer.autoClear = false;
-            renderer.sortObject = false
+            // renderer.sortObject = false
             //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
             const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight,0.1,2000)
             this.camera = camera
             
             //调整camera视角
-            camera.position.set(0, 20, 50)
+            camera.position.set(-20, 40, 60)
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -97,6 +97,19 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
+
+            const planeGeometry = new THREE.PlaneGeometry(200,200)
+            const planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0x505864,
+                emissive: 0x0,
+                side: THREE.DoubleSide
+            })
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+            plane.receiveShadow = true
+            plane.rotation.x = Math.PI/2
+            plane.position.y = -3.1
+            this.scene.add(plane)
+
         },
         addState(){
             let state = new Stats()
@@ -127,25 +140,22 @@ export default ({
             //方向光
             const dirLight = new THREE.DirectionalLight('#fff', 0.2)
             //光源位置
-            dirLight.position.set(20, 20, 25)
+            dirLight.position.set(20, 40, 15)
             //可以产生阴影
-            // dirLight.castShadow = true
-            // dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024)
+            dirLight.castShadow = true
+            dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024)
             
             dirLight.shadow.camera.near = 10
-            dirLight.shadow.camera.far = 50
-            dirLight.shadow.camera.left = -10
-            dirLight.shadow.camera.right = 10
-            dirLight.shadow.camera.top = 10
-            dirLight.shadow.camera.bottom = -10
+            dirLight.shadow.camera.far = 500
+            dirLight.shadow.camera.left = -400
+            dirLight.shadow.camera.right = 400
+            dirLight.shadow.camera.top = 400
+            dirLight.shadow.camera.bottom = -400
             this.dirLight = dirLight
             this.scene.add(dirLight)
-            //显示灯光范围
-            const debugCamera = new THREE.CameraHelper(dirLight.shadow.camera)
-            this.scene.add(debugCamera)
             //显示灯光方向
-            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            this.scene.add(debugCamera1)
+            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            // this.scene.add(debugCamera1)
         },
         initPointLight() {
             const pointLight = new THREE.PointLight( 0xffffff, 0.5, 200 );
@@ -161,7 +171,6 @@ export default ({
             this.controls.update(this.clock.getDelta())//TrackballControls
             
             this.texture.offset.x -= 0.005
-
 
             TWEEN.update()
             
@@ -183,27 +192,73 @@ export default ({
             const innerCylinder2 = new THREE.Mesh(innerGeometry2, innerMaterial)
             
             const outGeometry = new THREE.CylinderGeometry(5,5,24,32)
-            const outMaterial = new THREE.MeshPhongMaterial({color: 0xc6c6c6, transparent: true, opacity: 0.5})
+            const outMaterial = new THREE.MeshPhongMaterial({color: 0xc6c6c6, transparent: true, opacity: 0.3})
+            const outMaterial1 = new THREE.MeshPhongMaterial({color: 0xc6c6c6, transparent: true, opacity: 0.3, side: THREE.BackSide})
             const outCylinder1 = new THREE.Mesh(outGeometry, outMaterial)
+            const outCylinder1_1 = new THREE.Mesh(outGeometry, outMaterial1)
             const outCylinder2 = new THREE.Mesh(outGeometry, outMaterial)
+            const outCylinder2_1 = new THREE.Mesh(outGeometry, outMaterial1)
             
-
-            const boxGeometry = new THREE.BoxGeometry(4,2,4)
+            const boxGeometry = new THREE.BoxGeometry(4,3,4)
             const boxMaterial = new THREE.MeshPhongMaterial({color: 0xA0A9B8})
             const box1 = new THREE.Mesh(boxGeometry, boxMaterial)
             const box2 = new THREE.Mesh(boxGeometry, boxMaterial)
 
-            const 
+            const rectangleGeometry = new THREE.BoxGeometry(12,2,3.6)
+            const rectangle = new THREE.Mesh(rectangleGeometry, boxMaterial)
 
             innerCylinder1.position.set(-8,-1.9,0)
             innerCylinder2.position.set(8,-6.9,0)
             outCylinder1.position.set(-8,0,0)
+            outCylinder1_1.position.set(-8,0,0)
             outCylinder2.position.set(8,0,0)
-            box1.position.set(-8,13,0)
-            box2.position.set(8,13,0)
-            group.add(innerCylinder1,innerCylinder2,outCylinder1,outCylinder2,box1,box2)
+            outCylinder2_1.position.set(8,0,0)
+            box1.position.set(-8,13.5,0)
+            box2.position.set(8,13.5,0)
+            rectangle.position.set(0,13.3,0)
+            group.add(innerCylinder1,innerCylinder2,outCylinder1,outCylinder2,box1,box2,rectangle)
+            // group.add(innerCylinder1,innerCylinder2,outCylinder1,outCylinder1_1,outCylinder2,outCylinder2_1,box1,box2,rectangle)
+            // group.add(innerCylinder1,innerCylinder2,outCylinder1_1,outCylinder1,outCylinder2_1,outCylinder2,box1,box2,rectangle)
+            
+            group.traverse((o)=>{
+                if (o.isMesh) {
+                    o.castShadow = true
+                }
+            })
+            group.position.set(20,9,-20)
             this.scene.add(group)
-            // group.position.set(20,10,-20)
+            const cubeGeometry = new THREE.BoxGeometry(6,6,6)
+            const cube = new THREE.Mesh(cubeGeometry, boxMaterial)
+            cube.castShadow = true
+            cube.position.set(-30,0,10)
+            this.scene.add(cube)
+
+            const scales1 = [1, 1.1, 0.3, 0.8, 0.1, 1]
+            this.cylinderAnimate(innerCylinder1, scales1, -12)
+            const scales2 = [1, 0.1, 1.5, 1.2, 0.5, 1]
+            this.cylinderAnimate(innerCylinder2, scales2, -12)
+        },
+        cylinderAnimate(cylinder, scales, offset) {
+            const tweenList = []
+            for(let i = 0; i < scales.length-1; i++){
+                let tween
+                tween = new TWEEN.Tween({scale: scales[i]})
+                    .to({scale: scales[i+1]}, 3000)
+                    .easing(TWEEN.Easing.Quartic.InOut)
+                    .onUpdate(({scale}) => {
+                        cylinder.scale.set(1,scale,1)
+                        cylinder.position.y = cylinder.geometry.parameters.height/2*scale+offset
+                    })
+                tweenList.push(tween)
+            }
+            tweenList[0].start()
+            for(let i = 0; i < tweenList.length; i++){
+                if(i === tweenList.length-1){
+                    tweenList[i].chain(tweenList[0])
+                }else{
+                    tweenList[i].chain(tweenList[i+1])
+                }
+            }
         },
         createPipe() {
             const nodeList = [
@@ -211,8 +266,8 @@ export default ({
                 [-20,0,10],
                 [-20,0,-10],
                 [20,0,-10],
-                [20,20,-10],
-                [20,20,-15]
+                [20,22.3,-10],
+                [20,22.3,-18.2]
             ]
             const curve = new LineBezierCurve3(nodeList, 5)
             const canvas = document.createElement('canvas')
@@ -253,38 +308,45 @@ export default ({
 
             })
             const innerPipe1 = new THREE.Mesh(innerGeometry, innerMaterial1)
-            this.scene.add(innerPipe1)
+            // this.scene.add(innerPipe1)
             const innerPipe2 = new THREE.Mesh(innerGeometry, innerMaterial2)
-            this.scene.add(innerPipe2)
+            // this.scene.add(innerPipe2)
 
             const outerGeometry = new THREE.TubeGeometry(curve, 128, 1, 8, false)
             const outerMaterial1 = new THREE.MeshPhongMaterial({
-                color: 0xc6c6c6,
+                color: 0xB3B6C9,
                 emissive: 0x0,
                 specular: 0x666666,
                 shininess: 60,
                 transparent: true,
-                opacity: 0.5,
-                depthWrite: true,
-                depthTest: true,
-                side: THREE.FrontSide
-            })
-            const outerMaterial2 = new THREE.MeshPhongMaterial({
-                color: 0xc6c6c6,
-                emissive: 0x0,
-                specular: 0x666666,
-                shininess: 60,
-                transparent: true,
-                opacity: 0.5,
-                depthWrite: true,
+                opacity: 0.4,
+                depthWrite: false,
                 depthTest: true,
                 side: THREE.BackSide
             })
+            const outerMaterial2 = new THREE.MeshPhongMaterial({
+                color: 0xB3B6C9,
+                emissive: 0x0,
+                specular: 0x666666,
+                shininess: 60,
+                transparent: true,
+                opacity: 0.4,
+                depthWrite: false,
+                depthTest: true,
+                side: THREE.FrontSide
+            })
             const outerPipe1 = new THREE.Mesh(outerGeometry,outerMaterial1)
-            this.scene.add(outerPipe1)
+            // this.scene.add(outerPipe1)
+            outerPipe1.castShadow = true
             const outerPipe2 = new THREE.Mesh(outerGeometry,outerMaterial2)
-            this.scene.add(outerPipe2)
+            // this.scene.add(outerPipe2)
 
+            outerPipe2.castShadow = true
+
+            this.scene.add(innerPipe1)
+            this.scene.add(innerPipe2)
+            // this.scene.add(outerPipe1)
+            this.scene.add(outerPipe2)
         }
     }
 })
