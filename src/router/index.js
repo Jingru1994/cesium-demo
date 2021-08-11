@@ -208,13 +208,19 @@ const routes = [
     path: "/fireParticle",
     name: "fireParticle",
     component: () =>
-    import(/* webpackChunkName: "pathInspection" */ "@/views/threeFireParticle.vue")
+    import(/* webpackChunkName: "fireParticle" */ "@/views/threeFireParticle.vue")
   },
   {
     path: "/pipe",
     name: "pipe",
     component: () =>
-    import(/* webpackChunkName: "pathInspection" */ "@/views/threePipe.vue")
+    import(/* webpackChunkName: "pipe" */ "@/views/threePipe.vue")
+  },
+  {
+    path: "/water",
+    name: "water",
+    component: () =>
+    import(/* webpackChunkName: "pathInspection" */ "@/views/threeWater.vue")
   }
 ];
 
