@@ -67,6 +67,7 @@ export default ({
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.mark.stop()
         this.bottomCircle.stop()
         this.scene.traverse(item => {

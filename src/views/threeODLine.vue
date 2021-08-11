@@ -39,6 +39,7 @@ export default ({
         console.log(this.myAnimate)
         ODLine.stop()//停止动画，里面也有一个cancelAnimationFrame
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){
                 item.geometry.dispose()

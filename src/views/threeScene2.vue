@@ -61,6 +61,7 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.pyramid.stop()
         this.semiRing1.stop()
         this.semiRing2.stop()

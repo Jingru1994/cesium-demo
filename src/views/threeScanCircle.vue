@@ -38,6 +38,7 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.scanCircle.stop()
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){

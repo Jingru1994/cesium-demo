@@ -48,6 +48,7 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         let GUI = document.querySelector('.dg.main.a')
         if(GUI) {
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板

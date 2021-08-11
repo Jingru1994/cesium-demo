@@ -38,6 +38,7 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         this.spreadCircle.stop()//停止动画，里面也有一个cancelAnimationFrame
+        window.removeEventListener('resize', this.onWindowResize)
         cancelAnimationFrame(this.myAnimate)
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){

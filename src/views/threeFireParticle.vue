@@ -56,7 +56,7 @@ export default ({
 
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
-
+        window.removeEventListener('resize', this.onWindowResize)
         this.fireGroup.forEach(item => {
             console.log(item)
             item.destroy()

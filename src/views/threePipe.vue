@@ -45,6 +45,7 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){
                 item.geometry.dispose()
@@ -345,8 +346,9 @@ export default ({
 
             this.scene.add(innerPipe1)
             this.scene.add(innerPipe2)
-            // this.scene.add(outerPipe1)
             this.scene.add(outerPipe2)
+            // this.scene.add(outerPipe1)
+            
         }
     }
 })

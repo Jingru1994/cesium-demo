@@ -48,6 +48,7 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.renderer = null
         this.scene = null
         this.camera = null

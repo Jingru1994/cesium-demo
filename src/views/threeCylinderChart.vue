@@ -62,6 +62,7 @@ export default ({
     beforeDestroy() {
         console.log(this.myAnimate)
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.cylinderChart.stop()
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){

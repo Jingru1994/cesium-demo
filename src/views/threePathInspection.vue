@@ -58,6 +58,7 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.scene.traverse(item => {
             if(item.isMesh || item instanceof THREE.Sprite){
                 item.geometry.dispose()

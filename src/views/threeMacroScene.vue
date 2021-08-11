@@ -56,6 +56,7 @@ export default ({
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
+        window.removeEventListener('resize', this.onWindowResize)
         this.mark.stop()
         this.bottomCircle.stop()
         this.scene.traverse(item => {
