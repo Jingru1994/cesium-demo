@@ -163,6 +163,10 @@
           {
             "name": "fireParticle",
             "label": "火焰烟雾"
+          },
+          {
+            "name": "pipe",
+            "label": "流动管道"
           }
         ]
       },
