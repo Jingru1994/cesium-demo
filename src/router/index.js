@@ -220,7 +220,13 @@ const routes = [
     path: "/water",
     name: "water",
     component: () =>
-    import(/* webpackChunkName: "pathInspection" */ "@/views/threeWater.vue")
+    import(/* webpackChunkName: "water" */ "@/views/threeWater.vue")
+  },
+  {
+    path: "/terrain",
+    name: "terrain",
+    component: () =>
+    import(/* webpackChunkName: "water" */ "@/views/threeTerrain.vue")
   }
 ];
 

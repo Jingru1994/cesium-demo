@@ -10,8 +10,12 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-import * as TWEEN from "@tweenjs/tween.js"
 import { Water } from '@/utils/widgets/Water/Water2.js';
+import { Refractor } from 'three/examples/jsm/objects/Refractor.js';
+import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
+import { WaterRefractionShader } from 'three/examples/jsm/shaders/WaterRefractionShader.js'
+
+import RefractionMaterial from '@/utils/widgets/Water/RefractionMaterial.js';
 
 export default ({
     name: "ThreePipe",
@@ -32,6 +36,10 @@ export default ({
         this.initLight()
 
         this.createWater()
+        // this.createWater2()
+        // this.createBox()
+        this.createRefraction()
+        // this.createReflection()
         this.loadModels()
         
         this.addClickListener()
@@ -92,6 +100,7 @@ export default ({
             
             //调整camera视角
             camera.position.set(-20, 40, 60)
+            console.log(camera)
 
             // 避免模型很模糊的现象
             let width = window.innerWidth
@@ -103,18 +112,6 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
-
-            const planeGeometry = new THREE.PlaneGeometry(200,200)
-            const planeMaterial = new THREE.MeshLambertMaterial({
-                color: 0x505864,
-                emissive: 0x0,
-                side: THREE.DoubleSide
-            })
-            const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-            plane.receiveShadow = true
-            plane.rotation.x = Math.PI/2
-            plane.position.y = -3.1
-            // this.scene.add(plane)
 
             const loader = new THREE.CubeTextureLoader();
             const texture = loader.load([
@@ -171,8 +168,8 @@ export default ({
             this.dirLight = dirLight
             this.scene.add(dirLight)
             //显示灯光方向
-            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            // this.scene.add(debugCamera1)
+            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            this.scene.add(debugCamera1)
         },
         initPointLight() {
             const pointLight = new THREE.PointLight( 0xffffff, 0.5, 200 );
@@ -187,7 +184,11 @@ export default ({
             
             this.controls.update(this.clock.getDelta())//TrackballControls
 
-            TWEEN.update()
+            const time = this.clock.getElapsedTime()
+            if(this.refractor){
+                this.refractor.material.uniforms.time.value = time;
+            }
+            
             
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
@@ -198,8 +199,87 @@ export default ({
             this.camera.aspect = window.innerWidth / window.innerHeight
             this.camera.updateProjectionMatrix()
         },
+        createBox() {
+            const geometry = new THREE.BoxGeometry(60,60,60)
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x2E2E2E,
+                emissive: 0x0,
+                roughness: 0,
+                metalness: 0,
+                depthWrite: true,
+                depthTest: true,
+                side: THREE.BackSide
+            })
+
+            const box = new THREE.Mesh(geometry, material)
+            // box.position.set(0,30,0)
+            this.scene.add(box)
+        },
+        createWater2() {
+            const texture = new THREE.TextureLoader().load('images/water5.png')
+            texture.wrapS = THREE.MirroredRepeatWrapping
+            texture.wrapT = THREE.MirroredRepeatWrapping
+            texture.repeat = new THREE.Vector2(3,3)
+            const waterGeometry = new THREE.PlaneGeometry(67.4,67)
+            const waterMaterial1 = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                // color: 0x82AAFF,
+                opacity: 0.3,
+                anisotropy: 4
+            })
+            const water1 = new THREE.Mesh(waterGeometry, waterMaterial1)
+            water1.rotation.x = -Math.PI/2
+            water1.position.set(-32,2,-3)
+            this.scene.add(water1)
+
+            const waterMaterial2 = new THREE.MeshPhysicalMaterial({
+                color: 0x0008FF,
+                roughness: 0.4,
+                metalness: 0,
+                reflectivity: 0.5,
+                // alphaMap: texture1,
+                transmission: 0.9,
+                specularTint: 0x002FFF,
+                side: THREE.DoubleSide,
+                opacity: 1,
+                transparent: true,
+            })
+            const water2 = new THREE.Mesh(waterGeometry, waterMaterial2)
+            water2.rotation.x = -Math.PI/2
+            water2.position.set(-32,2,-3)
+            this.scene.add(water2)
+
+            const refractorGeometry = new THREE.PlaneGeometry(67.4,67)
+            const verticalMirror = new Reflector( refractorGeometry, {
+                clipBias: 0.003,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: 0x889999,
+                transparent: true,
+                opacity: 0.5
+            } );
+            verticalMirror.rotation.x = -Math.PI/2
+            verticalMirror.position.set(-32,2.1,-3)
+            // this.scene.add( verticalMirror )
+        },
+        generateTexture() {
+
+            const canvas = document.createElement( 'canvas' );
+            canvas.width = 2;
+            canvas.height = 2;
+
+            const context = canvas.getContext( '2d' );
+            context.fillStyle = 'white';
+            context.fillRect( 0, 1, 2, 1 );
+
+            return canvas;
+
+        },
         createWater() {
-            const waterGeometry = new THREE.PlaneGeometry(67.6,67.2)
+            const waterGeometry = new THREE.PlaneGeometry(67.4,67)
+            // const waterGeometry = new THREE.PlaneGeometry(40,40)
             const water = new Water( waterGeometry, {
                 flowSpeed: 0.003,
                 color: new THREE.Color(0xc8e9ff),
@@ -207,13 +287,63 @@ export default ({
                 flowDirection: new THREE.Vector2( 1, 1 ),
                 textureWidth: 1024,
                 textureHeight: 1024,
-                clipBias: 1
+                clipBias: 0
             })
             water.rotation.x = -Math.PI/2
             water.position.set(-32,2,-3)
-            // water.position.set(-32,10,-3)
-            water.material.side = THREE.DoubleSide
+            // water.material.side = THREE.DoubleSide
             this.scene.add(water)
+        },
+        createRefraction() {
+            const refractorGeometry = new THREE.PlaneGeometry(67.4,67)
+            // const refractorGeometry = new THREE.PlaneGeometry(40,40)
+            // const refractorGeometry = new THREE.PlaneGeometry(60,60)
+            const refractor = new Refractor( refractorGeometry, {
+                color: 0x999999,
+                textureWidth: 1024,
+                textureHeight: 1024,
+                shader: WaterRefractionShader
+            } );
+            refractor.rotation.x = -Math.PI/2
+            refractor.position.set(90,2,-80)
+            // refractor.position.set(-32,2,-3)
+            this.scene.add(refractor)
+            const dudvMap = new THREE.TextureLoader().load( 'images/waterdudv.jpg');
+
+            dudvMap.wrapS = dudvMap.wrapT = THREE.RepeatWrapping;
+            refractor.material.uniforms.tDudv.value = dudvMap;
+            this.refractor = refractor
+
+            // const texture = new THREE.TextureLoader().load('images/water5.png')
+            // texture.wrapS = THREE.MirroredRepeatWrapping
+            // texture.wrapT = THREE.MirroredRepeatWrapping
+            // texture.repeat = new THREE.Vector2(3,3)
+            // const refractorGeometry1 = new THREE.PlaneGeometry(60,60)
+            // const refractorMaterial1 = new RefractionMaterial({
+            //     envMap: texture,
+            //     backfaceMap: texture,
+            //     resolution: [window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio]
+            // })
+            // const mesh = new THREE.Mesh(refractorGeometry1, refractorMaterial1)
+            // mesh.rotation.x = -Math.PI/2
+            // mesh.position.set(-32,2,-3)
+            // this.scene.add(mesh)
+
+        },
+        createReflection() {
+            const refractorGeometry = new THREE.PlaneGeometry(67.4,67)
+            const verticalMirror = new Reflector( refractorGeometry, {
+                clipBias: 0.003,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: 0x889999,
+                transparent: true,
+                opacity: 0.5
+            } );
+            verticalMirror.rotation.x = -Math.PI/2
+            verticalMirror.position.set(-32,2,-3)
+            this.scene.add( verticalMirror );
+
         },
         async loadModels() {
             // this.loadFBXModel()
@@ -279,8 +409,8 @@ export default ({
             this.camera.far = size * 100;
             this.camera.updateProjectionMatrix();
 
-            this.camera.position.set(12.064774431086164, 37.22540888124579, 60.94257926513444)
-            this.controls.target.set(-28.596831660708254, -5.003661921982053, -2.3934174757719435)
+            this.camera.position.set(15.333811054748097, 48.05107215754168, 60.06767057063598)
+            this.controls.target.set(-24.74631671897528, -3.0815243860148955, 5.26366998191016)
             // this.camera.position.x += size / 7.0;
             // this.camera.position.y += size / 8;
             // this.camera.position.z += size / 5.5;
@@ -288,7 +418,6 @@ export default ({
             this.camera.lookAt(center);
             this.controls.saveState();
 
-            // this.scene.add(object);
             this.content = object
 
             console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
