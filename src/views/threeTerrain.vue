@@ -201,15 +201,121 @@ export default ({
             const box = new THREE.Mesh(geometry, material)
             this.scene.add(box)
 
-            const planeGeometry = new THREE.PlaneGeometry(100,100)
-            const planeMaterial = new THREE.MeshBasicMaterial({
-                color: 0xffffff,
+            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem2.png')
+            const diffiseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite2.png')
+            const vertexShader = `
+                uniform sampler2D heightMap;
+                
+                uniform float heightRatio;
+                varying vec2 vUv;
+                varying float hValue;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    hValue = texture2D(heightMap, vUv).r;
+                    pos.z = hValue * heightRatio;
+                    if(texture2D(heightMap, vUv).a < 1.0){
+                        pos.z = 0.0;
+                    }
+                    
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
+                }
+            `
+            const fragmentShader = `
+                uniform sampler2D heightMap;
+                uniform sampler2D diffuseMap;
+                varying float hValue;
+                varying vec2 vUv;
+                
+                // honestly stolen from https://www.shadertoy.com/view/4dsSzr
+                vec3 heatmapGradient(float t) {
+                    return clamp((pow(t, 1.5) * 0.8 + 0.2) * vec3(smoothstep(0.0, 0.35, t) + t * 0.5, smoothstep(0.5, 1.0, t), max(1.0 - t * 1.7, t * 7.0 - 6.0)), 0.0, 1.0);
+                }
+
+                void main() {
+                    // float v = abs(hValue - 1.);
+                    // gl_FragColor = vec4(heatmapGradient(hValue), 1. - v * v) ;
+                    float alpha;
+                    if(texture2D(heightMap, vUv).a < 1.0){
+                        alpha = 0.0;
+                    } else {
+                        alpha = 1.0;
+                    }
+                    gl_FragColor = vec4(texture2D(diffuseMap, vUv).rgb, alpha );
+                }
+            `
+            const material1 = new THREE.ShaderMaterial({
+                uniforms: {
+                    heightMap: {value: heightTexture},
+                    heightRatio: {value: 3},
+                    diffuseMap: {value: diffiseTexture}
+                },
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                transparent: true,
                 side: THREE.DoubleSide
             })
-            const plane = new THREE.Mesh(planeGeometry,planeMaterial)
-            plane.rotation.x = Math.PI/4
+
+            // heightTexture.
+            const planeGeometry = new THREE.PlaneGeometry(100,100,500,500)
+            const planeMaterial = new THREE.MeshBasicMaterial({
+                color: 0xff0000,
+                map: diffiseTexture,
+                side: THREE.DoubleSide
+            })
+            const plane = new THREE.Mesh(planeGeometry,material1)
+            // plane.rotation.x = Math.PI/4
+            plane.position.set(0,60,60)
             this.scene.add(plane)
             
+
+            
+
+            
+        },
+        async getData(url){
+            let data = await getPublicData(url)
+            return data.features;
+        },
+        async drawMap() {
+            const group = new THREE.Group()
+            const lineGroup = new THREE.Group()
+            let chinaGeometry = await this.getData('data/china.json')
+            let i = 0
+            chinaGeometry.forEach((province) => {
+                province.geometry.coordinates.forEach(provinceChild => {
+                    provinceChild.forEach(points => {
+                        let points_prj = []
+                        points.forEach(point => {
+                            // let [x,y] 
+                            points_prj.push(this.projection(point))
+                        })
+                        let item = this.drawExtrude(this.drawShape(points_prj))
+                        item.label = province.properties.name
+                        let lines = this.drawLine(points_prj)
+                        lines.forEach(line => {
+                            lineGroup.add(line)
+                        })
+                        // console.log(item.geometry.boundingSphere.radius)
+                        group.add(item)
+
+                    })
+                    
+                }) 
+            })
+            this.scene.add(group)
+            this.scene.add(lineGroup)
+            this.group = group
+            console.log(this.group)
+            this.lineGroup = lineGroup
+        },
+        drawShape(posArr) {
+            var shape = new THREE.Shape()
+            shape.moveTo(posArr[0][0], posArr[0][1])
+            posArr.forEach(item => {
+                shape.lineTo(item[0], item[1])
+            })
+            return shape
         },
     }
 })
