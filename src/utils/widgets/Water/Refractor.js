@@ -109,8 +109,10 @@ var Refractor = function ( geometry, options ) {
 
 		return function updateRefractorPlane() {
 
-			scope.matrixWorld.decompose( position, quaternion, scale );
-			normal.set( 0, 0, 1 ).applyQuaternion( quaternion ).normalize();
+			// scope.matrixWorld.decompose( position, quaternion, scale );
+			position.setFromMatrixPosition( scope.matrixWorld );
+			// normal.set( 0, 0, 1 ).applyQuaternion( quaternion ).normalize();
+			normal.set( 0, 0, 1 ).normalize();
 
 			// flip the normal because we want to cull everything above the plane
 
@@ -139,6 +141,9 @@ var Refractor = function ( geometry, options ) {
 			// see: Lengyel, Eric. “Oblique View Frustum Depth Projection and Clipping”.
 			// Journal of Game Development, Vol. 1, No. 2 (2005), Charles River Media, pp. 5–16
 
+
+			// reflectorPlane.setFromNormalAndCoplanarPoint( normal, reflectorWorldPosition );
+			// reflectorPlane.applyMatrix4( virtualCamera.matrixWorldInverse );
 			clipPlane.copy( refractorPlane );
 			clipPlane.applyMatrix4( virtualCamera.matrixWorldInverse );
 
@@ -208,6 +213,7 @@ var Refractor = function ( geometry, options ) {
 		renderer.shadowMap.autoUpdate = false; // avoid re-computing shadows
 
 		renderer.setRenderTarget( renderTarget );
+		renderer.state.buffers.depth.setMask( true ); // make sure the depth buffer is writable so it can be properly cleared, see #18897
 		if ( renderer.autoClear === false ) renderer.clear();
 		renderer.render( scene, virtualCamera );
 

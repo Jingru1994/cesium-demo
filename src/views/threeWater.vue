@@ -283,7 +283,7 @@ export default ({
             const water = new Water( waterGeometry, {
                 flowSpeed: 0.003,
                 color: new THREE.Color(0xc8e9ff),
-                scale: 0.5,
+                scale: 1,
                 flowDirection: new THREE.Vector2( 1, 1 ),
                 textureWidth: 1024,
                 textureHeight: 1024,

@@ -118,11 +118,14 @@
             "name": "curveMove",
             "label": "轨迹移动",
             "suffix": "gif"
-          }
-          ,
+          },
           {
             "name": "3DHeatMap",
             "label": "3D热力图"
+          },
+          {
+            "name": "terrain",
+            "label": "three地形显示"
           }
         ]
       },
@@ -167,6 +170,10 @@
           {
             "name": "pipe",
             "label": "流动管道"
+          },
+          {
+            "name": "water",
+            "label": "流动水面"
           }
         ]
       },

@@ -10,6 +10,10 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+import * as d3 from 'd3'
+
+import {getPublicData} from "@/api/requestData.js";
+
 export default ({
     name: "ThreePipe",
     data() {
@@ -29,6 +33,7 @@ export default ({
         this.initLight()
 
         this.createBox()
+        // this.drawMap()
         
         this.addClickListener()
         
@@ -87,7 +92,9 @@ export default ({
             this.camera = camera
             
             //调整camera视角
-            camera.position.set(40, 80, 100)
+            camera.position.set(-5.14709175470227, -90.88794574377549, 49.01484670950189)
+            
+
             console.log(camera)
 
             // 避免模型很模糊的现象
@@ -100,17 +107,6 @@ export default ({
                 this.renderer.setSize(width, height, false)
             }
             window.addEventListener( 'resize', this.onWindowResize )
-
-            const loader = new THREE.CubeTextureLoader();
-            const texture = loader.load([
-                'images/posx.jpg',
-                'images/negx.jpg',
-                'images/posy.jpg',
-                'images/negy.jpg',
-                'images/posz.jpg',
-                'images/negz.jpg',
-            ]);
-            // this.scene.background = texture;
 
         },
         addState(){
@@ -126,6 +122,7 @@ export default ({
             }else {
                 controls = new OrbitControls(this.camera, this.renderer.domElement)
             }
+            controls.target.set(-3.860896027475691, -5.413075060127793, -9.888948486188504)
             this.controls = controls
         },
         initLight() {
@@ -156,8 +153,8 @@ export default ({
             this.dirLight = dirLight
             this.scene.add(dirLight)
             //显示灯光方向
-            var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-            this.scene.add(debugCamera1)
+            // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
+            // this.scene.add(debugCamera1)
         },
         initPointLight() {
             const pointLight = new THREE.PointLight( 0xffffff, 0.5, 200 );
@@ -177,7 +174,6 @@ export default ({
                 this.refractor.material.uniforms.time.value = time;
             }
             
-            
             this.state.update();
             this.myAnimate = requestAnimationFrame(this.animate);
         },
@@ -188,34 +184,30 @@ export default ({
             this.camera.updateProjectionMatrix()
         },
         createBox() {
-            const geometry = new THREE.BoxGeometry(60,60,60)
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x2E2E2E,
-                emissive: 0x0,
-                roughness: 0,
-                metalness: 0,
-                depthWrite: true,
-                depthTest: true,
-                side: THREE.FrontSide
-            })
-            const box = new THREE.Mesh(geometry, material)
-            this.scene.add(box)
 
-            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem2.png')
-            const diffiseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite2.png')
+            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem5.png')
+            heightTexture.anisotropy = 16
+            const heightTexture1 = new THREE.TextureLoader().load('images/rs/beijing_dem5.png')
+            const diffiseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite3.png')
             const vertexShader = `
                 uniform sampler2D heightMap;
                 
                 uniform float heightRatio;
                 varying vec2 vUv;
                 varying float hValue;
+                varying float isTrue;
                 void main() {
+                    isTrue = 1.0;
                     vUv = uv;
                     vec3 pos = position;
                     hValue = texture2D(heightMap, vUv).r;
                     pos.z = hValue * heightRatio;
                     if(texture2D(heightMap, vUv).a < 1.0){
                         pos.z = 0.0;
+                        isTrue = 0.0;
+                    }
+                    if(texture2D(heightMap, vUv).r == 0.0 && texture2D(heightMap, vUv).b == 0.0){
+                        pos.z = -3.0;
                     }
                     
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
@@ -226,19 +218,11 @@ export default ({
                 uniform sampler2D diffuseMap;
                 varying float hValue;
                 varying vec2 vUv;
-                
-                // honestly stolen from https://www.shadertoy.com/view/4dsSzr
-                vec3 heatmapGradient(float t) {
-                    return clamp((pow(t, 1.5) * 0.8 + 0.2) * vec3(smoothstep(0.0, 0.35, t) + t * 0.5, smoothstep(0.5, 1.0, t), max(1.0 - t * 1.7, t * 7.0 - 6.0)), 0.0, 1.0);
-                }
-
+                varying float isTrue;
                 void main() {
-                    // float v = abs(hValue - 1.);
-                    // gl_FragColor = vec4(heatmapGradient(hValue), 1. - v * v) ;
                     float alpha;
-                    if(texture2D(heightMap, vUv).a < 1.0){
-                        alpha = 0.0;
-                    } else {
+                    alpha = 0.0;
+                    if(isTrue == 1.0){
                         alpha = 1.0;
                     }
                     gl_FragColor = vec4(texture2D(diffuseMap, vUv).rgb, alpha );
@@ -253,7 +237,7 @@ export default ({
                 vertexShader: vertexShader,
                 fragmentShader: fragmentShader,
                 transparent: true,
-                side: THREE.DoubleSide
+                // side: THREE.DoubleSide
             })
 
             // heightTexture.
@@ -265,57 +249,56 @@ export default ({
             })
             const plane = new THREE.Mesh(planeGeometry,material1)
             // plane.rotation.x = Math.PI/4
-            plane.position.set(0,60,60)
+            // plane.position.set(0,60,60)
             this.scene.add(plane)
-            
 
-            
-
-            
-        },
-        async getData(url){
-            let data = await getPublicData(url)
-            return data.features;
-        },
-        async drawMap() {
-            const group = new THREE.Group()
-            const lineGroup = new THREE.Group()
-            let chinaGeometry = await this.getData('data/china.json')
-            let i = 0
-            chinaGeometry.forEach((province) => {
-                province.geometry.coordinates.forEach(provinceChild => {
-                    provinceChild.forEach(points => {
-                        let points_prj = []
-                        points.forEach(point => {
-                            // let [x,y] 
-                            points_prj.push(this.projection(point))
-                        })
-                        let item = this.drawExtrude(this.drawShape(points_prj))
-                        item.label = province.properties.name
-                        let lines = this.drawLine(points_prj)
-                        lines.forEach(line => {
-                            lineGroup.add(line)
-                        })
-                        // console.log(item.geometry.boundingSphere.radius)
-                        group.add(item)
-
-                    })
+            const vertexShader1 = `
+                varying vec2 vUv;
+                void main() {
                     
-                }) 
+                    vUv = uv;
+                    vec3 pos = position;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
+                }
+            `
+            const fragmentShader1 = `
+                uniform sampler2D heightMap1;
+                uniform vec3 color;
+                varying vec2 vUv;
+                void main() {
+                    float alpha = 0.0;
+                    float isTrue = 1.0;
+                    if(texture2D(heightMap1, vUv).a < 1.0){
+                        isTrue = 0.0;
+                    }
+                    if(isTrue == 1.0){
+                        alpha = 1.0;
+                    }
+                    
+                    // float alpha = 1.0;
+                    // if(texture2D(heightMap1, vUv).a < 1.0){
+                    //     alpha = 0.0;
+                    // }
+
+                    gl_FragColor = vec4(color.rgb, alpha);
+                }
+            `
+
+            const bottomGeometry = new THREE.PlaneGeometry(100,100,500,500)
+            const bottomMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    heightMap1: {value: heightTexture1},
+                    color: {value: new THREE.Color(0x244931)}
+                },
+                vertexShader: vertexShader1,
+                fragmentShader: fragmentShader1,
+                transparent: true,
+                side: THREE.DoubleSide
             })
-            this.scene.add(group)
-            this.scene.add(lineGroup)
-            this.group = group
-            console.log(this.group)
-            this.lineGroup = lineGroup
-        },
-        drawShape(posArr) {
-            var shape = new THREE.Shape()
-            shape.moveTo(posArr[0][0], posArr[0][1])
-            posArr.forEach(item => {
-                shape.lineTo(item[0], item[1])
-            })
-            return shape
+            const bottomPlane = new THREE.Mesh(bottomGeometry,bottomMaterial)
+            bottomPlane.position.set(0,0,-3)
+            this.scene.add(bottomPlane)
+            
         },
     }
 })
