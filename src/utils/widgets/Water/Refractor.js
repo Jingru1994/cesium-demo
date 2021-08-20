@@ -109,10 +109,10 @@ var Refractor = function ( geometry, options ) {
 
 		return function updateRefractorPlane() {
 
-			// scope.matrixWorld.decompose( position, quaternion, scale );
-			position.setFromMatrixPosition( scope.matrixWorld );
-			// normal.set( 0, 0, 1 ).applyQuaternion( quaternion ).normalize();
-			normal.set( 0, 0, 1 ).normalize();
+			scope.matrixWorld.decompose( position, quaternion, scale );
+			// position.setFromMatrixPosition( scope.matrixWorld );
+			normal.set( 0, 0, 1 ).applyQuaternion( quaternion ).normalize();
+			// normal.set( 0, 0, 1 ).normalize();
 
 			// flip the normal because we want to cull everything above the plane
 

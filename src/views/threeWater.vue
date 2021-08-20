@@ -287,11 +287,12 @@ export default ({
                 flowDirection: new THREE.Vector2( 1, 1 ),
                 textureWidth: 1024,
                 textureHeight: 1024,
-                clipBias: 0
+                clipBias: 0,
+                // side: THREE.DoubleSide
             })
             water.rotation.x = -Math.PI/2
             water.position.set(-32,2,-3)
-            // water.material.side = THREE.DoubleSide
+            water.material.side = THREE.DoubleSide
             this.scene.add(water)
         },
         createRefraction() {

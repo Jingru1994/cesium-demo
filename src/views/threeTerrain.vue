@@ -184,6 +184,14 @@ export default ({
             this.camera.updateProjectionMatrix()
         },
         createBox() {
+            const plane1 = new THREE.PlaneGeometry(100,100)
+            const texture1 = new THREE.TextureLoader().load('images/kerqin.png')
+            const material2 = new THREE.MeshBasicMaterial({
+                map: texture1
+            })
+            const mesh1 = new THREE.Mesh(plane1, material2)
+            this.scene.add(mesh1)
+            mesh1.position.set(0,0,100)
 
             const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem5.png')
             heightTexture.anisotropy = 16
