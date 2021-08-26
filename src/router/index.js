@@ -226,7 +226,13 @@ const routes = [
     path: "/terrain",
     name: "terrain",
     component: () =>
-    import(/* webpackChunkName: "water" */ "@/views/threeTerrain.vue")
+    import(/* webpackChunkName: "terrain" */ "@/views/threeTerrain.vue")
+  },
+  {
+    path: "/tourism",
+    name: "tourism",
+    component: () =>
+    import(/* webpackChunkName: "toursim" */ "@/views/threeTourism.vue")
   }
 ];
 
