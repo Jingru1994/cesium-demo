@@ -8,14 +8,11 @@
 import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-import * as d3 from 'd3'
-
-import {getPublicData} from "@/api/requestData.js";
+import DistrictTerrain from '@/utils/widgets/Terrain/DistrictTerrain.js'
 
 export default ({
-    name: "ThreePipe",
+    name: "ThreeTerrain",
     data() {
         return {
         }
@@ -23,8 +20,6 @@ export default ({
     created() {
     },
     async mounted() {
-        this.interval = 0
-        this.depth = 0.5 //拉伸地图的厚度
         this.clock = new THREE.Clock()
         
         this.initScene()
@@ -32,8 +27,7 @@ export default ({
         this.initControls()
         this.initLight()
 
-        this.createBox()
-        // this.drawMap()
+        this.addTerrain()
         
         this.addClickListener()
         
@@ -42,9 +36,6 @@ export default ({
             GUI.remove()//不删除的话，每次保存时都会多出一个控制面板
         }
         this.animate()
-
-        this.water()
-        
     },
     beforeDestroy() {
         cancelAnimationFrame(this.myAnimate)
@@ -68,9 +59,6 @@ export default ({
         this.renderer = null
     },
     methods: {
-        water(){
-
-        },
         addClickListener() {
             this.renderer.domElement.addEventListener('click',e => {
                 console.log(this.camera)
@@ -183,130 +171,19 @@ export default ({
             this.camera.aspect = window.innerWidth / window.innerHeight
             this.camera.updateProjectionMatrix()
         },
-        createBox() {
-            const plane1 = new THREE.PlaneGeometry(100,100)
-            const texture1 = new THREE.TextureLoader().load('images/kerqin.png')
-            const material2 = new THREE.MeshBasicMaterial({
-                map: texture1
-            })
-            const mesh1 = new THREE.Mesh(plane1, material2)
-            this.scene.add(mesh1)
-            mesh1.position.set(0,0,100)
-
-            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem5.png')
-            heightTexture.anisotropy = 16
-            const heightTexture1 = new THREE.TextureLoader().load('images/rs/beijing_dem5.png')
-            const diffiseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite3.png')
-            const vertexShader = `
-                uniform sampler2D heightMap;
-                
-                uniform float heightRatio;
-                varying vec2 vUv;
-                varying float hValue;
-                varying float isTrue;
-                void main() {
-                    isTrue = 1.0;
-                    vUv = uv;
-                    vec3 pos = position;
-                    hValue = texture2D(heightMap, vUv).r;
-                    pos.z = hValue * heightRatio;
-                    if(texture2D(heightMap, vUv).a < 1.0){
-                        pos.z = 0.0;
-                        isTrue = 0.0;
-                    }
-                    if(texture2D(heightMap, vUv).r == 0.0 && texture2D(heightMap, vUv).b == 0.0){
-                        pos.z = -3.0;
-                    }
-                    
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
-                }
-            `
-            const fragmentShader = `
-                uniform sampler2D heightMap;
-                uniform sampler2D diffuseMap;
-                varying float hValue;
-                varying vec2 vUv;
-                varying float isTrue;
-                void main() {
-                    float alpha;
-                    alpha = 0.0;
-                    if(isTrue == 1.0){
-                        alpha = 1.0;
-                    }
-                    gl_FragColor = vec4(texture2D(diffuseMap, vUv).rgb, alpha );
-                }
-            `
-            const material1 = new THREE.ShaderMaterial({
-                uniforms: {
-                    heightMap: {value: heightTexture},
-                    heightRatio: {value: 3},
-                    diffuseMap: {value: diffiseTexture}
-                },
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
-                transparent: true,
-                // side: THREE.DoubleSide
-            })
-
-            // heightTexture.
-            const planeGeometry = new THREE.PlaneGeometry(100,100,500,500)
-            const planeMaterial = new THREE.MeshBasicMaterial({
-                color: 0xff0000,
-                map: diffiseTexture,
-                side: THREE.DoubleSide
-            })
-            const plane = new THREE.Mesh(planeGeometry,material1)
-            // plane.rotation.x = Math.PI/4
-            // plane.position.set(0,60,60)
-            this.scene.add(plane)
-
-            const vertexShader1 = `
-                varying vec2 vUv;
-                void main() {
-                    
-                    vUv = uv;
-                    vec3 pos = position;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
-                }
-            `
-            const fragmentShader1 = `
-                uniform sampler2D heightMap1;
-                uniform vec3 color;
-                varying vec2 vUv;
-                void main() {
-                    float alpha = 0.0;
-                    float isTrue = 1.0;
-                    if(texture2D(heightMap1, vUv).a < 1.0){
-                        isTrue = 0.0;
-                    }
-                    if(isTrue == 1.0){
-                        alpha = 1.0;
-                    }
-                    
-                    // float alpha = 1.0;
-                    // if(texture2D(heightMap1, vUv).a < 1.0){
-                    //     alpha = 0.0;
-                    // }
-
-                    gl_FragColor = vec4(color.rgb, alpha);
-                }
-            `
-
-            const bottomGeometry = new THREE.PlaneGeometry(100,100,500,500)
-            const bottomMaterial = new THREE.ShaderMaterial({
-                uniforms: {
-                    heightMap1: {value: heightTexture1},
-                    color: {value: new THREE.Color(0x244931)}
-                },
-                vertexShader: vertexShader1,
-                fragmentShader: fragmentShader1,
-                transparent: true,
-                side: THREE.DoubleSide
-            })
-            const bottomPlane = new THREE.Mesh(bottomGeometry,bottomMaterial)
-            bottomPlane.position.set(0,0,-3)
-            this.scene.add(bottomPlane)
-            
+        addTerrain() {
+            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem.png')
+            const diffuseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite.png')
+            const options =  {
+                width: 100,
+                height: 100,
+                depth: 3,
+                heightRatio: 3,
+                heightTexture: heightTexture,
+                diffuseTexture: diffuseTexture
+            }
+            const terrain = new DistrictTerrain(options).mesh
+            this.scene.add(terrain)
         },
     }
 })
