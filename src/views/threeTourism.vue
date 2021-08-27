@@ -228,7 +228,7 @@ export default ({
             this.texture = texture
             const material = new THREE.SpriteMaterial({map: texture, transparent: true})
             const spirte = new THREE.Sprite(material)
-            spirte.scale.set(10,10*canvas.height/canvas.width)
+            spirte.scale.set(8,8*canvas.height/canvas.width)
             spirte.center.set(0,0)
             spirte.position.set(0,18,0)
             this.scene.add(spirte)
@@ -248,7 +248,7 @@ export default ({
             this.scene.add(pole)
 
             //bottomShpere
-            const bShpereGeometry = new THREE.SphereGeometry(0.8,32,16,0,Math.PI*2,0,Math.PI/2)
+            const bShpereGeometry = new THREE.SphereGeometry(0.6,32,16,0,Math.PI*2,0,Math.PI/2)
             const bShpereMaterial = new THREE.MeshLambertMaterial({
                 // color: 0x3ED5EB,
                 color: 0x319FB0,
@@ -261,7 +261,7 @@ export default ({
             bottomShpere.renderOrder = 2
             this.scene.add(bottomShpere)
             //bottomCircle
-            const bCircleGeometry = new THREE.CircleGeometry(1.2,32)
+            const bCircleGeometry = new THREE.CircleGeometry(1.0,32)
             const bCircleMaterial = new THREE.MeshBasicMaterial({
                 color: 0x3ED5EB,
                 transparent: true,
@@ -272,32 +272,203 @@ export default ({
             bottomCircle.rotation.x = -Math.PI/2
             bottomCircle.renderOrder = 3
             this.scene.add(bottomCircle)
-            //composeCircle
-            const composeCircleGeometry = new THREE.CircleGeometry(6,32)
-            // const unifroms = {
-            //     color: {
-            //         value: color
-            //     },
-            //     radius: {
-            //         value: radius
-            //     },
-            //     theta: {
-            //         value: 0.0
-            //     }
-            // }
-            // const composeCircleMaterial = new THREE.ShaderMaterial({
-            //      uniforms: uniforms,
-            //      vertexShader: vertexShader,
-            //      fragmentShader: fragmentShader
-            // })
-            const composeCircleMaterial = new THREE.MeshBasicMaterial({color: 0xffffff})
-            const composeCircle = new THREE.Mesh(composeCircleGeometry,composeCircleMaterial)
-            composeCircle.rotation.x = -Math.PI/2
-            composeCircle.position.y = 12.1
-            this.scene.add(composeCircle)
-            // const 
+
+            const gradientRingGeometry1 = new THREE.RingGeometry(1.4,1.6,32)
+            const uniforms = {
+                color: {
+                    value: new THREE.Color(0x3ED5EB)
+                },
+                radius: {
+                    value: 1.6
+                },
+                direction: {
+                    value: true
+                },
+                thetaLength: {
+                    value: 280.0
+                },
+                theta0: {
+                    value: 0.0
+                },
+                openEnd: {
+                    value: false
+                },
+                opacity: {
+                    value: 0.9
+                }
+            }
+            const vertexShader = `
+                varying vec3 vPosition;
+                void main() {
+                    vPosition = position;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `
+            const fragmentShader = `
+                #define M_PI 3.1415926535897932384626433832795
+
+                uniform vec3 color;
+                uniform float radius;
+                uniform float thetaLength;
+                uniform float theta0;
+                uniform bool direction;
+                uniform bool openEnd;
+                uniform float opacity;
+
+                varying vec3 vPosition;
+
+                float movingSector(vec2 position, vec2 center, float radius) {
+                    float r = distance(position, center);
+                    // if(r < radius) {
+                    vec2 d = normalize(position - center);
+                    float radianLength = thetaLength;
+                    float theta;
+                    if(!openEnd) {
+                        radianLength = clamp(thetaLength + 60.0, 0.0, 360.0);
+                    }
+                    if(direction) {
+                        theta = mod(atan(d.y, d.x)*180.0/M_PI + theta0, 360.0);
+                        
+                    }else {
+                        theta = mod(theta0 - atan(d.y, d.x)*180.0/M_PI, 360.0);
+                    }
+                    float gradient = clamp(1.0 - theta/radianLength, 0.0, 1.0);
+                    if(!openEnd) {
+                        if(theta > thetaLength) {
+                            gradient = 0.0;
+                        }
+                    }
+                    return opacity*gradient;
+                        
+                    // } else {
+                    //     return 0.0;
+                    // }
+                }
+                void main() {
+                    float alpha;
+                    vec2 center = vec2(0.0, 0.0);
+                    alpha = movingSector(vPosition.xy,center,radius);
+                    gl_FragColor = vec4(color,alpha);
+                }
+            `
+            const gradientRingMaterial1 = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                transparent: true
+            })
+            const gradientRing1 = new THREE.Mesh(gradientRingGeometry1,gradientRingMaterial1)
+            gradientRing1.rotation.x = -Math.PI/2
+            gradientRing1.position.y = 12.1
+            this.scene.add(gradientRing1)
+
             
 
+            const gradientRingGeometry2 = new THREE.RingGeometry(1.7,2.3,32)
+            const uniforms2 = {
+                color: {
+                    value: new THREE.Color(0x3ED5EB)
+                },
+                radius: {
+                    value: 2.3
+                },
+                direction: {
+                    value: false
+                },
+                thetaLength: {
+                    value: 250.0
+                },
+                theta0: {
+                    value: 0.0
+                },
+                openEnd: {
+                    value: true
+                },
+                opacity: {
+                    value: 0.6
+                }
+            }
+
+            const gradientRingMaterial2 = new THREE.ShaderMaterial({
+                uniforms: uniforms2,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                transparent: true,
+                opacity: 0.3
+            })
+            const gradientRing2 = new THREE.Mesh(gradientRingGeometry2,gradientRingMaterial2)
+            gradientRing2.rotation.x = -Math.PI/2
+            gradientRing2.position.y = 12.1
+            this.scene.add(gradientRing2)
+            
+            const tween = new TWEEN.Tween({theta: 0})
+                .to({theta: 360},3000)
+                .onUpdate(({theta}) => {
+                    gradientRingMaterial1.uniforms.theta0.value = theta
+                    gradientRingMaterial2.uniforms.theta0.value = theta
+                })
+                .repeat(Infinity)
+                .start()
+            
+            const uniforms3 = {
+                radius0: {
+                    value: 5
+                },
+                radius: {
+                    value: 0.2
+                },
+                color: {
+                    value: new THREE.Color(0x3ED5EB)
+                }
+            }
+            const vertexShader3 = `
+                varying vec3 vPosition;
+                void main() {
+                    vPosition = position;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `
+            const fragmentShader3 = `
+                uniform float radius0;
+                uniform float radius;
+                uniform vec3 color;
+
+                varying vec3 vPosition;
+                void main() {
+                    vec2 center = vec2(0.0, 0.0);
+                    float d = distance(center, vPosition.xy);
+                    float pct = d/radius0;
+                    float width = radius/7.0;
+                    float alpha = 0.0;
+                    
+                    if(d < radius && d > radius - width) {
+                        alpha = -1.0/radius0*radius + 1.0;
+                    }
+                    gl_FragColor = vec4(color,alpha);
+                }
+
+            `
+            const spreadRingGeometry = new THREE.CircleGeometry(5,50)
+            const spreadRingMaterial = new THREE.ShaderMaterial({
+                uniforms: uniforms3,
+                vertexShader: vertexShader3,
+                fragmentShader: fragmentShader3,
+                transparent: true
+            })
+            const spreadRing = new THREE.Mesh(spreadRingGeometry,spreadRingMaterial)
+            spreadRing.rotation.x = -Math.PI/2
+            spreadRing.position.y = 12
+            this.scene.add(spreadRing)
+            const tween1 = new TWEEN.Tween(spreadRingMaterial.uniforms.radius)
+                .to({value:5.0},3000)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .repeat(Infinity)
+                .start()
+            
+            const group = new THREE.Group()
+            group.add(spirte, pole, bottomShpere, bottomCircle, gradientRing1, gradientRing2, spreadRing)
+            group.scale.set(2,2,2)
+            this.scene.add(group)
         },
         drawOther(ctx, options) {
             const canvas = options.canvas
