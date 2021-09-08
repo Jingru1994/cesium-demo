@@ -1,22 +1,24 @@
 class CanvasFlowline{
-    constructor(color, length, width, speed, route, step = 0, repeat=true) {
-        this.startx = route[0].x;//设置起始点坐标
-        this.starty = route[0].y;
-        this.route = route;//轨迹点，数组格式
-        this.speed = speed;//速度
-        this.width = width;//线的宽度
-        this.color = color;//飞线的颜色
-        this.length = length;//飞线的总体长度
-        this.step = step;//表示以第几个轨迹点作为起始点绘制飞线动画，默认是第一个
+    constructor(params) {
+        if(!params) {
+            throw Error('Creating SpreadRing instance must provide parameters');
+        }
+
+        this.startx = params.route[0].x;//设置起始点坐标
+        this.starty = params.route[0].y;
+        this.route = params.route;//轨迹点，数组格式
+        this.speed = params.speed;//速度
+        this.width = params.width;//线的宽度
+        this.colorGradient = params.colorGradient;//飞线颜色及渐变比例
+        this.length = params.length;//飞线的总体长度
+        this.step = params.step || 0;//表示以第几个轨迹点作为起始点绘制飞线动画，默认是第一个
+        this.repeat = params.repeat || true
         this.drawTimes = 0;
-    
-        this.colorStep = [0, 0.6, 1];//渐变比例
-        this.repeat = repeat
     }
     draw(ctx) {
         this.drawTimes++;//帧数自增
         ctx.beginPath();
-        let { route, startx, starty, color, speed } = this;
+        let { route, startx, starty, colorGradient, speed } = this;
         ctx.moveTo(this.startx, this.starty);//首先要绘制起始点的位置
         
         let length = this.drawTimes * speed <= this.length ? this.drawTimes * speed : this.length;//计算每一帧需要绘制的长度
@@ -63,19 +65,19 @@ class CanvasFlowline{
             }
         }
         let lg = ctx.createLinearGradient(this.startx, this.starty, endx, endy);
-        lg.addColorStop(this.colorStep[0], `rgba(${color[0]})`);
-        lg.addColorStop(this.colorStep[1], `rgba(${color[1]})`);
-        lg.addColorStop(this.colorStep[2], `rgba(${color[2]})`);
+        Object.keys(colorGradient).forEach(key => {
+            lg.addColorStop(key, `rgba(${colorGradient[key]})`);
+        })
         ctx.strokeStyle = lg;
         ctx.lineWidth = this.width;
         ctx.stroke();
     }
     next() {
+
         let _this = this;//在绘制下一帧飞线前，线获取当前帧的状态
         let endStep = this.step;//获取起始轨迹点的index，默认为轨迹数组的第一个点
         let { route, startx, starty } = this;
         let length = this.speed;//与上一个方法不同，这个方法中length的值表示每一帧运动的长度，及一个speed的长度
-        
         for (let i = endStep + 1, len = route.length; i < len; i++) {
             let next_x = route[i].x;//获取下一个轨迹点的坐标
             let next_y = route[i].y;
