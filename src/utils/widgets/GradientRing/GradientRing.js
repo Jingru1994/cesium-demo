@@ -1,12 +1,13 @@
 import * as THREE from 'three'
+import * as TWEEN from '@tweenjs/tween.js'
 class GradientRing {
      /**
      * GradientRing构造函数
      *
      * @param {Object} params 参数
      * @param {Number} params.innerRadius 圆环内半径
-     * @param {Number} params.innerRadius 圆环外半径
-     * @param {Number} params.thetaSegments 右颜色
+     * @param {Number} params.outerRadius 圆环外半径
+     * @param {Number} params.thetaSegments 圆环分段数，值越大圆环越圆
      * @param {Color} params.color 圆环颜色
      * @param {Number} params.thetaLength 圆心角度
      * @param {Boolean} params.openEnd 末尾处是否有明显封闭线，默认为true
@@ -34,19 +35,13 @@ class GradientRing {
             .repeat(Infinity)
             .start();
         
-        this._geometry = geometry;
-        this._material = material;
-
-    }
-    get mesh() {
-        return this.mesh;
     }
     createMaterial(params) {
         const color = params.color || new THREE.Color(0x3ED5EB);
         const thetaLength = params.thetaLength || 280.0;
-        const openEnd = params.openEnd || true;
+        const openEnd = typeof params.direction !== 'undefined' ? params.direction : true;
         const opacity = params.opacity || 1.0;
-        const direction = params.direction || true;
+        const direction = typeof params.direction !== 'undefined' ? params.direction : true;
 
         const uniforms = {
             color: {
@@ -125,21 +120,30 @@ class GradientRing {
         return material;
     }
     animate() {
-        this.start = requestAnimationFrame(this.animate.bind(this))
-        TWEEN.update()
+        this.start = requestAnimationFrame(this.animate.bind(this));
+        TWEEN.update();
     }
     stop() {
         if(this.start) {
-            cancelAnimationFrame(this.start)
+            cancelAnimationFrame(this.start);
         }
         
     }
     destroy() {
-        this.stop()
-        this.points.parent.remove(this.points)
-        this._material.dispose()
-        this._geometry.dispose()
+        this.stop();
+        this.mesh.traverse(item => {
+            if(item.isMesh || item instanceof THREE.Sprite){
+                item.geometry.dispose();
+                if(item.material instanceof Array){
+                    item.material.forEach(material => {
+                        material.dispose();
+                    })
+                }else{
+                    item.material.dispose();
+                }
+            }
+        })
     }
 }
 
-export default GradientRing
+export default GradientRing;
