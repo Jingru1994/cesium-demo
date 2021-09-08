@@ -48,8 +48,8 @@ export default {
         initViewer() {
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ODQxZGVkMy00YWY4LTQwYWEtYjA1MS1iZWY4OTk5NGY5MTQiLCJpZCI6MTM5MCwiaWF0IjoxNTI4MjAzNTMyfQ.f0GJ9hn2poToXqb0w8w_RN1AqjxkStR0m2ajNupPbDA';
             let googleImageryProvider = new Cesium.TileMapServiceImageryProvider({  
-                url: 'https://breed.agri.hcmis.net/map/satellite/{z}/{x}/{y}/img.jpg'          	
-                // url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali'
+                // url: 'https://breed.agri.hcmis.net/map/satellite/{z}/{x}/{y}/img.jpg'          	
+                url: 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali'
                 // url: 'http://www.google.cn/maps/vt?lyrs=s@800&x={x}&y={y}&z={z}'
                 // url:'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
             }); 
@@ -72,7 +72,7 @@ export default {
                 navigationHelpButton: false, // 默认的相机控制提示控件
                 fullscreenButton: false, // 全屏控件
                 scene3DOnly: true, // 每个几何实例仅以3D渲染以节省GPU内存
-                baseLayerPicker: true, // 底图切换控件
+                baseLayerPicker: false, // 底图切换控件
                 // imageryProvider: googleImageryProvider,//谷歌影像底图
                 animation: false, // 控制场景动画的播放速度控件,
                 // terrainProvider: new Cesium.EllipsoidTerrainProvider(),

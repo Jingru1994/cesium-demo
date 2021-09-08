@@ -233,6 +233,12 @@ const routes = [
     name: "tourism",
     component: () =>
     import(/* webpackChunkName: "toursim" */ "@/views/threeTourism.vue")
+  },
+  {
+    path: "/test",
+    name: "test",
+    component: () =>
+    import(/* webpackChunkName: "toursim" */ "@/views/detailModel copy.vue")
   }
 ];
 
