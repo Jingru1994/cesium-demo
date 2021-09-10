@@ -9,7 +9,10 @@ import * as THREE from "three"
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
-import DistrictTerrain from '@/utils/widgets/Terrain/DistrictTerrain.js'
+// import DistrictTerrain from '@/utils/widgets/Terrain/DistrictTerrain.js'
+import DistrictTerrain from '@/utils/widgets/Terrain/DistrictTerrainCopy.js'
+import {getPublicData} from '@/api/requestData.js'
+import * as d3 from 'd3-geo'
 
 export default ({
     name: "ThreeTerrain",
@@ -27,7 +30,8 @@ export default ({
         this.initControls()
         this.initLight()
 
-        this.addTerrain()
+        // this.addTerrain()
+        this.addTerrain1()
         
         this.addClickListener()
         
@@ -120,7 +124,7 @@ export default ({
         },
         initAmbientLight() {
             //环境光
-            const ambientLight = new THREE.AmbientLight("#ffffff",3);
+            const ambientLight = new THREE.AmbientLight("#ffffff",1);
             this.scene.add(ambientLight)
         },
         initDirectionalLight() {
@@ -171,6 +175,64 @@ export default ({
             this.camera.aspect = window.innerWidth / window.innerHeight
             this.camera.updateProjectionMatrix()
         },
+        async getData(url){
+            let data = await getPublicData(url)
+            return data.features;
+        },
+        async addTerrain1() {
+            const features = await this.getData('data/beijing.geojson');
+            const center = this.computeFeaturesCenter(features)
+            features.forEach((feature) => {
+                feature.geometry.coordinates.forEach(child => {
+                    child.forEach(points => {
+                        points.forEach(point => {
+                            [point[0],point[1]] = this.projection(point,center,1000)
+                        })
+                        
+                        
+                    })
+                }) 
+            })
+            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem.png')
+            const diffuseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite2.png')
+            const options =  {
+                width: 100,
+                height: 100,
+                depth: 1,
+                heightRatio: 3,
+                heightTexture: heightTexture,
+                diffuseTexture: diffuseTexture,
+                data: features[0]
+            }
+            const terrain = new DistrictTerrain(options).mesh;
+            console.log(terrain)
+            this.scene.add(terrain)
+        },
+        computeFeaturesCenter(features) {
+            let coordinateList = []
+            features.forEach(feature => {
+                feature.geometry.coordinates.forEach(coordinate => {
+                    coordinate.forEach(points => {
+                        coordinateList.push(...points)
+                    })
+                })
+            })
+            let xMax = Math.max(...coordinateList.map(item => { return item[0] }))
+            let xMin = Math.min(...coordinateList.map(item => { return item[0] }))
+            let yMax = Math.max(...coordinateList.map(item => { return item[1] }))
+            let yMin = Math.min(...coordinateList.map(item => { return item[1] }))
+            //计算最值的另一种方法
+            // let xMax1 = coordinateList.sort((a,b) => { return b[0]-a[0]})[0][0]
+            // let xMin1 = coordinateList.sort((a,b) => { return a[0]-b[0]})[0][0]
+            let center = [(xMax + xMin)/2, (yMax + yMin)/2]
+            return center
+        },
+        projection(point, center, scale) {
+            const projection = d3.geoMercator().center(center).translate([0, 0]).reflectY(90).scale(scale)
+            // const projection = d3.geoMercator().center([104.0, 37.5]).scale(10).translate([0, 0]).reflectY(90)
+            return projection(point)
+
+        },
         addTerrain() {
             const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem.png')
             const diffuseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite.png')
@@ -178,7 +240,7 @@ export default ({
                 width: 100,
                 height: 100,
                 depth: 3,
-                heightRatio: 3,
+                heightRatio: 1,
                 heightTexture: heightTexture,
                 diffuseTexture: diffuseTexture
             }
