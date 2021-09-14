@@ -193,20 +193,23 @@ export default ({
                     })
                 }) 
             })
-            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem.png')
-            const diffuseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite2.png')
-            const options =  {
-                width: 100,
-                height: 100,
-                depth: 1,
-                heightRatio: 3,
-                heightTexture: heightTexture,
-                diffuseTexture: diffuseTexture,
-                data: features[0]
-            }
-            const terrain = new DistrictTerrain(options).mesh;
-            console.log(terrain)
-            this.scene.add(terrain)
+            const heightTexture = new THREE.TextureLoader().load('images/rs/beijing_dem6.png')
+            const diffuseTexture = new THREE.TextureLoader().load('images/rs/beijing_satellite7.png', texture=>{
+                const options =  {
+                    width: 100,
+                    height: 100,
+                    depth: 1,
+                    heightRatio: 3,
+                    heightTexture: heightTexture,
+                    diffuseTexture: texture,
+                    data: features[0]
+                }
+                const terrain = new DistrictTerrain(options).mesh;
+                console.log(terrain)
+                this.scene.add(terrain)
+
+            })
+            
         },
         computeFeaturesCenter(features) {
             let coordinateList = []
@@ -240,7 +243,7 @@ export default ({
                 width: 100,
                 height: 100,
                 depth: 3,
-                heightRatio: 1,
+                heightRatio: 3,
                 heightTexture: heightTexture,
                 diffuseTexture: diffuseTexture
             }

@@ -33,18 +33,16 @@ class DistrictTerrain {
         const geometry = this.createGeometry(data);
         this.reMapUv(geometry);
         // const material = new THREE.MeshLambertMaterial({
-        //     color: 'purple'
+        //     color: 'purple',
+        //     wireframe: true
         // })
-        // const diffuseTexture = new THREE.TextureLoader().load('images/rs/tongliaioL10a.png')
         // const material = new THREE.MeshLambertMaterial({
-        //     // side: THREE.DoubleSide,
+        //     side: THREE.DoubleSide,
         //     map: diffuseTexture
         // })
         const material = this.createMaterial(heightRatio, heightTexture, diffuseTexture);
         
         const mesh = new THREE.Mesh(geometry, material)
-        // const group = new THREE.Group();
-        // group.add(terrain, bottom);
         this.mesh = mesh;
     }
     get mesh() {
@@ -177,7 +175,7 @@ class DistrictTerrain {
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
-            // side: THREE.DoubleSide
+            side: THREE.DoubleSide
         });
         return terrainMaterial;
     }

@@ -274,7 +274,7 @@ export default ({
             const outCircle = new THREE.Mesh(outCircleGeometry, outCircleMaterial)
             outCircle.rotation.x = -Math.PI/2
             outCircle.position.set(0,-0.05,0)
-            // this.scene.add(outCircle)
+            this.scene.add(outCircle)
             this.outCircle = outCircle
 
             const inCircleGeometry = new THREE.PlaneGeometry(100,100)
@@ -287,7 +287,7 @@ export default ({
             inCircle.rotation.x = - Math.PI/2
             inCircle.position.set(0,-0.01,0)
             this.inCircle = inCircle
-            // this.scene.add(inCircle)
+            this.scene.add(inCircle)
 
             
         },
