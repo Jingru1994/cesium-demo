@@ -36,7 +36,7 @@ class divGraphic {
     */
     constructor(options) {
         if(!options) {
-            throw Error('Creating InfoTool instance must provide options')
+            throw Error('Creating divGraphic instance must provide options')
         }
         this.options = options;
         const html = options.html;
@@ -75,7 +75,7 @@ class divGraphic {
         this.element.style.opacity = 1;
         const offset = this.getOffset();
 
-        InfoTool.hookToGlobe(viewer, this.element, divPosition, offset, true);
+        divGraphic.hookToGlobe(viewer, this.element, divPosition, offset, true);
         // viewer.scene.requestRender();
     }
     /**
@@ -172,7 +172,6 @@ class divGraphic {
                 position = Cartographic.toCartesian(position);
                 break; 
         }
-        console.log(Cartographic.fromCartesian(position).height)
         return position;
     }
     /**
