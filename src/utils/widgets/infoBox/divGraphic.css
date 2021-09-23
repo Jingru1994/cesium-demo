@@ -1,0 +1,84 @@
+.hcr-cesium-div-mark {
+     position: fixed;
+     /* display: inline-block; */
+}
+.hcr-cesium-divlayer {
+     position: absolute;
+     left: 0;
+     top: 0;
+     /* height: 100%;
+     width: 100%; */
+}
+/* .cesium-three-plugins-infotool {
+     display: none;
+     flex-direction: column-reverse;
+     position: fixed;
+     top: 0; left: 0;
+     min-width: 100px;
+     height: 120px;
+     user-select: none;
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+} */
+/* .cesium-three-plugins-infotool-farm{
+     height:140px;
+}
+.cesium-three-plugins-infotool > div:nth-child(1) {
+     left: 0;
+     bottom: 0;
+}
+.cesium-three-plugins-infotool > div:nth-child(2) {
+     height: 27px;
+     color:#dead49;
+     border: 1px solid #dead49;
+     background-color: #0e1c2b;
+     padding: 5px 10px;
+     user-select: text;
+     pointer-events: auto;
+     cursor: pointer;
+     display: none;
+}
+.cesium-three-plugins-infotool-farm > div:nth-child(2) {
+     display: block;
+}
+.cesium-three-plugins-infotool > div:nth-child(1):hover + div{
+     display: block;
+}
+
+.cesium-three-plugins-infotool-farm > div:nth-child(1) {
+     width: 85px;
+     height: 155px;
+     background: url(~@/assets/point_farm.png) no-repeat center 100%;
+     background-size: 90px;
+}
+.cesium-three-plugins-infotool-camera > div:nth-child(1) {
+     width: 115px;
+     height: 137px;
+     background: url(~@/assets/point_camera.png) no-repeat center 100%;
+     background-size: 150px;
+}
+.cesium-three-plugins-infotool-camera > div:nth-child(1):hover {
+     background: url(~@/assets/point_camera_hover.png) no-repeat center 100%;
+     background-size: 150px;
+}
+.cesium-three-plugins-infotool-thermometer > div:nth-child(1) {
+     width: 115px;
+     height: 137px;
+     background: url(~@/assets/point_tmp.png) no-repeat center 100%;
+     background-size: 150px;
+}
+.cesium-three-plugins-infotool-thermometer > div:nth-child(1):hover {
+     background: url(~@/assets/point_tmp_hover.png) no-repeat center 100%;
+     background-size: 150px;
+}
+.cesium-three-plugins-infotool-person > div:nth-child(1) {
+     width: 115px;
+     height: 137px;
+     background: url(~@/assets/point_person.png) no-repeat center 100%;
+     background-size: 150px;
+}
+.cesium-three-plugins-infotool-person > div:nth-child(1):hover {
+     background: url(~@/assets/point_person_hover.png) no-repeat center 100%;
+     background-size: 150px;
+} */

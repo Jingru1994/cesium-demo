@@ -38,7 +38,6 @@ class InfoTool {
     * @ignore
     */
     static createInfoTool(viewer, options, callback = undefined) {
-        console.log(options);
         let cartographic;
         cartographic = options.position;
         const lon = CesiumMath.toDegrees(cartographic.longitude); //.toFixed(5);
@@ -72,7 +71,7 @@ class InfoTool {
     */
     static popup(viewer, options, lon, lat, height) {
         let element = options.element;
-        // setCss(element, "opacity", "1");
+        setCss(element, "opacity", "1");
         setTimeout(function () {
             // 设置元素效果
             // setCss(element, "opacity", "1");
@@ -242,7 +241,6 @@ class InfoTool {
             }
             
             options.position = position;
-            console.log(options.position);
         }
 
 

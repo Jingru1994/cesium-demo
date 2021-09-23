@@ -75,6 +75,7 @@ export default {
                     // pickedFeature.primitive.appearance.fragmentShaderSource = shader.fragmentShaderSource;
                     console.log(property);
                     if(property === 'farm1'){
+                        debugger
                         that.$router.push({
                             path: "/detailModel",
                         });
