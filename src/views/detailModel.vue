@@ -54,7 +54,7 @@ import widget from "cesium/Widgets/widgets.css";
 import {findComponentDownward} from "@/utils/assist.js";
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
-import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry.vue";
+import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry2.vue";
 import TilesetMonomer from "@/components/tilesetMonomer.vue";
 import PrimitiveGeojson from "@/components/primitiveGeojson.vue";
 import EntityPoint from "@/components/entityPoint2.vue";
@@ -114,111 +114,55 @@ export default {
             this.setDialogVisible(false)
         },
         initCamera() {
-            // let cartesianPosition = new Cesium.Cartesian3(-6222983.759138448, 19996854.06201183, 14011193.373091104);
-            // this.viewer.camera.setView({
-            //     destination : cartesianPosition,
-            //     orientation: {
-            //     heading : 0.0, // east, default value is 0.0 (north)
-            //     pitch : Cesium.Math.toRadians(-90),    // default value (looking down)
-            //     roll : 0.0  // default value
-            //     }
-            // });
-        },
-        async zoomToTiles(tileset){
-            // let cartesianPosition = new Cesium.Cartesian3(-6222983.759138448, 19996854.06201183, 14011193.373091104);
-            // this.viewer.camera.setView({
-            //     destination : cartesianPosition,
-            //     orientation: {
-            //     heading : 0.0, // east, default value is 0.0 (north)
-            //     pitch : Cesium.Math.toRadians(-90),    // default value (looking down)
-            //     roll : 0.0  // default value
-            //     }
-            // });
+            let cartesianPosition = new Cesium.Cartesian3(-6222983.759138448, 19996854.06201183, 14011193.373091104);
             this.viewer.camera.setView({
-                destination : new Cesium.Cartesian3(-2340488.8615332292, 5325525.154494965, 2607518.644244695),
+                destination : cartesianPosition,
                 orientation: {
                 heading : 0.0, // east, default value is 0.0 (north)
-                pitch : Cesium.Math.toRadians(-30.5),    // default value (looking down)
+                pitch : Cesium.Math.toRadians(-90),    // default value (looking down)
                 roll : 0.0  // default value
                 }
             });
-
-            
-            // // // 如果tileset自带世界矩阵，那么计算放置的经纬度和heading
-            // // const mat0 = Cesium.Matrix4.fromArray(tileset._root.transform);
-            // // // 原来的矩阵的逆
-            // // const orginMatrixInverse = Cesium.Matrix4.inverse(mat0, new Cesium.Matrix4());
-
-            // // 模型的位置坐标（三维笛卡尔坐标）。Cartesian3
-            // const position = Cesium.Cartesian3.fromDegrees(122.251, 43.405, 0);
-            // // 模型的位置矩阵(WGS84 Matrix4)。
-            // const mat = Cesium.Transforms.eastNorthUpToFixedFrame(position);
-            // // Heading（航向）是负z轴的旋转。Pitch（俯仰）是负y轴的旋转。Roll（滚动）是正x轴的旋转
-            // // 根据heading, 创建一个围绕z轴的旋转矩阵Matrix3。
-            // // 从 旋转矩阵Matrix3 转换成 旋转矩阵Matrix4。
-            // // var rotationX = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(22)));
-            // // // 计算模型的 位置矩阵(WGS84 Matrix4) 和 旋转矩阵Matrix4 的乘积，并存储到模型的位置矩阵。
-            // // Cesium.Matrix4.multiply(mat, rotationX, mat);
-            // // 把新构造的模型矩阵（既可以表示位置，也能表示旋转）赋值给该模型的model._root.transform(转换)。
-            // tileset._root.transform = mat;
-
-            let boundingSphere = tileset.boundingSphere;
-            const terrainCartographic = await this.mySampleTerrain(boundingSphere.center);
-            const terrainHeight = terrainCartographic[0].height;
-            
-            let cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);//获取到倾斜数据中心点的经纬度坐标（弧度）
-            console.log(terrainHeight-cartographic.height)
-            let model = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, cartographic.height);//倾斜数据中心点的笛卡尔坐标 
-            let surface =Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, terrainHeight);//带高程的新笛卡尔坐标
-            let translation = Cesium.Cartesian3.subtract(surface, model, new Cesium.Cartesian3());
-            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
-            
-            const that = this
-            that.showPoint = true;
+        },
+        async zoomToTiles(tileset){
+            this.showPoint = true;
+            // let cartesianPosition = new Cesium.Cartesian3(-5619895.44453339, 18835304.724975035, 13093351.877161387);
+            // this.viewer.camera.setView({
+            //     destination : cartesianPosition,
+            //     orientation: {
+            //     heading : 0.0, // east, default value is 0.0 (north)
+            //     pitch : Cesium.Math.toRadians(-90),    // default value (looking down)
+            //     roll : 0.0  // default value
+            //     }
+            // });
+        
+            // const that = this
             // setTimeout(function() {
-            //     // let cartesianPosition1 = new Cesium.Cartesian3(-2477013.53495094, 3925401.675793496, 4360743.925894892);
-            //     let cartesianPosition1 = new Cesium.Cartesian3(-2340488.8615332292, 5325525.154494965, 2607518.644244695);
+            //     let cartesianPosition1 = new Cesium.Cartesian3(-2340482.6167533277, 5325547.696970549, 2607792.1957136285);
             //     that.viewer.camera.flyTo({
             //         destination : cartesianPosition1,
             //         orientation: {
-            //             heading : 0.0, // east, default value is 0.0 (north)
-            //             pitch : Cesium.Math.toRadians(-90),    // default value (looking down)
-            //             roll : 0.0  // default value
+            //             heading : 0.0,
+            //             pitch : Cesium.Math.toRadians(-90),
+            //             roll : 0.0
             //         },
             //         duration: 7
             //     });
             //     setTimeout(function() {
             //         that.showPoint = true;
-            //         // let cartesianPosition2 = new Cesium.Cartesian3(-2477043.461295913, 3925526.139501486, 4360330.464346442);
-            //         let cartesianPosition2 = new Cesium.Cartesian3(-2340488.8615332292, 5325525.154494965, 2607518.644244695);
+            //         let cartesianPosition2 = new Cesium.Cartesian3(-2340480.17761455, 5325518.716177278, 2607507.65613265);
             //         that.viewer.camera.flyTo({
             //             destination : cartesianPosition2,
             //             orientation: {
-            //                 heading : 0.0, // east, default value is 0.0 (north)
-            //                 pitch : Cesium.Math.toRadians(-30.50),    // default value (looking down)
-            //                 roll : 0.0  // default value
+            //                 heading : 0.0,
+            //                 pitch : Cesium.Math.toRadians(-27.40),
+            //                 roll : 0.0
             //             },
             //         });
             //     },8000)
                 
             // },5000)
             
-            // this.viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, -0.5, tileset.boundingSphere.radius * 0.15));
-            // let cartesianPosition = new Cesium.Cartesian3(-2340488.8615332292, 5325525.154494965, 2607518.644244695);
-            // this.viewer.camera.setView({
-            //     destination : cartesianPosition,
-            //     orientation: {
-            //         heading : 0.0, // east, default value is 0.0 (north)
-            //         pitch : Cesium.Math.toRadians(-28.65),    // default value (looking down)
-            //         roll : 0.0  // default value
-            //     }
-            // });
-        },
-        async mySampleTerrain(cartesian) {
-            let terrainProvider = this.viewer.terrainProvider;
-            let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-            let promise = Cesium.sampleTerrainMostDetailed(terrainProvider, [cartographic]);
-            return promise;
         },
         pushRouter(property){
             console.log(property);
