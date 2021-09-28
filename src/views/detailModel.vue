@@ -85,7 +85,12 @@ export default {
         this.viewer = findComponentDownward(this,"cesiumViewer").viewer;
         // this.initCamera()
     },
-    beforeDestroy() {},
+    destroyed() {
+        this.showPoint = false;
+        console.log('detial destroy1234')
+    },
+    beforeDestroy() {
+    },
     computed: {
         ...mapGetters({
             dialogVisible:'dialogVisible',
