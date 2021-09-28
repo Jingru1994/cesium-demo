@@ -1,4 +1,3 @@
-import Viewer from "cesium/Widgets/Viewer/Viewer.js";
 import Cartesian3 from "cesium/Core/Cartesian3.js";
 import Matrix4 from "cesium/Core/Matrix4.js";
 import EllipsoidTerrainProvider from "cesium/Core/EllipsoidTerrainProvider.js";
