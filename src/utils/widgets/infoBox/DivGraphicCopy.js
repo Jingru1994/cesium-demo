@@ -88,10 +88,12 @@ class DivGraphic {
      * 移除该div元素并移除事件绑定
      */
     destroy() {
-        console.log('divgraphic destroy');
+        console.log('divgraphic destroy')
+        this.removeListener = true;
         this.element.removeEventListener('click', DivGraphic.clickEvent);
         this.viewer.scene.preRender.removeEventListener(DivGraphic.moveElement);
         this.divGraphicContainer.removeChild(this.element);
+        
     }
     /**
      * div元素点击事件绑定
@@ -100,6 +102,9 @@ class DivGraphic {
      * @param {Func} callback div点击事件的回调函数。
      */
     static addEvents(element, callback) {
+        // this.element.addEventListener('click',function(){
+        //     typeof callback === 'function' && callback();
+        // });
         element.addEventListener('click', DivGraphic.clickEvent(callback));
     }
     /**
@@ -205,7 +210,31 @@ class DivGraphic {
     static hookToGlobe(viewer, element, position, offset, hideOnBehindGlobe) {
         const scene = viewer.scene, camera = viewer.camera;
         const cartesian2 = new Cartesian2();
+        this.removeListener = false;
         scene.preRender.addEventListener(DivGraphic.moveElement(scene,camera,cartesian2,element,position,offset,hideOnBehindGlobe));
+        // scene.preRender.addEventListener(function _listener () {
+        //     const canvasPosition = scene.cartesianToCanvasCoordinates(position, cartesian2); // 笛卡尔坐标到画布坐标
+        //     if (defined(canvasPosition)) {
+        //         element.style.left = parseInt(canvasPosition.x + offset[0]) + 'px';
+        //         element.style.top = parseInt(canvasPosition.y + offset[1]) + 'px';
+
+        //         // 是否在地球背面隐藏
+        //         if (hideOnBehindGlobe) {
+        //             const cameraPosition = camera.position;
+        //             let height = scene.globe.ellipsoid.cartesianToCartographic(cameraPosition).height;
+        //             height += scene.globe.ellipsoid.maximumRadius;
+        //             if (!(Cartesian3.distance(cameraPosition, position) > height)) {
+        //                 element.style.display = 'flex';
+        //             } else {
+        //                 element.style.display = 'none';
+        //             }
+        //         }
+        //     }
+        //     if(that.removeListener) {
+        //         that.removeListener = false;
+        //         scene.preRender.removeEventListener(_listener);
+        //     }
+        // });
     }
     /**
      * Viewer重绘事件绑定的移动div元素方法。
@@ -219,7 +248,7 @@ class DivGraphic {
      * @param {Boolean} hideOnBehindGlobe 当元素在地球背面会自动隐藏，以减轻判断计算压力。
      */
     static moveElement(scene, camera, cartesian2, element, position, offset, hideOnBehindGlobe) {
-        return function curried_func() {
+        return function curried_func(e) {
             const canvasPosition = scene.cartesianToCanvasCoordinates(position, cartesian2); // 笛卡尔坐标到画布坐标
             if (defined(canvasPosition)) {
                 element.style.left = parseInt(canvasPosition.x + offset[0]) + 'px';

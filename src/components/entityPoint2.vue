@@ -4,8 +4,6 @@
 </template>
 
 <script>
-import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
-
 import {findComponentUpward} from "@/utils/assist.js"
 import DivGraphic from "@/utils/widgets/infoBox/DivGraphic.js"
 
@@ -38,19 +36,23 @@ export default {
         });
         
     },
-    beforeDestroy() {
+    destroyed() {
+        console.log('entiti point destroy')
         this.divInfoList.forEach(divGraphic => {
             divGraphic.destroy();
-            console.log('s')
         })
+    },
+    beforeDestroy() {
+
+        // this.divInfoList.forEach(divGraphic => {
+        //     divGraphic.destroy();
+        // })
     },
     methods: {
         async addGeojson(){
             let viewer = this.viewer;
             const data = await getPublicData(this.url);
             this.divInfoList = [];
-            console.log(data);
-            const that = this;
             data.features.forEach(element => {
                 const label = element.properties.Name;
                 const type = element.properties.Type;
@@ -62,7 +64,7 @@ export default {
                     </div>
                 `;
                 const clickEvent = function() {
-                    console.log('click callback')
+                    console.log('click callback, type:',type)
                     // that.$emit("pointClick", property);
                 };
                 const infoDivGraphic = new DivGraphic({
@@ -78,35 +80,12 @@ export default {
                 // const infoDiv = infoDivGraphic.getElement();
                 this.divInfoList.push(infoDivGraphic);
                 infoDivGraphic.addTo(viewer);
-
-                
             });
-
-
-            console.log(data);
-
         },
     },
     computed: {
-        isShow() {
-            return this.show;
-        },
     },
     watch: {
-        isShow: {
-            immediate: false,
-            handler(newValue){
-                if(newValue === true){
-                    console.log("isShow");
-                    this.addData();
-                    this.addEvent();
-                }else {
-                    console.log("isShow");
-                    this.removeData();
-                    this.removeEvent();
-                }
-            } 
-        }
     }
 }
 </script>
