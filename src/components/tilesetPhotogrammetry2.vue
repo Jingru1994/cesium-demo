@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js"
 import Photogrammetry from '@/utils/widgets/Photogrammetry/Photogrammetry.js'
 import {findComponentUpward} from "@/utils/assist.js"
 
@@ -23,12 +22,16 @@ export default {
     mounted() {
         this.$nextTick(() => {
             this.viewer = findComponentUpward(this,"cesiumViewer").viewer;
-            console.log(this.viewer);
             this.addTiles();
             
         });
     },
-    beforeDestroy() {},
+    destroyed() {
+        this.tileset.destroy();
+    },
+    beforeDestroy() {
+        // this.tileset.destroy();
+    },
     methods: {
         addTiles() {
             const that = this;
@@ -37,14 +40,12 @@ export default {
             }
             let viewer = this.viewer;
             let options = {
-                option: {
-                    url: this.url,
-                    shadows: Cesium.ShadowMode.DISABLED
-                },
+                url: this.url,
                 readyPromise: readyPromise
             }
             let tileset = new Photogrammetry(options);
             tileset.addTo(viewer);
+            this.tileset = tileset;
         }
     },
 }
