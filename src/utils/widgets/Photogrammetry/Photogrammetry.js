@@ -77,8 +77,10 @@ class Photogrammetry {
      * 销毁Photogrammetry实例
      */
     destroy() {
-        this.tileset.destroy();
-        console.log(this.tileset, 'tileset destroy');
+        if(!this.viewer.isDestroyed){
+            this.tileset.destroy();
+            console.log(this.tileset, 'tileset destroy');
+        }
     }
     /**
      * 获取模型加载完成回调参数
