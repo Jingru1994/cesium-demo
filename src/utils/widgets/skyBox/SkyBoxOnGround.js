@@ -74,7 +74,7 @@ function SkyBoxOnGround(options) {
 
   this._command = new DrawCommand({
     modelMatrix: Matrix4.clone(Matrix4.IDENTITY),
-    owner: this,
+    owner: this
   });
   this._cubeMap = undefined;
 
@@ -93,13 +93,13 @@ function SkyBoxOnGround(options) {
  * @exception {DeveloperError} this.sources is required and must have positiveX, negativeX, positiveY, negativeY, positiveZ, and negativeZ properties.
  * @exception {DeveloperError} this.sources properties must all be the same type.
  */
- SkyBoxOnGround.prototype.update = function (frameState, useHdr) {
+SkyBoxOnGround.prototype.update = function(frameState, useHdr) {
   var that = this;
 
   if (!this.show) {
     return undefined;
   }
-  console.log
+  console.log;
   if (
     frameState.mode !== SceneMode.SCENE3D &&
     frameState.mode !== SceneMode.MORPHING
@@ -147,7 +147,7 @@ function SkyBoxOnGround(options) {
 
     if (typeof sources.positiveX === "string") {
       // Given urls for cube-map images.  Load them.
-      loadCubeMap(context, this._sources).then(function (cubeMap) {
+      loadCubeMap(context, this._sources).then(function(cubeMap) {
         that._cubeMap = that._cubeMap && that._cubeMap.destroy();
         that._cubeMap = cubeMap;
       });
@@ -155,7 +155,7 @@ function SkyBoxOnGround(options) {
       this._cubeMap = this._cubeMap && this._cubeMap.destroy();
       this._cubeMap = new CubeMap({
         context: context,
-        source: sources,
+        source: sources
       });
     }
   }
@@ -164,18 +164,23 @@ function SkyBoxOnGround(options) {
 
   if (!defined(command.vertexArray)) {
     command.uniformMap = {
-      u_cubeMap: function () {
+      u_cubeMap: function() {
         return that._cubeMap;
       },
       u_rotateMatrix: function() {
-        return (command.modelMatrix = Transforms.eastNorthUpToFixedFrame(frameState.camera._positionWC), Matrix4.getMatrix3(command.modelMatrix,new Matrix3))
+        return (
+          (command.modelMatrix = Transforms.eastNorthUpToFixedFrame(
+            frameState.camera._positionWC
+          )),
+          Matrix4.getMatrix3(command.modelMatrix, new Matrix3())
+        );
       }
     };
 
     var geometry = BoxGeometry.createGeometry(
       BoxGeometry.fromDimensions({
         dimensions: new Cartesian3(2.0, 2.0, 2.0),
-        vertexFormat: VertexFormat.POSITION_ONLY,
+        vertexFormat: VertexFormat.POSITION_ONLY
       })
     );
     var attributeLocations = (this._attributeLocations = GeometryPipeline.createAttributeLocations(
@@ -186,24 +191,24 @@ function SkyBoxOnGround(options) {
       context: context,
       geometry: geometry,
       attributeLocations: attributeLocations,
-      bufferUsage: BufferUsage.STATIC_DRAW,
+      bufferUsage: BufferUsage.STATIC_DRAW
     });
 
     command.renderState = RenderState.fromCache({
-      blending: BlendingState.ALPHA_BLEND,
+      blending: BlendingState.ALPHA_BLEND
     });
   }
 
   if (!defined(command.shaderProgram) || this._useHdr !== useHdr) {
     var fs = new ShaderSource({
       defines: [useHdr ? "HDR" : ""],
-      sources: [SkyBoxFS],
+      sources: [SkyBoxFS]
     });
     command.shaderProgram = ShaderProgram.fromCache({
       context: context,
       vertexShaderSource: SkyBoxVS,
       fragmentShaderSource: fs,
-      attributeLocations: this._attributeLocations,
+      attributeLocations: this._attributeLocations
     });
     this._useHdr = useHdr;
   }
@@ -225,7 +230,7 @@ function SkyBoxOnGround(options) {
  *
  * @see SkyBoxOnGround#destroy
  */
- SkyBoxOnGround.prototype.isDestroyed = function () {
+SkyBoxOnGround.prototype.isDestroyed = function() {
   return false;
 };
 
@@ -245,7 +250,7 @@ function SkyBoxOnGround(options) {
  *
  * @see SkyBoxOnGround#isDestroyed
  */
- SkyBoxOnGround.prototype.destroy = function () {
+SkyBoxOnGround.prototype.destroy = function() {
   var command = this._command;
   command.vertexArray = command.vertexArray && command.vertexArray.destroy();
   command.shaderProgram =

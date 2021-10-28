@@ -1,51 +1,55 @@
-import * as THREE from "three"
+import * as THREE from "three";
 // import * as d3 from 'd3'
-const d3 = Object.assign({}, require("d3-selection"), require("d3-geo"), require("d3-path"))
-
+const d3 = Object.assign(
+  {},
+  require("d3-selection"),
+  require("d3-geo"),
+  require("d3-path")
+);
 
 class InnerGlowMaterial {
-
-    material
-     /**
-     * InnerGlowMaterial构造函数
-     *
-     * @param {JSON} feature Geojson中的一个feature
-     * @param {Object} options 内发光演示参数
-     * @param {Color} options.glowColor 发光色
-     * @param {Number} options.glowColorSize 发光宽度，取值范围[0,1]
-     */
-    constructor(feature, options) {
-        let size = this.computeCanvasSize(feature)
-        let texture = this.createTexture(size)
-        let material = this.createMaterial(texture, options)
-        this.material = material
-    }
-    get material() {
-        return this.material
-    }
-    createMaterial(texture1, options) {
-        let glowColor = options && options.glowColor || new THREE.Color('rgb(255,0,0)')
-        let glowColorSize = options && options.glowColorSize || 0.15
-        let texture = texture1
-        let uniforms = {
-            glowColor: {
-                value: glowColor
-            },
-            glowColorSize: {
-                value: glowColorSize
-            },
-            texture1: {
-                value: texture
-            }
-        }
-        let vertexShader = `
+  material;
+  /**
+   * InnerGlowMaterial构造函数
+   *
+   * @param {JSON} feature Geojson中的一个feature
+   * @param {Object} options 内发光演示参数
+   * @param {Color} options.glowColor 发光色
+   * @param {Number} options.glowColorSize 发光宽度，取值范围[0,1]
+   */
+  constructor(feature, options) {
+    let size = this.computeCanvasSize(feature);
+    let texture = this.createTexture(size);
+    let material = this.createMaterial(texture, options);
+    this.material = material;
+  }
+  get material() {
+    return this.material;
+  }
+  createMaterial(texture1, options) {
+    let glowColor =
+      (options && options.glowColor) || new THREE.Color("rgb(255,0,0)");
+    let glowColorSize = (options && options.glowColorSize) || 0.15;
+    let texture = texture1;
+    let uniforms = {
+      glowColor: {
+        value: glowColor
+      },
+      glowColorSize: {
+        value: glowColorSize
+      },
+      texture1: {
+        value: texture
+      }
+    };
+    let vertexShader = `
             varying vec2 vUv;
             void main(){
                 vUv = uv;
                 gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
-        `
-        let fragmentShader = `
+        `;
+    let fragmentShader = `
             varying vec2 vUv;
             uniform vec3 glowColor;
             uniform float glowColorSize;
@@ -123,89 +127,124 @@ class InnerGlowMaterial {
   
                 gl_FragColor = vec4(glowColor, alpha);
             }
-        `
-        const material = new THREE.ShaderMaterial({
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: uniforms,
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-            
-        });
-        return material
-    }
-    createTexture(size) {
-        let width = size.width
-        let height = size.height
-        let feature = size.feature
-        let path = d3.geoPath().projection(null)
-        let canvas = d3.select("body").append("canvas")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("style", "display: none")
-        // canvas.style.display = "none"
-        let context = canvas.node().getContext('2d')
-        context.translate(width/2, height/2);
-        let canvasPath = path.context(context)
-        context.fillStyle = "rgba(255,0,0)"
-        context.beginPath(); 
-        canvasPath(feature);
-        context.fill();
-        let canvas1 = canvas._groups[0][0]
-        console.log(canvas1)
-        let texture = new THREE.Texture(canvas1)
-        texture.needsUpdate = true
+        `;
+    const material = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      transparent: true,
+      uniforms: uniforms,
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader
+    });
+    return material;
+  }
+  createTexture(size) {
+    let width = size.width;
+    let height = size.height;
+    let feature = size.feature;
+    let path = d3.geoPath().projection(null);
+    let canvas = d3
+      .select("body")
+      .append("canvas")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("style", "display: none");
+    // canvas.style.display = "none"
+    let context = canvas.node().getContext("2d");
+    context.translate(width / 2, height / 2);
+    let canvasPath = path.context(context);
+    context.fillStyle = "rgba(255,0,0)";
+    context.beginPath();
+    canvasPath(feature);
+    context.fill();
+    let canvas1 = canvas._groups[0][0];
+    console.log(canvas1);
+    let texture = new THREE.Texture(canvas1);
+    texture.needsUpdate = true;
 
-        return texture
-    }
-    computeCanvasSize(feature1) {
-        let feature = JSON.stringify(feature1)
-        feature = JSON.parse(feature)
-        let center = this.computeFeatureCenter(feature)
+    return texture;
+  }
+  computeCanvasSize(feature1) {
+    let feature = JSON.stringify(feature1);
+    feature = JSON.parse(feature);
+    let center = this.computeFeatureCenter(feature);
 
+    let length = feature.geometry.coordinates.length;
+    let points_prj = [];
+    let projection = d3
+      .geoMercator()
+      .center(center)
+      .translate([0, 0]);
+    for (let i = 0; i < length; i++) {
+      let points = feature.geometry.coordinates[i][0];
+      points_prj = [];
+      points.forEach(point => {
+        let postPoint = projection(point);
+        points_prj.push([postPoint[0] * 50, postPoint[1] * 50]);
+      });
+      feature.geometry.coordinates[i][0] = points_prj;
+    }
+    let xMax = Math.max(
+      ...points_prj.map(item => {
+        return item[0];
+      })
+    );
+    let xMin = Math.min(
+      ...points_prj.map(item => {
+        return item[0];
+      })
+    );
+    let yMax = Math.max(
+      ...points_prj.map(item => {
+        return item[1];
+      })
+    );
+    let yMin = Math.min(
+      ...points_prj.map(item => {
+        return item[1];
+      })
+    );
+    let width = (xMax - xMin).toFixed(2);
+    let height = (yMax - yMin).toFixed(2);
+    return {
+      width: width,
+      height: height,
+      feature: feature
+    };
+  }
+  computeFeatureCenter(feature) {
+    let coordinateList = [];
+    feature.geometry.coordinates.forEach(coordinate => {
+      coordinate.forEach(points => {
+        coordinateList.push(...points);
+      });
+    });
 
-        let length = feature.geometry.coordinates.length
-        let points_prj = []
-        let projection = d3.geoMercator().center(center).translate([0, 0])
-        for(let i = 0; i < length; i++){
-            let points = feature.geometry.coordinates[i][0]
-            points_prj = []
-            points.forEach(point => {
-                let postPoint = projection(point)
-                points_prj.push([postPoint[0]*50,postPoint[1]*50])
-            })
-            feature.geometry.coordinates[i][0] = points_prj
-        }
-        let xMax = Math.max(...points_prj.map(item => { return item[0] }))
-        let xMin = Math.min(...points_prj.map(item => { return item[0] }))
-        let yMax = Math.max(...points_prj.map(item => { return item[1] }))
-        let yMin = Math.min(...points_prj.map(item => { return item[1] }))
-        let width = (xMax - xMin).toFixed(2)
-        let height = (yMax - yMin).toFixed(2)
-        return {
-            width: width,
-            height: height,
-            feature: feature
-        }
-    }
-    computeFeatureCenter(feature) {
-        let coordinateList = []
-        feature.geometry.coordinates.forEach(coordinate => {
-            coordinate.forEach(points => {
-                coordinateList.push(...points)
-            })
-        })
-        
-        let xMax = Math.max(...coordinateList.map(item => { return item[0] }))
-        let xMin = Math.min(...coordinateList.map(item => { return item[0] }))
-        let yMax = Math.max(...coordinateList.map(item => { return item[1] }))
-        let yMin = Math.min(...coordinateList.map(item => { return item[1] }))
-        //计算最值的另一种方法
-        // let xMax1 = coordinateList.sort((a,b) => { return b[0]-a[0]})[0][0]
-        // let xMin1 = coordinateList.sort((a,b) => { return a[0]-b[0]})[0][0]
-        let center = [(xMax + xMin)/2, (yMax + yMin)/2]
-        return center
-    }
+    let xMax = Math.max(
+      ...coordinateList.map(item => {
+        return item[0];
+      })
+    );
+    let xMin = Math.min(
+      ...coordinateList.map(item => {
+        return item[0];
+      })
+    );
+    let yMax = Math.max(
+      ...coordinateList.map(item => {
+        return item[1];
+      })
+    );
+    let yMin = Math.min(
+      ...coordinateList.map(item => {
+        return item[1];
+      })
+    );
+    //计算最值的另一种方法
+    // let xMax1 = coordinateList.sort((a,b) => { return b[0]-a[0]})[0][0]
+    // let xMin1 = coordinateList.sort((a,b) => { return a[0]-b[0]})[0][0]
+    let center = [(xMax + xMin) / 2, (yMax + yMin) / 2];
+    return center;
+  }
 }
 
-export default InnerGlowMaterial
+export default InnerGlowMaterial;

@@ -27,7 +27,7 @@ export const vertexShader = `
     vSize = size;
     vFadeDistance = 0.5 / size;
   }
-` 
+`;
 
 export const fragmentShader = `
   #include <packing>
@@ -86,4 +86,4 @@ export const fragmentShader = `
     float zFade = calculateFade(fragmentDepth, sceneDepth);
     gl_FragColor.a *= zFade;
   }
-`
+`;

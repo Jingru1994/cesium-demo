@@ -1,4 +1,4 @@
-import { ShaderMaterial } from "three"
+import { ShaderMaterial } from "three";
 
 export default class RefractionMaterial extends ShaderMaterial {
   constructor(options) {
@@ -36,6 +36,6 @@ export default class RefractionMaterial extends ShaderMaterial {
         backfaceMap: { value: options.backfaceMap },
         resolution: { value: options.resolution }
       }
-    })
+    });
   }
 }

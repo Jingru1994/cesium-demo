@@ -1,43 +1,51 @@
-import * as THREE from "three"
-import * as TWEEN from "@tweenjs/tween.js"
-
+import * as THREE from "three";
+import * as TWEEN from "@tweenjs/tween.js";
 
 class PatternShield {
-
-    mesh
-     /**
-     * GradieCircle构造函数
-     *
-     * @param {Object} options 半球样式
-     * @param {Vector3} options.center 半球位置
-     * @param {Number} options.radius 半球半径
-     * @param {Color} options.color 半球颜色
-     */
-    constructor(options) {
-        let radius = options && options.radius || 5
-        let position = options && options.center || new THREE.Vector3(0,0,0)
-        let material = this.createMaterial(options)
-        this.material = material
-        const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, 2*Math.PI, 0, Math.PI/2)
-        let mesh = new THREE.Mesh(geometry,material)
-        mesh.rotation.x = Math.PI / 2
-        mesh.position.copy(position)
-        // mesh.position.set(0,0,this.depth)
-        this.mesh = mesh
-        const tween = new TWEEN.Tween(material.uniforms.offset)
-            .to({value: 1}, 2000)
-            .easing(TWEEN.Easing.Sinusoidal.Out)
-            .repeat(Infinity)
-            .start()
-        console.log(material)
-        this.animate(material)
-    }
-    get mesh() {
-        return this.mesh
-    }
-    createMaterial(options) {
-        let color = (options && options.color) || new THREE.Color('rgb(85,187,237)')
-        let vertex = `
+  mesh;
+  /**
+   * GradieCircle构造函数
+   *
+   * @param {Object} options 半球样式
+   * @param {Vector3} options.center 半球位置
+   * @param {Number} options.radius 半球半径
+   * @param {Color} options.color 半球颜色
+   */
+  constructor(options) {
+    let radius = (options && options.radius) || 5;
+    let position = (options && options.center) || new THREE.Vector3(0, 0, 0);
+    let material = this.createMaterial(options);
+    this.material = material;
+    const geometry = new THREE.SphereGeometry(
+      radius,
+      32,
+      32,
+      0,
+      2 * Math.PI,
+      0,
+      Math.PI / 2
+    );
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = Math.PI / 2;
+    mesh.position.copy(position);
+    // mesh.position.set(0,0,this.depth)
+    this.mesh = mesh;
+    const tween = new TWEEN.Tween(material.uniforms.offset);
+    tween
+      .to({ value: 1 }, 2000)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .repeat(Infinity)
+      .start();
+    console.log(material);
+    this.animate(material);
+  }
+  get mesh() {
+    return this.mesh;
+  }
+  createMaterial(options) {
+    let color =
+      (options && options.color) || new THREE.Color("rgb(85,187,237)");
+    let vertex = `
             varying vec2 vUv;
             varying vec3 vNormal;
             varying vec3 vPositionNormal;
@@ -48,8 +56,8 @@ class PatternShield {
                 vUv = uv;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
-        `
-        let fragment = `
+        `;
+    let fragment = `
             #ifdef GL_ES
             precision mediump float;
             #endif
@@ -100,54 +108,51 @@ class PatternShield {
                 gl_FragColor = vec4(glowColor, opacity);
 
             }
-        `
-        let texture = new THREE.TextureLoader().load(
-            '/images/gradient.png'
-        )
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                backgroundTexture: {          // 用于实现扫描效果的贴图
-                    type: 't', 
-                    value: texture 
-                },
-                offset: {
-                    type: 'f',
-                    value: 0.0  // 扫描的偏移量
-                },
-                time: {
-                    value: 0.0  // 噪声随时间变化
-                },                 
-                glowColor: {
-                    type: 'v3',
-                    value: color
-                },
-                s: { type: "f", value: -1.0},//scale
-                b: { type: "f", value: 1},//bias
-                p: { type: "f", value: 1.0 },//power
-            },
-            vertexShader: vertex,
-            fragmentShader: fragment,
-            side: THREE.DoubleSide,
-            depthWrite: false,
-            transparent: true,
-        })
-        return material
+        `;
+    let texture = new THREE.TextureLoader().load("/images/gradient.png");
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        backgroundTexture: {
+          // 用于实现扫描效果的贴图
+          type: "t",
+          value: texture
+        },
+        offset: {
+          type: "f",
+          value: 0.0 // 扫描的偏移量
+        },
+        time: {
+          value: 0.0 // 噪声随时间变化
+        },
+        glowColor: {
+          type: "v3",
+          value: color
+        },
+        s: { type: "f", value: -1.0 }, //scale
+        b: { type: "f", value: 1 }, //bias
+        p: { type: "f", value: 1.0 } //power
+      },
+      vertexShader: vertex,
+      fragmentShader: fragment,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      transparent: true
+    });
+    return material;
+  }
+  addTo(scene) {
+    scene.add(this.mesh);
+  }
+  animate() {
+    this.material.uniforms.time.value += 0.01;
+    this.start = requestAnimationFrame(this.animate.bind(this));
+    TWEEN.update();
+  }
+  stop() {
+    if (this.start) {
+      cancelAnimationFrame(this.start);
     }
-    addTo(scene) {
-        scene.add(this.mesh)
-    }
-    animate() {
-        this.material.uniforms.time.value += 0.01
-        this.start = requestAnimationFrame(this.animate.bind(this))
-        TWEEN.update()
-
-    }
-    stop() {
-        if(this.start) {
-            cancelAnimationFrame(this.start)
-        }
-        
-    }
+  }
 }
 
-export default PatternShield
+export default PatternShield;

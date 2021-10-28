@@ -1,17 +1,15 @@
 <template>
   <div class="detail-example">
-      <div class="detail-div">{{detailName}}</div>
+    <div class="detail-div">{{ detailName }}</div>
   </div>
-  
 </template>
 
 <script>
-
 export default {
   name: "detail",
   data() {
     return {
-        detailName: ""
+      detailName: ""
     };
   },
   created() {
@@ -19,17 +17,15 @@ export default {
   },
   mounted() {
     console.log("#####################");
-      this.detailName = this.$route.query.data;
-      console.log(this.detailName);
+    this.detailName = this.$route.query.data;
+    console.log(this.detailName);
   },
   beforeDestroy() {},
-  methods: {
-
-  }
+  methods: {}
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .detail-example {
   width: 100%;
   height: 100%;

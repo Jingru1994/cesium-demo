@@ -3,10 +3,10 @@
  * @Date: 2020-01-07 09:00:32
  */
 
-import { Cesium } from '@dc-modules/namespace'
-import Position from '@dc-modules/position/Position'
+import { Cesium } from "@dc-modules/namespace";
+import Position from "@dc-modules/position/Position";
 
-const WMP = new Cesium.WebMercatorProjection()
+const WMP = new Cesium.WebMercatorProjection();
 
 class Transform {
   /**
@@ -18,14 +18,14 @@ class Transform {
     if (cartesian) {
       let cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(
         cartesian
-      )
+      );
       return new Position(
         Cesium.Math.toDegrees(cartographic.longitude),
         Cesium.Math.toDegrees(cartographic.latitude),
         cartographic.height
-      )
+      );
     }
-    return new Position(0, 0)
+    return new Position(0, 0);
   }
 
   /**
@@ -41,7 +41,7 @@ class Transform {
           position.alt,
           Cesium.Ellipsoid.WGS84
         )
-      : Cesium.Cartesian3.ZERO
+      : Cesium.Cartesian3.ZERO;
   }
 
   /**
@@ -56,7 +56,7 @@ class Transform {
           position.lat,
           position.alt
         )
-      : Cesium.Cartographic.ZERO
+      : Cesium.Cartographic.ZERO;
   }
 
   /**
@@ -67,7 +67,7 @@ class Transform {
   static transformCartesianArrayToWGS84Array(cartesianArr) {
     return cartesianArr
       ? cartesianArr.map(item => this.transformCartesianToWGS84(item))
-      : []
+      : [];
   }
 
   /**
@@ -78,7 +78,7 @@ class Transform {
   static transformWGS84ArrayToCartesianArray(WGS84Arr) {
     return WGS84Arr
       ? WGS84Arr.map(item => this.transformWGS84ToCartesian(item))
-      : []
+      : [];
   }
 
   /**
@@ -89,8 +89,8 @@ class Transform {
   static transformWGS84ToMercator(position) {
     let mp = WMP.project(
       Cesium.Cartographic.fromDegrees(position.lng, position.lat, position.alt)
-    )
-    return new Position(mp.x, mp.y, mp.z)
+    );
+    return new Position(mp.x, mp.y, mp.z);
   }
 
   /**
@@ -101,12 +101,12 @@ class Transform {
   static transformMercatorToWGS84(position) {
     let mp = WMP.unproject(
       new Cesium.Cartesian3(position.lng, position.lat, position.alt)
-    )
+    );
     return new Position(
       Cesium.Math.toDegrees(mp.longitude),
       Cesium.Math.toDegrees(mp.latitude),
       mp.height
-    )
+    );
   }
 
   /**
@@ -116,15 +116,15 @@ class Transform {
    * @returns {Position}
    */
   static transformWindowToWGS84(position, viewer) {
-    let scene = viewer.scene
-    let cartesian
+    let scene = viewer.scene;
+    let cartesian;
     if (scene.mode === Cesium.SceneMode.SCENE3D) {
-      let ray = scene.camera.getPickRay(position)
-      cartesian = scene.globe.pick(ray, scene)
+      let ray = scene.camera.getPickRay(position);
+      cartesian = scene.globe.pick(ray, scene);
     } else {
-      cartesian = scene.camera.pickEllipsoid(position, Cesium.Ellipsoid.WGS84)
+      cartesian = scene.camera.pickEllipsoid(position, Cesium.Ellipsoid.WGS84);
     }
-    return this.transformCartesianToWGS84(cartesian)
+    return this.transformCartesianToWGS84(cartesian);
   }
 
   /**
@@ -134,12 +134,12 @@ class Transform {
    * @returns {Cartesian2}
    */
   static transformWGS84ToWindow(position, viewer) {
-    let scene = viewer.scene
+    let scene = viewer.scene;
     return Cesium.SceneTransforms.wgs84ToWindowCoordinates(
       scene,
       this.transformWGS84ToCartesian(position)
-    )
+    );
   }
 }
 
-export default Transform
+export default Transform;

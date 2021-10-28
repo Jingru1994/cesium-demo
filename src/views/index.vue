@@ -1,122 +1,113 @@
 <template>
-    <div class="demo-index">
-        <div class="header">3D Demo</div>
-        <div class="container">
-            <el-row class="total-container">
-                <el-col class="menu-container">
-                    <side-bar
-                        :menu-data="examplesData"
-                        default-active="model"
-                        @on-menu-select="selectMenuHandler">
-                    </side-bar>
-
-                </el-col>
-                <el-col class="example-container" >
-                    <example-list :examples-data="examplesData"></example-list>
-                </el-col>
-
-            </el-row>
-        </div>
+  <div class="demo-index">
+    <div class="header">3D Demo</div>
+    <div class="container">
+      <el-row class="total-container">
+        <el-col class="menu-container">
+          <side-bar
+            :menu-data="examplesData"
+            default-active="model"
+            @on-menu-select="selectMenuHandler"
+          >
+          </side-bar>
+        </el-col>
+        <el-col class="example-container">
+          <example-list :examples-data="examplesData"></example-list>
+        </el-col>
+      </el-row>
     </div>
+  </div>
 </template>
 
 <script>
-import ExampleList from '@/components/Index/ExampleList.vue'
-import SideBar from '@/components/Index/SideBar.vue'
-import {getPublicData} from "@/api/requestData.js";
+import ExampleList from "@/components/Index/ExampleList.vue";
+import SideBar from "@/components/Index/SideBar.vue";
+import { getPublicData } from "@/api/requestData.js";
 export default {
-    components: {
-        ExampleList,
-        SideBar
-    },
-    data() {
-        return {
-            examplesData: []
-        }
-    },
-    methods: {
+  components: {
+    ExampleList,
+    SideBar
+  },
+  data() {
+    return {
+      examplesData: []
+    };
+  },
+  methods: {
     selectMenuHandler(value) {
       if (value) {
-        let el = document.getElementById('nav-' + value)
+        let el = document.getElementById("nav-" + value);
         if (el) {
-            document.querySelector('.example-container').scrollTop = el.offsetTop - 15
+          document.querySelector(".example-container").scrollTop =
+            el.offsetTop - 15;
         }
       }
     },
-        async getExamplesData() {
-            let data = await getPublicData('config/examples.json');
-            this.examplesData = data;
-        },
-    },
-    mounted() {
-        this.$nextTick(() => {
-            this.getExamplesData()
-        })
+    async getExamplesData() {
+      let data = await getPublicData("config/examples.json");
+      this.examplesData = data;
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.getExamplesData();
+    });
   }
-}
+};
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 p {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
-.demo-index{
-    height: 100%;
-    .header{
-        font-size: 26px;
-        font-weight: 900;
-        height: 60px;
-        line-height: 60px;
-        padding: 0 20px;
-        background-color: #001748;
-        color: #ffffff;
-        text-align: left;
+.demo-index {
+  height: 100%;
+  .header {
+    font-size: 26px;
+    font-weight: 900;
+    height: 60px;
+    line-height: 60px;
+    padding: 0 20px;
+    background-color: #001748;
+    color: #ffffff;
+    text-align: left;
+  }
+  .container {
+    height: calc(100% - 60px);
+    background-color: #f7f8fa;
+    .total-container {
+      padding-left: 20px;
+      height: 100%;
     }
-    .container{
-        height: calc(100% - 60px);
-        background-color: #f7f8fa;
-        .total-container{
-            padding-left: 20px;
-            height: 100%;  
-            
-        }
-        .menu-container{
-            height: calc(100% - 40px);
-            padding-top: 20px;
-            padding-left: 10px;
-            margin-top: 20px;
-            background: #fff;
-            -webkit-box-shadow: 2px 2px 2px #c1c1c1;
-            box-shadow: 2px 2px 2px #c1c1c1;
-            border-radius: 10px;
-        }
-        .example-container {
-            padding: 30px;
-            height: 100%;
-            overflow-y: auto;
-        }
-        @media only screen and (max-width: 1199px){
-            .menu-container {
-                display: none!important;
-            }
-        }
-        @media only screen and (min-width: 1200px){
-            .menu-container {
-                width: 12.5%;
-            }
-            .example-container {
-                width: calc(100% - 12.5%);
-            }
-        }
-
-        
+    .menu-container {
+      height: calc(100% - 40px);
+      padding-top: 20px;
+      padding-left: 10px;
+      margin-top: 20px;
+      background: #fff;
+      -webkit-box-shadow: 2px 2px 2px #c1c1c1;
+      box-shadow: 2px 2px 2px #c1c1c1;
+      border-radius: 10px;
     }
+    .example-container {
+      padding: 30px;
+      height: 100%;
+      overflow-y: auto;
+    }
+    @media only screen and (max-width: 1199px) {
+      .menu-container {
+        display: none !important;
+      }
+    }
+    @media only screen and (min-width: 1200px) {
+      .menu-container {
+        width: 12.5%;
+      }
+      .example-container {
+        width: calc(100% - 12.5%);
+      }
+    }
+  }
 }
-
-    
-
-
-
-
 </style>

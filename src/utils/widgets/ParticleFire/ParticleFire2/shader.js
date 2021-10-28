@@ -28,7 +28,7 @@ export const vertexShader = `
     vUv = uv;
     vSize = size;
   }
-` 
+`;
 
 export const fragmentShader = `
   #include <packing>
@@ -54,4 +54,4 @@ export const fragmentShader = `
     gl_FragColor.a *= vBlend;
    
   }
-`
+`;
