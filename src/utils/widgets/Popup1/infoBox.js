@@ -174,7 +174,7 @@ class InfoTool {
       return;
     }
     // 点
-    let position, cartesian3d, inputFeature;
+    let position, cartesian2d, cartesian3d, inputFeature;
     if (options instanceof Cesium3DTileFeature) {
       inputFeature = options;
       options = {};

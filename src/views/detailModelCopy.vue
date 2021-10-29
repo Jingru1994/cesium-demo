@@ -150,9 +150,5 @@ export default {
     background: rgba(0, 0, 0, 0.5);
     text-align: left;
   }
-  .info-box {
-  }
-  .radio-box {
-  }
 }
 </style>

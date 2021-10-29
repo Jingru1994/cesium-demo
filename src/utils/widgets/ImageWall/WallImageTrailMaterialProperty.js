@@ -36,7 +36,7 @@ class WallImageTrailMaterialProperty {
     return this._definitionChanged;
   }
 
-  getType(time) {
+  getType() {
     return Material.WallImageTrailType;
   }
 

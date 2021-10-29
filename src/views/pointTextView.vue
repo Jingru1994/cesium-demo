@@ -8,7 +8,6 @@
 
 <script>
 import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js";
-import widget from "cesium/Widgets/widgets.css";
 
 import { findComponentDownward } from "@/utils/assist.js";
 
