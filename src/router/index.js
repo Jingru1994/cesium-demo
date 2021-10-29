@@ -256,6 +256,12 @@ const routes = [
     name: "test",
     component: () =>
       import(/* webpackChunkName: "test" */ "@/views/detailModel copy.vue")
+  },
+  {
+    path: "/floatText",
+    name: "floatText",
+    component: () =>
+      import(/* webpackChunkName: "test" */ "@/views/sdk/floatTextView.vue")
   }
 ];
 
