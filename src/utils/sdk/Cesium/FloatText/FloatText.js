@@ -10,8 +10,7 @@ import EntityCollection from "cesium/DataSources/EntityCollection.js";
  * 浮动文字
  *
  * @author Dongjingru
- * @date 2021/09/18
- * @alias divGraphic
+ * @alias FloatText
  * @constructor
  * @param {Object} options 参数
  */
