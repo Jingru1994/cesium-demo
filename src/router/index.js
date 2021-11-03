@@ -268,6 +268,12 @@ const routes = [
     name: "sdkFlowLine",
     component: () =>
       import(/* webpackChunkName: "test" */ "@/views/sdk/flowLineView.vue")
+  },
+  {
+    path: "/sdkSlideWall",
+    name: "sdkSlideWall",
+    component: () =>
+      import(/* webpackChunkName: "test" */ "@/views/sdk/slideWallView.vue")
   }
 ];
 
