@@ -274,6 +274,12 @@ const routes = [
     name: "sdkSlideWall",
     component: () =>
       import(/* webpackChunkName: "test" */ "@/views/sdk/slideWallView.vue")
+  },
+  {
+    path: "/sdkScrollWall",
+    name: "sdkScrollWall",
+    component: () =>
+      import(/* webpackChunkName: "test" */ "@/views/sdk/scrollWallView.vue")
   }
 ];
 
