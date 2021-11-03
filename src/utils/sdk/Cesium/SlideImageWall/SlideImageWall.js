@@ -72,7 +72,7 @@ class SlideImageWall {
     return wall;
   }
   static createMaterial(options) {
-    const color = options.color || Color.fromBytes(255, 255, 255);
+    const color = options.color || "rgb(255, 255, 255)";
     const speed = options.speed || 1;
     const repeat = options.repeat || { x: 3, y: 1 };
     const image = options.image || wallImage;

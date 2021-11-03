@@ -17,7 +17,7 @@ export default {
   },
   mounted() {
     this.initViewer();
-    this.addFlowLine(this.roadUrl);
+    this.addSlideWall();
   },
   methods: {
     initViewer() {
@@ -47,7 +47,7 @@ export default {
         }
       });
     },
-    async addFlowLine() {
+    async addSlideWall() {
       let wallEdgeData = [
         [116.386174, 39.920894],
         [116.386593, 39.912187],
