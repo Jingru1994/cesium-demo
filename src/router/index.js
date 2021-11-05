@@ -280,6 +280,12 @@ const routes = [
     name: "sdkScrollWall",
     component: () =>
       import(/* webpackChunkName: "test" */ "@/views/sdk/scrollWallView.vue")
+  },
+  {
+    path: "/sdkHeatmap",
+    name: "sdkHeatmap",
+    component: () =>
+      import(/* webpackChunkName: "test" */ "@/views/sdk/heatMapView.vue")
   }
 ];
 
