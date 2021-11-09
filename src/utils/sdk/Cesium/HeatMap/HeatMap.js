@@ -14,7 +14,7 @@ import h337 from "./heatmap.min.js";
  */
 class HeatMap {
   /**
-   * 创建流动线。
+   * 创建热力图。
    *
    * @param {Object} options 选项。
    * @param {Array} options.positions 生成热力图的数据点集，格式为[[x,y[,value]],...]
