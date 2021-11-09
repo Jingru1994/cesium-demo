@@ -261,31 +261,45 @@ const routes = [
     path: "/sdkFloatText",
     name: "sdkFloatText",
     component: () =>
-      import(/* webpackChunkName: "test" */ "@/views/sdk/floatTextView.vue")
+      import(
+        /* webpackChunkName: "sdkFloatText" */ "@/views/sdk/floatTextView.vue"
+      )
   },
   {
     path: "/sdkFlowLine",
     name: "sdkFlowLine",
     component: () =>
-      import(/* webpackChunkName: "test" */ "@/views/sdk/flowLineView.vue")
+      import(
+        /* webpackChunkName: "sdkFlowLine" */ "@/views/sdk/flowLineView.vue"
+      )
   },
   {
     path: "/sdkSlideWall",
     name: "sdkSlideWall",
     component: () =>
-      import(/* webpackChunkName: "test" */ "@/views/sdk/slideWallView.vue")
+      import(
+        /* webpackChunkName: "sdkSlideWall" */ "@/views/sdk/slideWallView.vue"
+      )
   },
   {
     path: "/sdkScrollWall",
     name: "sdkScrollWall",
     component: () =>
-      import(/* webpackChunkName: "test" */ "@/views/sdk/scrollWallView.vue")
+      import(
+        /* webpackChunkName: "sdkScrollWall" */ "@/views/sdk/scrollWallView.vue"
+      )
   },
   {
     path: "/sdkHeatmap",
     name: "sdkHeatmap",
     component: () =>
-      import(/* webpackChunkName: "test" */ "@/views/sdk/heatMapView.vue")
+      import(/* webpackChunkName: "sdkHeatmap" */ "@/views/sdk/heatMapView.vue")
+  },
+  {
+    path: "/sdkSkybox",
+    name: "sdkSkybox",
+    component: () =>
+      import(/* webpackChunkName: "sdkSkybox" */ "@/views/sdk/customSkyBox.vue")
   }
 ];
 

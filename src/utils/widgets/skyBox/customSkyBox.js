@@ -1,4 +1,5 @@
 import SkyBoxOnGround from "./SkyBoxOnGround.js";
+import SkyBox from "cesium/Scene/SkyBox.js";
 
 // ====================
 // 类
@@ -71,14 +72,14 @@ class CustomSkyBox {
     //     prefix = '/' + prefix.split('/')[1] + '/'
     // }
     // let prefix = process.env.BASE_URL;
-    let duskSkyBox = new SkyBoxOnGround({
+    let duskSkyBox = new SkyBox({
       sources: {
         positiveX: prefix + "Assets/Textures/SkyBox/tycho2t3_80_px.jpg",
-        negativeX: prefix + "Assets/Textures/SkyBox/tycho2t3_80_my.jpg",
-        positiveY: prefix + "Assets/Textures/SkyBox/tycho2t3_80_mz.jpg",
-        negativeY: prefix + "Assets/Textures/SkyBox/tycho2t3_80_px.jpg",
-        positiveZ: prefix + "Assets/Textures/SkyBox/tycho2t3_80_py.jpg",
-        negativeZ: prefix + "Assets/Textures/SkyBox/tycho2t3_80_pz.jpg"
+        negativeX: prefix + "Assets/Textures/SkyBox/tycho2t3_80_mx.jpg",
+        positiveY: prefix + "Assets/Textures/SkyBox/tycho2t3_80_py.jpg",
+        negativeY: prefix + "Assets/Textures/SkyBox/tycho2t3_80_my.jpg",
+        positiveZ: prefix + "Assets/Textures/SkyBox/tycho2t3_80_pz.jpg",
+        negativeZ: prefix + "Assets/Textures/SkyBox/tycho2t3_80_mz.jpg"
       }
     });
     return duskSkyBox;
