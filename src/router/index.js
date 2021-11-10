@@ -300,6 +300,14 @@ const routes = [
     name: "sdkSkybox",
     component: () =>
       import(/* webpackChunkName: "sdkSkybox" */ "@/views/sdk/customSkyBox.vue")
+  },
+  {
+    path: "/sdkTransformModel",
+    name: "sdkTransformModel",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkTransformModel" */ "@/views/sdk/transformModelView.vue"
+      )
   }
 ];
 
