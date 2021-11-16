@@ -308,6 +308,14 @@ const routes = [
       import(
         /* webpackChunkName: "sdkTransformModel" */ "@/views/sdk/transformModelView.vue"
       )
+  },
+  {
+    path: "/sdkInitScene",
+    name: "sdkInitScene",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkInitScene" */ "@/views/sdk/three/createScene.vue"
+      )
   }
 ];
 
