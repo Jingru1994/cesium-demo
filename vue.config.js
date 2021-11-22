@@ -82,6 +82,12 @@ module.exports = {
           to: "resources/ThirdParty/Workers"
         }
       ]),
+      new CopyWebpackPlugin([
+        {
+          from: "./node_modules/three/examples/js/libs/draco/gltf",
+          to: "libs/draco/gltf/"
+        }
+      ]),
       new webpack.DefinePlugin({
         CESIUM_BASE_URL: JSON.stringify("./")
       })
