@@ -27,6 +27,7 @@ class CompositeScene {
    * @param {String} [options.cameraPosition] 相机位置。
    * @param {String} [options.controlType] 控制器类型。
    * @param {String|Array} [options.light] 环境光 颜色|[颜色，光强度]
+   * @param {Function} [options.animateFunction] 在animate中运行的回调函数，主要是动画相关
    */
   constructor(options) {
     if (!options) {
@@ -36,6 +37,7 @@ class CompositeScene {
     this.initScene(options);
     this.initControls(options);
     this.initLight(options);
+    this.animateContent = options.animateFunction;
     this.animate();
   }
   getScene() {
@@ -184,6 +186,7 @@ class CompositeScene {
     //three需要动画循环函数，每一帧都执行这个函数
     this.renderer.render(this.scene, this.camera);
     this.controls.update(this.clock.getDelta());
+    typeof this.animateContent === "function" && this.animateContent();
     this.start = requestAnimationFrame(this.animate.bind(this));
   }
   onWindowResize(renderer, camera) {
