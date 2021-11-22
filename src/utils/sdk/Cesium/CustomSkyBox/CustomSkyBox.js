@@ -45,6 +45,7 @@ class CustomSkyBox {
     if (options.sources) {
       imageSources = options.sources;
     }
+    this.handler = {};
     this.createSkybox(imageSources);
   }
   createSkybox(imageSources) {
@@ -63,40 +64,48 @@ class CustomSkyBox {
     this.defaultSkybox = defaultSkybox;
     this.currentSkybox = this.customSkybox;
   }
-  renderEvent(that) {
-    return function curried_func() {
-      let e = that.viewer.camera.position;
-      if (Cartographic.fromCartesian(e).height < 3000) {
-        that.currentState = "custom";
-      } else {
-        that.currentState = "default";
-      }
-      if (that.currentState !== that.oldState) {
-        console.log("change");
-        if (that.currentState === "custom") {
-          that.viewer.scene.skyBox = that.customSkybox;
-          that.viewer.scene.skyAtmosphere.show = false;
-          that.oldState = "custom";
+  renderEvent(index, that) {
+    return (
+      this.handler[index] ||
+      (this.handler[index] = function() {
+        let e = that.viewer.camera.position;
+        if (Cartographic.fromCartesian(e).height < 3000) {
+          that.currentState = "custom";
         } else {
-          that.viewer.scene.skyBox = that.defaultSkybox;
-          that.viewer.scene.skyAtmosphere.show = true;
-          that.oldState = "default";
+          that.currentState = "default";
         }
-      }
-    };
+        if (that.currentState !== that.oldState) {
+          console.log("change");
+          if (that.currentState === "custom") {
+            that.viewer.scene.skyBox = that.customSkybox;
+            that.viewer.scene.skyAtmosphere.show = false;
+            that.oldState = "custom";
+          } else {
+            that.viewer.scene.skyBox = that.defaultSkybox;
+            that.viewer.scene.skyAtmosphere.show = true;
+            that.oldState = "default";
+          }
+        }
+      })
+    );
   }
   changeSkybox() {}
   setTo(viewer) {
     if (!viewer) return;
     viewer.scene.skyBox = this.customSkybox;
     this.viewer = viewer;
-    viewer.scene.postRender.addEventListener(this.renderEvent(this));
+    viewer.scene.postRender.addEventListener(
+      this.renderEvent("postRender", this)
+    );
   }
   destroy() {
     this.viewer.scene.skyBox = this.defaultSkybox;
     this.viewer.scene.skyAtmosphere.show = true;
     this.customSkybox = null;
-    this.viewer.scene.postRender.removeEventListener(this.renderEvent);
+    this.viewer.scene.postRender.removeEventListener(
+      "postRender",
+      this.renderEvent("postRender")
+    );
   }
 }
 

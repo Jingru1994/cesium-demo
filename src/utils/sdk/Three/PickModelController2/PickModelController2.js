@@ -33,60 +33,66 @@ class PickModelController2 {
 
     this.raycaster = new THREE.Raycaster();
     this.selectedObject = undefined;
+    this.handler = {};
   }
   startPick() {
     this.mouse = new THREE.Vector2();
     const that = this;
-    this.stop = false;
-
-    this.renderer.domElement.addEventListener("pointermove", function _listener(
-      event
-    ) {
-      if (that.stop) {
-        that.renderer.domElement.removeEventListener("pointermove", _listener);
-      } else {
-        that.onPointerMove(event, that);
-      }
-    });
+    this.renderer.domElement.addEventListener(
+      "pointermove",
+      this.onPointerMove("pointermove", that)
+    );
   }
   stopPick() {
-    this.stop = true;
+    this.renderer.domElement.removeEventListener(
+      "pointermove",
+      this.onPointerMove("pointermove")
+    );
   }
   destroy() {
-    this.stop = true;
     this.raycaster = null;
     this.selectedObject = null;
+    this.stopPick();
+    this.handler = null;
   }
 
-  onPointerMove(event, that) {
-    if (event.isPrimary === false) return;
-    that.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    that.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    that.raycaster.setFromCamera(that.mouse, that.camera);
-    const intersects = that.raycaster.intersectObject(that.meshes, true);
+  onPointerMove(index, that) {
+    return (
+      this.handler[index] ||
+      (this.handler[index] = function(event) {
+        if (event.isPrimary === false) return;
+        that.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        that.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        that.raycaster.setFromCamera(that.mouse, that.camera);
+        const intersects = that.raycaster.intersectObject(that.meshes, true);
 
-    if (intersects.length > 0) {
-      if (that.selectedObject && that.selectedObject !== intersects[0].object) {
-        that.selectedObject.material.emissive.set(
-          that.selectedObject.currentHex
-        );
-      }
-      if (
-        !that.selectedObject ||
-        that.selectedObject !== intersects[0].object
-      ) {
-        that.selectedObject = intersects[0].object;
-        that.selectedObject.currentHex = that.selectedObject.material.emissive.getStyle();
-        that.selectedObject.material.emissive.set(that.color);
-      }
-    } else {
-      if (that.selectedObject) {
-        that.selectedObject.material.emissive.set(
-          that.selectedObject.currentHex
-        );
-      }
-      that.selectedObject = null;
-    }
+        if (intersects.length > 0) {
+          if (
+            that.selectedObject &&
+            that.selectedObject !== intersects[0].object
+          ) {
+            that.selectedObject.material.emissive.set(
+              that.selectedObject.currentHex
+            );
+          }
+          if (
+            !that.selectedObject ||
+            that.selectedObject !== intersects[0].object
+          ) {
+            that.selectedObject = intersects[0].object;
+            that.selectedObject.currentHex = that.selectedObject.material.emissive.getStyle();
+            that.selectedObject.material.emissive.set(that.color);
+          }
+        } else {
+          if (that.selectedObject) {
+            that.selectedObject.material.emissive.set(
+              that.selectedObject.currentHex
+            );
+          }
+          that.selectedObject = null;
+        }
+      })
+    );
   }
 }
 export default PickModelController2;

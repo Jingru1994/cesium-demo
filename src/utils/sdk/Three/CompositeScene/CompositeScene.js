@@ -34,6 +34,7 @@ class CompositeScene {
       throw Error("Creating CompositeScene instance must provide options");
     }
     this.clock = new THREE.Clock();
+    this.handler = {};
     this.initScene(options);
     this.initControls(options);
     this.initLight(options);
@@ -98,7 +99,20 @@ class CompositeScene {
     if (needResize) {
       renderer.setSize(width, height, false);
     }
-    window.addEventListener("resize", this.onWindowResize(renderer, camera));
+    this.removeListener = false;
+    // const that = this;
+    debugger;
+    window.addEventListener(
+      "resize",
+      this.onWindowResize("resize", renderer, camera)
+    );
+    // window.addEventListener("resize", function _listener() {
+    //   if (that.removeListener) {
+    //     window.removeEventListener("resize", _listener);
+    //   } else {
+    //     that.onWindowResize(that.renderer, that.camera);
+    //   }
+    // });
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
@@ -189,14 +203,20 @@ class CompositeScene {
     typeof this.animateContent === "function" && this.animateContent();
     this.start = requestAnimationFrame(this.animate.bind(this));
   }
-  onWindowResize(renderer, camera) {
+  onWindowResize(index, renderer, camera) {
+    return (
+      this.handler[index] ||
+      (this.handler[index] = function() {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+      })
+    );
     // this.composer.setSize( window.innerWidth, window.innerHeight )
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
   }
   destroy() {
-    window.removeEventListener("resize", this.onWindowResize);
+    // window.removeEventListener("resize", this.onWindowResize);
+    this.removeListener = true;
     cancelAnimationFrame(this.start);
     this.scene = null;
     this.renderer = null;

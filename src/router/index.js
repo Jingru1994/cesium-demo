@@ -258,6 +258,14 @@ const routes = [
       import(/* webpackChunkName: "test" */ "@/views/detailModel copy.vue")
   },
   {
+    path: "/sdkDetailScene",
+    name: "sdkDetailScene",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkDetailScene" */ "@/views/sdk/detailScene.vue"
+      )
+  },
+  {
     path: "/sdkFloatText",
     name: "sdkFloatText",
     component: () =>
@@ -338,7 +346,7 @@ const routes = [
     name: "sdkPickModel",
     component: () =>
       import(
-        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/pickModel.vue"
+        /* webpackChunkName: "sdkPickModel" */ "@/views/sdk/three/pickModel.vue"
       )
   },
   {
@@ -346,7 +354,7 @@ const routes = [
     name: "sdkPickModel2",
     component: () =>
       import(
-        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/pickModel2.vue"
+        /* webpackChunkName: "sdkPickModel2" */ "@/views/sdk/three/pickModel2.vue"
       )
   }
 ];

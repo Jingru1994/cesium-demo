@@ -42,6 +42,7 @@ class PickModelController {
     this.raycaster = new THREE.Raycaster();
     this.selectedObjects = [];
     this.selectedObject = undefined;
+    this.handler = {};
 
     this.addOutlinePass(outlineOptions);
     this.animate();
@@ -49,55 +50,56 @@ class PickModelController {
   startPick() {
     this.mouse = new THREE.Vector2();
     const that = this;
-    this.stop = false;
+    debugger;
 
     this.renderer.domElement.addEventListener(
       "pointermove",
-      // this.onPointerMove(that)
-      function _listener(event) {
-        if (that.stop) {
-          that.renderer.domElement.removeEventListener(
-            "pointermove",
-            _listener
-          );
-        } else {
-          that.onPointerMove(event, that);
-        }
-      }
+      this.onPointerMove("pointermove", that)
     );
   }
   stopPick() {
-    this.stop = true;
+    this.renderer.domElement.removeEventListener(
+      "pointermove",
+      this.onPointerMove("pointermove")
+    );
   }
   destroy() {
-    this.stop = true;
     this.raycaster = null;
     this.selectedObjects = null;
     this.selectedObject = null;
+    this.stopPick();
+    this.handler = null;
     this.composer.removePass(this.outlinePass);
     this.outlinePass = null;
   }
 
-  onPointerMove(event, that) {
-    if (event.isPrimary === false) return;
-    that.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    that.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    that.raycaster.setFromCamera(that.mouse, that.camera);
-    const intersects = that.raycaster.intersectObject(that.meshes, true);
-    if (intersects.length > 0) {
-      if (
-        !that.selectedObject ||
-        that.selectedObject !== intersects[0].object
-      ) {
-        that.selectedObject = intersects[0].object;
-        that.selectedObjects = [];
-        that.selectedObjects.push(that.selectedObject);
-        that.outlinePass.selectedObjects = that.selectedObjects;
-      }
-    } else {
-      that.selectedObject = null;
-      that.outlinePass.selectedObjects = [];
-    }
+  onPointerMove(index, that) {
+    console.log(this);
+    debugger;
+    return (
+      this.handler[index] ||
+      (this.handler[index] = function(event) {
+        if (event.isPrimary === false) return;
+        that.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        that.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        that.raycaster.setFromCamera(that.mouse, that.camera);
+        const intersects = that.raycaster.intersectObject(that.meshes, true);
+        if (intersects.length > 0) {
+          if (
+            !that.selectedObject ||
+            that.selectedObject !== intersects[0].object
+          ) {
+            that.selectedObject = intersects[0].object;
+            that.selectedObjects = [];
+            that.selectedObjects.push(that.selectedObject);
+            that.outlinePass.selectedObjects = that.selectedObjects;
+          }
+        } else {
+          that.selectedObject = null;
+          that.outlinePass.selectedObjects = [];
+        }
+      })
+    );
   }
 
   addOutlinePass(options) {

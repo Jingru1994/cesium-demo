@@ -44,9 +44,7 @@ class DivGraphic {
     element.innerHTML = html;
     element.style.opacity = 0;
     this.element = element;
-    this.handler = {};
-
-    DivGraphic.addEvents(element, clickEvent, this.handler);
+    DivGraphic.addEvents(element, clickEvent);
   }
   /**
    * 将Div地物标志添加到viewer中显示。
@@ -78,14 +76,7 @@ class DivGraphic {
     this.element.style.opacity = 1;
     const offset = DivGraphic.getOffset(this.element, this.options);
 
-    DivGraphic.hookToGlobe(
-      viewer,
-      this.element,
-      divPosition,
-      offset,
-      true,
-      this.handler
-    );
+    DivGraphic.hookToGlobe(viewer, this.element, divPosition, offset, true);
     // viewer.scene.requestRender();
   }
   /**
@@ -100,15 +91,9 @@ class DivGraphic {
    */
   destroy() {
     console.log("divgraphic destroy");
-    this.element.removeEventListener(
-      "click",
-      DivGraphic.clickEvent("click", this.handler)
-    );
-    this.viewer.scene.preRender.removeEventListener(
-      DivGraphic.moveElement("preRender", this.handler)
-    );
+    this.element.removeEventListener("click", DivGraphic.clickEvent);
+    this.viewer.scene.preRender.removeEventListener(DivGraphic.moveElement);
     this.divGraphicContainer.removeChild(this.element);
-    this.element = null;
   }
   /**
    * div元素点击事件绑定
@@ -116,24 +101,18 @@ class DivGraphic {
    * @param {Element} element 弹窗元素。
    * @param {Func} callback div点击事件的回调函数。
    */
-  static addEvents(element, callback, handler) {
-    element.addEventListener(
-      "click",
-      DivGraphic.clickEvent("click", handler, callback)
-    );
+  static addEvents(element, callback) {
+    element.addEventListener("click", DivGraphic.clickEvent(callback));
   }
   /**
    * div元素点击事件绑定的方法
    *
    * @param {Func} callback div点击事件的回调函数。
    */
-  static clickEvent(index, handler, callback) {
-    return (
-      handler[index] ||
-      (handler[index] = function() {
-        typeof callback === "function" && callback();
-      })
-    );
+  static clickEvent(callback) {
+    return function curried_func() {
+      typeof callback === "function" && callback();
+    };
   }
   /**
    * 获取div元素偏移量
@@ -234,21 +213,12 @@ class DivGraphic {
    * @param {Array} offset 偏移。
    * @param {Boolean} hideOnBehindGlobe 当元素在地球背面会自动隐藏，以减轻判断计算压力。
    */
-  static hookToGlobe(
-    viewer,
-    element,
-    position,
-    offset,
-    hideOnBehindGlobe,
-    handler
-  ) {
+  static hookToGlobe(viewer, element, position, offset, hideOnBehindGlobe) {
     const scene = viewer.scene,
       camera = viewer.camera;
     const cartesian2 = new Cartesian2();
     scene.preRender.addEventListener(
       DivGraphic.moveElement(
-        "preRender",
-        handler,
         scene,
         camera,
         cartesian2,
@@ -271,8 +241,6 @@ class DivGraphic {
    * @param {Boolean} hideOnBehindGlobe 当元素在地球背面会自动隐藏，以减轻判断计算压力。
    */
   static moveElement(
-    index,
-    handler,
     scene,
     camera,
     cartesian2,
@@ -281,33 +249,30 @@ class DivGraphic {
     offset,
     hideOnBehindGlobe
   ) {
-    return (
-      handler[index] ||
-      (handler[index] = function() {
-        const canvasPosition = scene.cartesianToCanvasCoordinates(
-          position,
-          cartesian2
-        ); // 笛卡尔坐标到画布坐标
-        if (defined(canvasPosition)) {
-          element.style.left = parseInt(canvasPosition.x + offset[0]) + "px";
-          element.style.top = parseInt(canvasPosition.y + offset[1]) + "px";
+    return function curried_func() {
+      const canvasPosition = scene.cartesianToCanvasCoordinates(
+        position,
+        cartesian2
+      ); // 笛卡尔坐标到画布坐标
+      if (defined(canvasPosition)) {
+        element.style.left = parseInt(canvasPosition.x + offset[0]) + "px";
+        element.style.top = parseInt(canvasPosition.y + offset[1]) + "px";
 
-          // 是否在地球背面隐藏
-          if (hideOnBehindGlobe) {
-            const cameraPosition = camera.position;
-            let height = scene.globe.ellipsoid.cartesianToCartographic(
-              cameraPosition
-            ).height;
-            height += scene.globe.ellipsoid.maximumRadius;
-            if (!(Cartesian3.distance(cameraPosition, position) > height)) {
-              element.style.display = "flex";
-            } else {
-              element.style.display = "none";
-            }
+        // 是否在地球背面隐藏
+        if (hideOnBehindGlobe) {
+          const cameraPosition = camera.position;
+          let height = scene.globe.ellipsoid.cartesianToCartographic(
+            cameraPosition
+          ).height;
+          height += scene.globe.ellipsoid.maximumRadius;
+          if (!(Cartesian3.distance(cameraPosition, position) > height)) {
+            element.style.display = "flex";
+          } else {
+            element.style.display = "none";
           }
         }
-      })
-    );
+      }
+    };
   }
   /**
    * 根据经纬度获取具有地形高度的地理弧度坐标
