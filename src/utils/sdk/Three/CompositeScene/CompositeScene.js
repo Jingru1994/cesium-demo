@@ -99,20 +99,10 @@ class CompositeScene {
     if (needResize) {
       renderer.setSize(width, height, false);
     }
-    this.removeListener = false;
-    // const that = this;
-    debugger;
     window.addEventListener(
       "resize",
       this.onWindowResize("resize", renderer, camera)
     );
-    // window.addEventListener("resize", function _listener() {
-    //   if (that.removeListener) {
-    //     window.removeEventListener("resize", _listener);
-    //   } else {
-    //     that.onWindowResize(that.renderer, that.camera);
-    //   }
-    // });
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
@@ -215,8 +205,7 @@ class CompositeScene {
     // this.composer.setSize( window.innerWidth, window.innerHeight )
   }
   destroy() {
-    // window.removeEventListener("resize", this.onWindowResize);
-    this.removeListener = true;
+    window.removeEventListener("resize", this.onWindowResize("resize"));
     cancelAnimationFrame(this.start);
     this.scene = null;
     this.renderer = null;
