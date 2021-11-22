@@ -316,6 +316,38 @@ const routes = [
       import(
         /* webpackChunkName: "sdkInitScene" */ "@/views/sdk/three/createScene.vue"
       )
+  },
+  {
+    path: "/sdkLoadModel",
+    name: "sdkLoadModel",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/loadModel.vue"
+      )
+  },
+  {
+    path: "/sdkGradientColor",
+    name: "sdkGradientColor",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/gradientColorPlane.vue"
+      )
+  },
+  {
+    path: "/sdkPickModel",
+    name: "sdkPickModel",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/pickModel.vue"
+      )
+  },
+  {
+    path: "/sdkPickModel2",
+    name: "sdkPickModel2",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkLoadModel" */ "@/views/sdk/three/pickModel2.vue"
+      )
   }
 ];
 
