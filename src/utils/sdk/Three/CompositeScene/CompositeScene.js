@@ -28,6 +28,7 @@ class CompositeScene {
    * @param {String} [options.controlType] 控制器类型。
    * @param {String|Array} [options.light] 环境光 颜色|[颜色，光强度]
    * @param {Function} [options.animateFunction] 在animate中运行的回调函数，主要是动画相关
+   * @param {Boolean} [options.initControls] 在animate中运行的回调函数，主要是动画相关
    */
   constructor(options) {
     if (!options) {
@@ -36,7 +37,12 @@ class CompositeScene {
     this.clock = new THREE.Clock();
     this.handler = {};
     this.initScene(options);
-    this.initControls(options);
+    const isInitControls =
+      typeof options.initControls !== "undefined" ? options.initControls : true;
+    const controlType = options.controlType || "orbit";
+    if (isInitControls) {
+      this.initControls(this.renderer, controlType);
+    }
     this.initLight(options);
     this.animateContent = options.animateFunction;
     this.animate();
@@ -107,46 +113,37 @@ class CompositeScene {
     this.camera = camera;
     this.renderer = renderer;
   }
-  initControls(options) {
-    const type = options.controlType || "orbit";
+  initControls(renderer, controlType) {
+    const rendererDom = renderer.domElement;
+    const type = controlType || "orbit";
     let controls;
     switch (type) {
       default:
-        controls = new OrbitControls(this.camera, this.renderer.domElement);
+        controls = new OrbitControls(this.camera, rendererDom);
         break;
       case "drag":
-        controls = new DragControls(
-          this.objects,
-          this.camera,
-          this.renderer.domElement
-        );
+        controls = new DragControls(this.objects, this.camera, rendererDom);
         break;
       case "first":
-        controls = new FirstPersonControls(
-          this.camera,
-          this.renderer.domElement
-        );
+        controls = new FirstPersonControls(this.camera, rendererDom);
         break;
       case "fly":
-        controls = new FlyControls(this.camera, this.renderer.domElement);
+        controls = new FlyControls(this.camera, rendererDom);
         break;
       case "orbit":
-        controls = new OrbitControls(this.camera, this.renderer.domElement);
+        controls = new OrbitControls(this.camera, rendererDom);
         controls.enableDamping = true;
 
         break;
       case "pointLock":
-        controls = new PointerLockControls(
-          this.camera,
-          this.renderer.domElement
-        );
+        controls = new PointerLockControls(this.camera, rendererDom);
         break;
       case "trackBall":
-        controls = new TrackballControls(this.camera, this.renderer.domElement);
+        controls = new TrackballControls(this.camera, rendererDom);
         controls.enableDamping = true;
         break;
       case "transform":
-        controls = new TransformControls(this.camera, this.renderer.domElement);
+        controls = new TransformControls(this.camera, rendererDom);
         controls.rotateSpeed = 2.0;
         controls.zoomSpeed = 2.0;
         controls.panSpeed = 1.0;
@@ -189,7 +186,10 @@ class CompositeScene {
   animate() {
     //three需要动画循环函数，每一帧都执行这个函数
     this.renderer.render(this.scene, this.camera);
-    this.controls.update(this.clock.getDelta());
+    if (this.controls) {
+      this.controls.update(this.clock.getDelta());
+    }
+
     typeof this.animateContent === "function" && this.animateContent();
     this.start = requestAnimationFrame(this.animate.bind(this));
   }
@@ -207,6 +207,20 @@ class CompositeScene {
   destroy() {
     window.removeEventListener("resize", this.onWindowResize("resize"));
     cancelAnimationFrame(this.start);
+    this.scene.traverse(item => {
+      if (item.isMesh || item instanceof THREE.Sprite) {
+        item.geometry.dispose();
+        if (item.material instanceof Array) {
+          item.material.forEach(material => {
+            material.dispose();
+          });
+        } else {
+          item.material.dispose();
+        }
+      }
+    });
+    THREE.Cache.clear();
+    this.scene.clear();
     this.scene = null;
     this.renderer = null;
     this.camera = null;
