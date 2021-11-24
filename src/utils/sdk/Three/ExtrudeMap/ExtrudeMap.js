@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as d3 from "d3-geo";
-import PickModelController3 from "@/utils/sdk/Three/PickModelController3/PickModelController3.js";
-import Popup from "@/utils/sdk/Three/Popup/Popup.js";
+import PickModelController3 from "../PickModelController3/PickModelController3.js";
+import Popup from "../Popup/Popup.js";
 
 /**
  * 拉伸地图
