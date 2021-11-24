@@ -42,7 +42,10 @@ class CylinderChart {
     let cylinderRadius = (options && options.cylinderRadius) || 5;
     let cylinderHeightScale = (options && options.cylinderHeightScale) || 1;
     let legendOffset = (options && options.legendOffset) || [0, 0, 0];
-    let animate = (options && options.animate) || true;
+    let animate =
+      (options && typeof options.animate !== "undefined"
+        ? options.animate
+        : true) || true;
     let duration = (options && options.animateDuration) || 1000;
 
     this.camera = camera;

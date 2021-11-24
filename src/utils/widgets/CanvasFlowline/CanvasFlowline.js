@@ -12,7 +12,7 @@ class CanvasFlowline {
     this.colorGradient = params.colorGradient; //飞线颜色及渐变比例
     this.length = params.length; //飞线的总体长度
     this.step = params.step || 0; //表示以第几个轨迹点作为起始点绘制飞线动画，默认是第一个
-    this.repeat = params.repeat || true;
+    this.repeat = typeof params.repeat !== "undefined" ? params.repeat : true;
     this.drawTimes = 0;
   }
   draw(ctx) {

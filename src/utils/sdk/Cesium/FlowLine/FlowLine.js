@@ -36,7 +36,9 @@ class FlowLine {
     if (!options) {
       throw Error("Creating FlowLine instance must provide options");
     }
-    const clampToGround = options.clampToGround || true;
+    const clampToGround =
+      options.clampToGround !== "undefined" ? options.clampToGround : true; //默认值为true
+    // const clampToGround = options.clampToGround || false; //默认值为false
     this._positions = FlowLine.processData(options.positions);
     this._width = Number(options.width) || 5;
 
