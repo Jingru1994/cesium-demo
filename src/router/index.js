@@ -356,6 +356,14 @@ const routes = [
       import(
         /* webpackChunkName: "sdkPickModel2" */ "@/views/sdk/three/pickModel2.vue"
       )
+  },
+  {
+    path: "/sdkMap",
+    name: "sdkMap",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkMap" */ "@/views/sdk/three/pickableMap.vue"
+      )
   }
 ];
 
