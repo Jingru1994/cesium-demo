@@ -364,6 +364,12 @@ const routes = [
       import(
         /* webpackChunkName: "sdkMap" */ "@/views/sdk/three/pickableMap.vue"
       )
+  },
+  {
+    path: "/sdkODLine",
+    name: "sdkODLine",
+    component: () =>
+      import(/* webpackChunkName: "sdkODLine" */ "@/views/sdk/three/ODLine.vue")
   }
 ];
 
