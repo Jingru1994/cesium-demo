@@ -14,9 +14,9 @@ class ODLine {
    * @param {Boolean} options.style.isHalf 高亮区域形状
    * @param {Number} options.style.length 高亮部分在飞线总长度占比
    * @param {Number} options.style.lineWidth 线宽
-   * @param {Color} options.style.color 线颜色，只设置一个颜色，line和light是同一色系颜色
-   * @param {Color} options.style.lineColor 线颜色，不设置color时，可分别设置line和light颜色
-   * @param {Color} options.style.lightColor 高亮颜色
+   * @param {String} options.style.color 线颜色，只设置一个颜色，line和light是同一色系颜色
+   * @param {String} options.style.lineColor 线颜色，不设置color时，可分别设置line和light颜色
+   * @param {String} options.style.lightColor 高亮颜色
    * @param {Number} options.style.duration 单个动画持续时间
    * @param {Number} options.style.delay 动画之间延迟
    */
@@ -63,7 +63,6 @@ class ODLine {
   processData(lines) {
     const newLines = [];
     let newLine = {};
-    debugger;
     for (const line of lines) {
       newLine = {};
       newLine.start = new THREE.Vector3(
@@ -118,7 +117,6 @@ class ODLine {
       verticesList.push(item.z);
     });
     const vertices = new Float32Array(verticesList);
-    debugger;
     const meshline = new MeshLine();
     meshline.setPoints(vertices);
     const mesh = new THREE.Mesh(meshline, material);
@@ -130,7 +128,7 @@ class ODLine {
     let lightColor = options.lightColor || "rgba(255,255,255,1)";
     let isHalf = typeof options.isHalf !== "undefined" ? options.isHalf : true;
     let lineWidth = options.lineWidth || 2;
-    let color = options.color || new THREE.Color("rgb(255, 255, 255)");
+    let color = options.color || "rgb(255, 255, 255)";
     const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 1;
@@ -154,7 +152,7 @@ class ODLine {
       lineWidth: lineWidth, // 线宽
       sizeAttenuation: false, // 是否随距离衰减
       transparent: true, // 开启透明度
-      color: color
+      color: new THREE.Color(color)
     });
 
     const width = dom.width;

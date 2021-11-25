@@ -86,7 +86,7 @@ export default {
           isHalf: true,
           length: 0.1,
           lineWidth: 4,
-          color: new THREE.Color("rgb(204, 255, 0)"),
+          color: "rgb(204, 255, 0)",
           duration: 3000,
           delay: 0
         }
