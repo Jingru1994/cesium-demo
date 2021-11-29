@@ -370,6 +370,30 @@ const routes = [
     name: "sdkODLine",
     component: () =>
       import(/* webpackChunkName: "sdkODLine" */ "@/views/sdk/three/ODLine.vue")
+  },
+  {
+    path: "/sdkSpreadCircle",
+    name: "sdkSpreadCircle",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkSpreadCircle" */ "@/views/sdk/three/spreadCircle.vue"
+      )
+  },
+  {
+    path: "/sdkScanCircle",
+    name: "sdkScanCircle",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkScanCircle" */ "@/views/sdk/three/scanCircle.vue"
+      )
+  },
+  {
+    path: "/sdkPatternShield",
+    name: "sdkPatternShield",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkPartternShield" */ "@/views/sdk/three/patternShield.vue"
+      )
   }
 ];
 
