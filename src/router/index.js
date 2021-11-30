@@ -394,6 +394,14 @@ const routes = [
       import(
         /* webpackChunkName: "sdkPartternShield" */ "@/views/sdk/three/patternShield.vue"
       )
+  },
+  {
+    path: "/sdkCurveMove",
+    name: "sdkCurveMove",
+    component: () =>
+      import(
+        /* webpackChunkName: "sdkCurveMove" */ "@/views/sdk/three/curveMove.vue"
+      )
   }
 ];
 
