@@ -1,30 +1,27 @@
 <template>
   <div class="cesium-index">
     <cesium-viewer :showTerrain="showTerrain">
-      <tileset-photogrammetry
+      <!-- <tileset-photogrammetry
         :url="photogrammetryUrl"
         @readyPromise="zoomToTiles"
-      ></tileset-photogrammetry>
+      ></tileset-photogrammetry> -->
       <!-- <tileset-monomer
-                :url="monomerUrl"
-                :show="isMonomerShow"
-            ></tileset-monomer>
-            <primitive-geojson
-                :url="geojsonUrl"
-                :show="isGeojsonShow"
-            >
-            </primitive-geojson> -->
-      <entity-point v-if="showPoint" :url="pointUrl" heightType="3dtiles">
+        :url="monomerUrl"
+        :show="isMonomerShow"
+      ></tileset-monomer> -->
+      <!-- <primitive-geojson :url="geojsonUrl" :show="isGeojsonShow">
+      </primitive-geojson> -->
+      <entity-point v-if="showPoint" :url="pointUrl" heightType="terrain">
       </entity-point>
     </cesium-viewer>
-    <div class="toolbar">
+    <!-- <div class="toolbar">
       <div class="info-box">模型：{{ dataId }}</div>
       <div>单体化类型：</div>
       <div class="radio-box">
         <input type="radio" name="type" v-model="type" value="geojson" />geojson
         <input type="radio" name="type" v-model="type" value="tiles" />3dtiles
       </div>
-    </div>
+    </div> -->
 
     <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
       <span>{{ dataId }}</span>
@@ -44,7 +41,7 @@ import * as Cesium from "@/../node_modules/cesium/Source/Cesium.js";
 import { findComponentDownward } from "@/utils/assist.js";
 
 import CesiumViewer from "@/components/cesiumViewer.vue";
-import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry2.vue";
+// import TilesetPhotogrammetry from "@/components/tilesetPhotogrammetry2.vue";
 import EntityPoint from "@/components/entityPoint2.vue";
 // import TilesetMonomer from "@/components/tilesetMonomer.vue";
 // import PrimitiveGeojson from "@/components/primitiveGeojson.vue";
@@ -53,7 +50,7 @@ export default {
   name: "DetialModelView",
   components: {
     CesiumViewer,
-    TilesetPhotogrammetry,
+    // TilesetPhotogrammetry,
     // TilesetMonomer,
     // PrimitiveGeojson,
     EntityPoint
@@ -61,7 +58,9 @@ export default {
   data() {
     return {
       isDialogVisible: false,
-      photogrammetryUrl: "http://139.219.1.146/ce/tileset.json",
+      // photogrammetryUrl: "http://139.219.1.146/ce/tileset.json",
+      photogrammetryUrl:
+        "https://breed.agri.hcmis.net/breedStatic/ce/tileset.json",
       monomerUrl: "http://192.168.40.26/file/farm-entity7/tileset.json",
       geojsonUrl: "data/farm_wgs84.geojson",
       type: "tiles",
@@ -73,7 +72,7 @@ export default {
   },
   mounted() {
     this.viewer = findComponentDownward(this, "cesiumViewer").viewer;
-    // this.initCamera()
+    this.initCamera();
   },
   destroyed() {
     this.showPoint = false;
@@ -108,16 +107,17 @@ export default {
       this.setDialogVisible(false);
     },
     initCamera() {
+      this.showPoint = true;
       let cartesianPosition = new Cesium.Cartesian3(
-        -6222983.759138448,
-        19996854.06201183,
-        14011193.373091104
+        -2340452.1021444867,
+        5325425.356876558,
+        2607544.2910345327
       );
       this.viewer.camera.setView({
         destination: cartesianPosition,
         orientation: {
           heading: 0.0, // east, default value is 0.0 (north)
-          pitch: Cesium.Math.toRadians(-90), // default value (looking down)
+          pitch: Cesium.Math.toRadians(-23.71), // default value (looking down)
           roll: 0.0 // default value
         }
       });

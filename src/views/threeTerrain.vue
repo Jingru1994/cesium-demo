@@ -8,8 +8,8 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-// import DistrictTerrain from '@/utils/widgets/Terrain/DistrictTerrain.js'
-import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrainCopy.js";
+import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrain.js";
+// import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrainCopy.js";
 import { getPublicData } from "@/api/requestData.js";
 import * as d3 from "d3-geo";
 
@@ -27,8 +27,8 @@ export default {
     this.initControls();
     this.initLight();
 
-    // this.addTerrain()
-    this.addTerrain1();
+    this.addTerrain();
+    // this.addTerrain1();
 
     this.addClickListener();
 
@@ -91,9 +91,9 @@ export default {
 
       //调整camera视角
       camera.position.set(
-        -5.14709175470227,
-        -90.88794574377549,
-        49.01484670950189
+        -4.025961174328703,
+        64.68049465988572,
+        91.83877121577603
       );
 
       console.log(camera);
@@ -124,9 +124,9 @@ export default {
         controls = new OrbitControls(this.camera, this.renderer.domElement);
       }
       controls.target.set(
-        -3.860896027475691,
-        -5.413075060127793,
-        -9.888948486188504
+        -1.7073951515135204,
+        -12.370792980039933,
+        3.121498692070242
       );
       this.controls = controls;
     },
@@ -287,6 +287,8 @@ export default {
         diffuseTexture: diffuseTexture
       };
       const terrain = new DistrictTerrain(options).mesh;
+      terrain.rotation.x = -Math.PI / 2;
+      this.terrain = terrain;
       this.scene.add(terrain);
     }
   }

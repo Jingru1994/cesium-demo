@@ -61,7 +61,7 @@ export default {
           console.log("click callback, type:", type);
           // that.$emit("pointClick", property);
         };
-        const infoDivGraphic = new DivGraphic({
+        const options = {
           position: coord,
           heightType: HeightType.TILES,
           html: html,
@@ -70,7 +70,14 @@ export default {
           xOffset: -30,
           yOffset: 0,
           clickEvent: clickEvent
-        });
+        };
+        if (this.heightType === "3dtiles") {
+          options.heightType = HeightType.TILES;
+        } else if (this.heightType === "terrain") {
+          options.heightType = HeightType.TERRAIN;
+        }
+        const infoDivGraphic = new DivGraphic(options);
+
         // const infoDiv = infoDivGraphic.getElement();
         this.divInfoList.push(infoDivGraphic);
         infoDivGraphic.addTo(viewer);

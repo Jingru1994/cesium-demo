@@ -12,6 +12,8 @@ import { TrackballControls } from "three/examples/jsm/controls/TrackballControls
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
 import * as d3 from "d3";
 import * as TWEEN from "@tweenjs/tween.js";
@@ -442,7 +444,7 @@ export default {
       );
       const that = this;
 
-      const loader = new THREE.FontLoader();
+      const loader = new FontLoader();
       loader.load("threeFonts/Microsoft YaHei_Bold.json", function(font) {
         bj_point.forEach(function(item) {
           let text = item.properties.NAME;
@@ -455,7 +457,7 @@ export default {
             position[1],
             that.depth + 0.05
           );
-          const geometry = new THREE.TextGeometry(text, {
+          const geometry = new TextGeometry(text, {
             font: font,
             size: 0.45,
             height: 0.01,
@@ -479,7 +481,7 @@ export default {
             position[1],
             that.depth + 0.05
           );
-          const geometry = new THREE.TextGeometry(text, {
+          const geometry = new TextGeometry(text, {
             font: font,
             size: 0.45,
             height: 0.01,
@@ -504,7 +506,7 @@ export default {
             position[1],
             that.depth + 0.05
           );
-          const geometry = new THREE.TextGeometry(text, {
+          const geometry = new TextGeometry(text, {
             font: font,
             size: 0.8,
             height: 0.01,
