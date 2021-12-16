@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import GradientCircle from "@/utils/widgets/GradientCircle/GradientCircle.js";
 import SpreadCircle from "@/utils/widgets/SpreadCircle/SpreadCircle.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 // var TWEEN = require('@tweenjs/tween.js')
 
 class ColumnCircleMark {
@@ -173,7 +175,7 @@ class ColumnCircleMark {
     let group = options.group;
     let height = options.height;
     let loadedFont;
-    let fontLoad = new THREE.FontLoader();
+    let fontLoad = new FontLoader();
     fontLoad.load("threeFonts/fashionBold_Regular.json", response => {
       loadedFont = response;
       let textOptions = {
@@ -182,7 +184,7 @@ class ColumnCircleMark {
         size: height * 0.13,
         height: height * 0.013
       };
-      let textGeometry = new THREE.TextGeometry(text, textOptions);
+      let textGeometry = new TextGeometry(text, textOptions);
       let material1 = new THREE.MeshBasicMaterial({
         color: new THREE.Color("rgb(242,242,242)")
       });
