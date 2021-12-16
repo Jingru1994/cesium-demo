@@ -402,6 +402,12 @@ const routes = [
       import(
         /* webpackChunkName: "sdkCurveMove" */ "@/views/sdk/three/curveMove.vue"
       )
+  },
+  {
+    path: "/threeSvg",
+    name: "threeSvg",
+    component: () =>
+      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeSvg.vue")
   }
 ];
 
