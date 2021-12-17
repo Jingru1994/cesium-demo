@@ -1,0 +1,17 @@
+.three-popup-label {
+    --padding-width: 10px;
+    padding: 10px 15px;
+    background-color: rgba(54, 54, 54, 0.6);
+    color: #fff;
+}
+.three-popup-label::after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: calc( 100% );
+    left: calc(50% - var(--padding-width));
+    border-color: rgba(54, 54, 54, 0.6) transparent transparent transparent;
+    border-width: 10px;
+    border-style: solid;
+}

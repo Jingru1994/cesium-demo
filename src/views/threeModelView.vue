@@ -79,7 +79,9 @@ export default {
     this.addState();
     this.initControls();
     this.initLight();
-    this.loadModels();
+    this.loadOBJModel();
+    this.loadGLTFModel("/model/Testobj/guangzhou.gltf");
+    // this.loadModels();
     this.animate();
     // this.loadFBXModel()
   },
@@ -591,18 +593,21 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/Vase-obj.mtl", materials => {
+      mtlLoader.load("/model/test/中国.mtl", materials => {
+        // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
         //obj的模型会和MaterialCreator包含的材质对应起来
         loader.setMaterials(materials);
         loader.load(
           // resource URL
-          "/model/Vase-obj.obj",
+          // "/model/guangzhou.obj",
+          "/model/test/中国.obj",
           // called when resource is loaded
           object => {
             console.log(this);
             this.scene.add(object);
+            this.adjustModel(object);
             this.model = object;
             return object;
           },

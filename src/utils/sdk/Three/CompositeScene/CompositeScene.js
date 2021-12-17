@@ -64,11 +64,14 @@ class CompositeScene {
   }
   initScene(options) {
     const canvas = options.container;
-    const color = options.backgroundColor || 0xd6d6d6;
     const fog = options.fog;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(color);
+    if (options.backgroundColor) {
+      const color = options.backgroundColor || 0xd6d6d6;
+      scene.background = new THREE.Color(color);
+    }
+
     if (fog) {
       scene.fog =
         fog instanceof Array
