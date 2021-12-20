@@ -33,7 +33,11 @@ export default {
     this.addState();
     this.initControls();
     this.initLight();
-    this.loadSvg();
+    const group = await this.loadSvg();
+    setTimeout(() => {
+      this.getPosition(group);
+    }, 5000);
+
     this.addPickObject();
 
     this.addClickListener();
@@ -201,59 +205,71 @@ export default {
       this.camera.updateProjectionMatrix();
     },
     loadSvg() {
-      // instantiate a loader
-      const loader = new SVGLoader();
+      const p = new Promise(resolve => {
+        const loader = new SVGLoader();
 
-      // load a SVG resource
-      loader.load(
-        // resource URL
-        "data/china.svg",
-        // called when the resource is loaded
-        data => {
-          const paths = data.paths;
-          const group = new THREE.Group();
+        // load a SVG resource
+        loader.load(
+          // resource URL
+          "data/china.svg",
+          // called when the resource is loaded
+          data => {
+            const paths = data.paths;
+            const group = new THREE.Group();
 
-          for (let i = 0; i < paths.length; i++) {
-            const path = paths[i];
+            for (let i = 0; i < paths.length; i++) {
+              const path = paths[i];
 
-            const material = new THREE.MeshBasicMaterial({
-              // color: new THREE.Color(
-              //   Math.random() * 0.5 + 0.5,
-              //   Math.random() * 0.8 + 0.2,
-              //   0.0
-              // ),
-              color: 0x19bf9e,
-              side: THREE.DoubleSide,
-              depthWrite: false,
-              transparent: true,
-              opacity: 0
-            });
+              const material = new THREE.MeshBasicMaterial({
+                color: 0x19bf9e,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                transparent: true,
+                opacity: 0
+              });
 
-            const shapes = SVGLoader.createShapes(path);
+              const shapes = SVGLoader.createShapes(path);
 
-            for (let j = 0; j < shapes.length; j++) {
-              const shape = shapes[j];
-              const geometry = new THREE.ShapeGeometry(shape);
-              const mesh = new THREE.Mesh(geometry, material);
-              mesh.name = path.userData.node.id;
-              group.add(mesh);
+              for (let j = 0; j < shapes.length; j++) {
+                const shape = shapes[j];
+                const geometry = new THREE.ShapeGeometry(shape);
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.name = path.userData.node.id;
+                mesh.number = 10;
+                mesh.orderNum = 10;
+                mesh.sales = 10;
+                group.add(mesh);
+              }
             }
+
+            group.rotation.x = Math.PI / 2;
+            this.adjustModel(group);
+            this.scene.add(group);
+            this.map = group;
+            console.log(group);
+            resolve(group);
+          },
+          // called when loading is in progresses
+          function(xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+          },
+          // called when loading has errors
+          function(error) {
+            console.log("An error happened", error);
           }
-          console.log(group);
-          group.rotation.x = Math.PI / 2;
-          this.adjustModel(group);
-          this.scene.add(group);
-          this.map = group;
-        },
-        // called when loading is in progresses
-        function(xhr) {
-          console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-        },
-        // called when loading has errors
-        function(error) {
-          console.log("An error happened", error);
-        }
-      );
+        );
+      });
+      return p;
+      // instantiate a loader
+    },
+    getPosition(group) {
+      let positionArray = {};
+      for (let object of group.children) {
+        let position = object.geometry.boundingSphere.center;
+        let key = object.name;
+        positionArray[key] = [position.x, position.y, position.z];
+      }
+      console.log(positionArray);
     },
     addPickObject() {
       const that = this;
@@ -336,7 +352,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    height: 872.72px;
+    height: 100%;
   }
   .videoDiv {
     position: fixed;
