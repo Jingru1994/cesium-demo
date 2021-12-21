@@ -82,26 +82,28 @@ class Popup {
     return this.#labelRenderer;
   }
   addTo(object) {
-    this.province.innerText = object.name;
-    this.number.innerText = "TOP " + object.number;
-    this.orderNum.innerText = object.orderNum + "万笔";
-    this.sales.innerText = object.sales + "万元";
-    let position = object.geometry.boundingSphere.center;
-    this.label.position.x = position.x;
-    this.label.position.y = position.y;
-    this.label.position.z = position.z;
-    object.add(this.label);
-    this.label.element.classList.add("hover");
-    this.#labelLine.classList.add("hover");
-    this.#labelPanel.classList.add("hover");
-    this.textContent.classList.add("hover");
+    this.remove();
+    setTimeout(() => {
+      this.province.innerText = object.name;
+      this.number.innerText = "TOP " + object.number;
+      this.orderNum.innerText = object.orderNum + "万笔";
+      this.sales.innerText = object.sales + "万元";
+      let position = object.geometry.boundingSphere.center;
+      this.label.position.x = position.x;
+      this.label.position.y = position.y;
+      this.label.position.z = position.z;
+      object.add(this.label);
+      this.label.element.classList.add("hover");
+      this.#labelLine.classList.add("hover");
+      this.#labelPanel.classList.add("hover");
+      this.textContent.classList.add("hover");
+    }, 500);
   }
-  removeFrom(object) {
+  remove() {
     this.label.element.classList.remove("hover");
     this.#labelLine.classList.remove("hover");
     this.#labelPanel.classList.remove("hover");
     this.textContent.classList.remove("hover");
-    object.remove(this.label);
   }
   onWindowResize() {
     this.#labelRenderer.setSize(window.innerWidth, window.innerHeight);

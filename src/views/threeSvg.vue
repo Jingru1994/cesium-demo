@@ -311,7 +311,7 @@ export default {
           if (selectedObject) {
             tween.stop();
             selectedObject.material.opacity = 0;
-            popup.removeFrom(selectedObject);
+            popup.remove();
           }
 
           selectedObject = null;
