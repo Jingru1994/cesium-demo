@@ -80,7 +80,7 @@ export default {
     this.initControls();
     this.initLight();
     this.loadOBJModel();
-    this.loadGLTFModel("/model/Testobj/guangzhou.gltf");
+    // this.loadGLTFModel("/model/Testobj/guangzhou.gltf");
     // this.loadModels();
     this.animate();
     // this.loadFBXModel()
@@ -593,7 +593,7 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/test/中国.mtl", materials => {
+      mtlLoader.load("/model/map/地图_深色.mtl", materials => {
         // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
@@ -602,7 +602,7 @@ export default {
         loader.load(
           // resource URL
           // "/model/guangzhou.obj",
-          "/model/test/中国.obj",
+          "/model/map/地图_深色.obj",
           // called when resource is loaded
           object => {
             console.log(this);

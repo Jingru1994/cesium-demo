@@ -89,6 +89,7 @@ class Popup {
       this.orderNum.innerText = object.orderNum + "万笔";
       this.sales.innerText = object.sales + "万元";
       let position = object.geometry.boundingSphere.center;
+      console.log(position);
       this.label.position.x = position.x;
       this.label.position.y = position.y;
       this.label.position.z = position.z;
