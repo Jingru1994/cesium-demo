@@ -84,6 +84,7 @@ export default {
     // this.loadModels();
     this.animate();
     // this.loadFBXModel()
+    this.addClickListener();
   },
   beforeDestroy() {
     cancelAnimationFrame(this.animate);
@@ -117,11 +118,17 @@ export default {
     }
   },
   methods: {
+    addClickListener() {
+      this.renderer.domElement.addEventListener("click", () => {
+        console.log(this.camera);
+        console.log(this.controls);
+      });
+    },
     initScene() {
       const scene = new THREE.Scene();
       this.scene = scene;
       scene.background = new THREE.Color(0xa0a0a0);
-      scene.fog = new THREE.Fog("#04613b", 300, 500);
+      // scene.fog = new THREE.Fog("#04613b", 300, 500);
       // scene.fog = new THREE.Fog( 0x04613b, 300, 500);
       const canvas = document.querySelector("#three");
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -135,7 +142,11 @@ export default {
         2000
       );
       this.camera = camera;
-      camera.position.set(0, 0, 150); //camera默认放在中心点(0,0,0)，挪一下位置
+      camera.position.set(
+        250.66260682992876,
+        -23.24176248772048,
+        -49.1537904128702
+      ); //camera默认放在中心点(0,0,0)，挪一下位置
 
       // 避免模型很模糊的现象
       let width = window.innerWidth;
@@ -192,9 +203,17 @@ export default {
       this.scene.add(grid);
 
       // ground
+      const texture = new THREE.TextureLoader().load("images/world2.png");
+      const texture1 = new THREE.TextureLoader().load("bumpMap.png");
       const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(1000, 1000),
-        new THREE.MeshPhongMaterial({ color: "#045B3A", depthWrite: false })
+        new THREE.PlaneGeometry(819, 409),
+        new THREE.MeshPhongMaterial({
+          transparent: true,
+          // depthWrite: false,
+          map: texture,
+          bumpMap: texture1,
+          bumpScale: 10
+        })
       );
       ground.rotation.x = -Math.PI / 2;
       ground.position.y = this.yOffset;
@@ -292,81 +311,81 @@ export default {
       //   });
 
       //渐变颜色有阴影，且受fog影响
-      let groundMaterial3 = new THREE.ShaderMaterial({
-        fog: true,
-        lights: true,
-        uniforms: THREE.UniformsUtils.merge([
-          THREE.UniformsLib["lights"],
-          {
-            opacity: { type: "f", value: 1.0 }
-          },
-          {
-            color1: { value: new THREE.Color("#046A3B") }
-          },
-          {
-            color2: { value: new THREE.Color("#022A29") }
-          },
-          {
-            shadowPower: { value: 0.5 }
-          },
-          {
-            fogColor: { type: "c", value: this.scene.fog.color }
-          },
-          {
-            fogNear: { type: "f", value: this.scene.fog.near }
-          },
-          {
-            fogFar: { type: "f", value: this.scene.fog.far }
-          }
-        ]),
-        vertexShader: [
-          "varying vec2 vUv;",
-          "varying vec3 vPosition;",
-          THREE.ShaderChunk["common"],
-          // THREE.ShaderChunk[ "packing" ],
-          THREE.ShaderChunk["bsdfs"],
-          THREE.ShaderChunk["shadowmap_pars_vertex"],
-          "void main() {",
-          "   vUv = uv;",
-          "   vPosition = position;",
-          THREE.ShaderChunk["beginnormal_vertex"],
-          THREE.ShaderChunk["defaultnormal_vertex"],
-          THREE.ShaderChunk["begin_vertex"],
-          THREE.ShaderChunk["project_vertex"],
-          THREE.ShaderChunk["worldpos_vertex"],
-          THREE.ShaderChunk["shadowmap_vertex"],
-          "}"
-        ].join("\n"),
-        fragmentShader: [
-          THREE.ShaderChunk["common"],
-          THREE.ShaderChunk["packing"],
-          THREE.ShaderChunk["bsdfs"],
-          THREE.ShaderChunk["lights_pars_begin"],
-          THREE.ShaderChunk["shadowmap_pars_fragment"],
-          THREE.ShaderChunk["shadowmask_pars_fragment"],
-          "uniform float opacity;",
-          "uniform vec3 color1;",
-          "uniform vec3 color2;",
-          "uniform float shadowPower;",
-          "varying vec2 vUv;",
-          "uniform vec3 fogColor;",
-          "uniform float fogNear;",
-          "uniform float fogFar;",
-          "void main() {",
-          "   gl_FragColor = vec4(mix(color1, color2, vUv.y)*(getShadowMask()==0.0?shadowPower:1.0), 1.0);",
-          "   #ifdef USE_FOG",
-          "       #ifdef USE_LOGDEPTHBUF_EXT",
-          "           float depth = gl_FragDepthEXT / gl_FragCoord.w;",
-          "       #else",
-          "           float depth = gl_FragCoord.z / gl_FragCoord.w;",
-          "       #endif",
-          //smoothstep(edge1,edge2,x)输出0至1平滑函数
-          "       float fogFactor = smoothstep( fogNear, fogFar, depth );",
-          "       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor);",
-          "   #endif",
-          "}"
-        ].join("\n")
-      });
+      // let groundMaterial3 = new THREE.ShaderMaterial({
+      //   fog: true,
+      //   lights: true,
+      //   uniforms: THREE.UniformsUtils.merge([
+      //     THREE.UniformsLib["lights"],
+      //     {
+      //       opacity: { type: "f", value: 1.0 }
+      //     },
+      //     {
+      //       color1: { value: new THREE.Color("#046A3B") }
+      //     },
+      //     {
+      //       color2: { value: new THREE.Color("#022A29") }
+      //     },
+      //     {
+      //       shadowPower: { value: 0.5 }
+      //     },
+      //     {
+      //       fogColor: { type: "c", value: this.scene.fog.color }
+      //     },
+      //     {
+      //       fogNear: { type: "f", value: this.scene.fog.near }
+      //     },
+      //     {
+      //       fogFar: { type: "f", value: this.scene.fog.far }
+      //     }
+      //   ]),
+      //   vertexShader: [
+      //     "varying vec2 vUv;",
+      //     "varying vec3 vPosition;",
+      //     THREE.ShaderChunk["common"],
+      //     // THREE.ShaderChunk[ "packing" ],
+      //     THREE.ShaderChunk["bsdfs"],
+      //     THREE.ShaderChunk["shadowmap_pars_vertex"],
+      //     "void main() {",
+      //     "   vUv = uv;",
+      //     "   vPosition = position;",
+      //     THREE.ShaderChunk["beginnormal_vertex"],
+      //     THREE.ShaderChunk["defaultnormal_vertex"],
+      //     THREE.ShaderChunk["begin_vertex"],
+      //     THREE.ShaderChunk["project_vertex"],
+      //     THREE.ShaderChunk["worldpos_vertex"],
+      //     THREE.ShaderChunk["shadowmap_vertex"],
+      //     "}"
+      //   ].join("\n"),
+      //   fragmentShader: [
+      //     THREE.ShaderChunk["common"],
+      //     THREE.ShaderChunk["packing"],
+      //     THREE.ShaderChunk["bsdfs"],
+      //     THREE.ShaderChunk["lights_pars_begin"],
+      //     THREE.ShaderChunk["shadowmap_pars_fragment"],
+      //     THREE.ShaderChunk["shadowmask_pars_fragment"],
+      //     "uniform float opacity;",
+      //     "uniform vec3 color1;",
+      //     "uniform vec3 color2;",
+      //     "uniform float shadowPower;",
+      //     "varying vec2 vUv;",
+      //     "uniform vec3 fogColor;",
+      //     "uniform float fogNear;",
+      //     "uniform float fogFar;",
+      //     "void main() {",
+      //     "   gl_FragColor = vec4(mix(color1, color2, vUv.y)*(getShadowMask()==0.0?shadowPower:1.0), 1.0);",
+      //     "   #ifdef USE_FOG",
+      //     "       #ifdef USE_LOGDEPTHBUF_EXT",
+      //     "           float depth = gl_FragDepthEXT / gl_FragCoord.w;",
+      //     "       #else",
+      //     "           float depth = gl_FragCoord.z / gl_FragCoord.w;",
+      //     "       #endif",
+      //     //smoothstep(edge1,edge2,x)输出0至1平滑函数
+      //     "       float fogFactor = smoothstep( fogNear, fogFar, depth );",
+      //     "       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor);",
+      //     "   #endif",
+      //     "}"
+      //   ].join("\n")
+      // });
 
       //具有阴影的材质，报错，不能用，大概是较低版本的thrre
       //与可用的阴影相似，但是引用three内置shader的方式明显不同
@@ -413,7 +432,7 @@ export default {
       //     // wireframe: true
       //   });
       ground.receiveShadow = true;
-      ground.material = groundMaterial3;
+      // ground.material = groundMaterial3;
       this.scene.add(ground);
     },
     initControls() {
@@ -593,7 +612,7 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/map/地图_深色.mtl", materials => {
+      mtlLoader.load("/model/晶格.mtl", materials => {
         // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
@@ -602,10 +621,10 @@ export default {
         loader.load(
           // resource URL
           // "/model/guangzhou.obj",
-          "/model/map/地图_深色.obj",
+          "/model/晶格.obj",
           // called when resource is loaded
           object => {
-            console.log(this);
+            console.log(object);
             this.scene.add(object);
             this.adjustModel(object);
             this.model = object;
