@@ -1,6 +1,7 @@
 <template>
   <div class="three-view">
     <div class="videoDiv">
+      <!-- <img :src="imgUrl" width="100%" /> -->
       <video id="myVideo" muted :autoplay="true" width="100%">
         <source :src="videoUrl" type="video/mp4" />
       </video>
@@ -19,13 +20,21 @@ import Popup from "@/utils/widgets/Popup3/Popup.js";
 import GlowCylinder from "@/utils/widgets/GlowCylinder/GlowCylinder.js";
 import { getPublicData } from "@/api/requestData.js";
 import exampleData from "@/utils/saleData.js";
+const d3 = Object.assign(
+  {},
+  require("d3-scale"),
+  require("d3-geo"),
+  require("d3-array")
+);
 
 export default {
   name: "ThreeTerrain",
   data() {
     return {
-      videoUrl: "images/大屏.mp4",
-      autoPlay: true
+      // videoUrl: "images/大屏.mp4",
+      videoUrl: "images/background.mp4",
+      autoPlay: true,
+      imgUrl: "images/daping4.png"
     };
   },
   created() {},
@@ -34,12 +43,12 @@ export default {
 
     this.initScene();
     this.addState();
-    // this.initControls();
+    this.initControls();
     this.initLight();
     const group = await this.loadSvg();
-    setTimeout(() => {
-      this.getPosition(group);
-    }, 5000);
+    // setTimeout(() => {
+    //   this.getPosition(group);
+    // }, 5000);
     this.saleData = exampleData;
     this.createCylinder();
     this.addPickObject();
@@ -88,9 +97,9 @@ export default {
               const material = new THREE.MeshBasicMaterial({
                 color: 0x19bf9e,
                 side: THREE.DoubleSide,
-                depthWrite: false,
+                // depthWrite: false,
                 transparent: true,
-                opacity: 0
+                opacity: 0.0
               });
 
               const shapes = SVGLoader.createShapes(path);
@@ -103,6 +112,7 @@ export default {
                 mesh.number = 10;
                 mesh.orderNum = 10;
                 mesh.sales = 10;
+                mesh.renderOrder = 1;
                 group.add(mesh);
               }
             }
@@ -186,11 +196,12 @@ export default {
       console.log(heightScale);
       const glowCylinders = new GlowCylinder(
         this.saleData.slice(0, 10),
+        // this.saleData,
         maxHeight
       );
       // this.adjustModel(glowCylinders.mesh);
       // glowCylinders.mesh.rotation.x = Math.PI;
-      glowCylinders.mesh.renderOrder = 4;
+      glowCylinders.mesh.renderOrder = 5;
       console.log(glowCylinders.mesh);
       this.scene.add(glowCylinders.mesh);
     },
@@ -203,7 +214,9 @@ export default {
       let popup = new Popup(this.scene, this.camera, container);
       console.log(popup);
       let labelRenderer = popup.getCSS2DRenderer();
+      this.labelRenderer = labelRenderer;
       this.initControls(labelRenderer);
+      this.cameraAnimate();
       labelRenderer.domElement.addEventListener("mousemove", onPointerMove);
       // this.renderer.domElement.addEventListener("mousemove", onPointerMove);
       that.selectedObjectOpacity = { opacity: 0 };
@@ -245,7 +258,6 @@ export default {
     },
     adjustModel(model) {
       console.log(model.position);
-      debugger;
       const box = new THREE.Box3().setFromObject(model);
       console.log(box);
       const center = box.getCenter(new THREE.Vector3());
@@ -264,8 +276,117 @@ export default {
       //   }
       // });
     },
+    cameraAnimate() {
+      const tween1 = new TWEEN.Tween({
+        x: 708.569373736083,
+        y: 1293.2483716584538,
+        z: 1936.7612571467962
+      });
+      tween1
+        .to(
+          {
+            x: 951.040053269789,
+            y: 1507.7788779093792,
+            z: 1975.2679489045959
+          },
+          1270
+        )
+        .onUpdate(p => {
+          if (p.x < 951.04) {
+            this.camera.position.set(p.x, p.y, p.z);
+          }
+        })
+        .easing(TWEEN.Easing.Linear.None)
+        .onStart(() => {
+          new TWEEN.Tween(this.controls.target)
+            .to(
+              {
+                x: 58.061901138074084,
+                y: 111.11438637580264,
+                z: -56.89248118282435
+              },
+              1270
+            )
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
+        })
+        .delay(1380);
+      // .start();
+      const tween2 = new TWEEN.Tween(this.camera.position);
+      tween2
+        .to(
+          {
+            x: 708.569373736083,
+            y: 1293.2483716584538,
+            z: 1936.7612571467962
+          },
+          530
+        )
+        .easing(TWEEN.Easing.Linear.None)
+        .onStart(() => {
+          new TWEEN.Tween(this.controls.target)
+            .to(
+              {
+                x: 58.39330816859741,
+                y: 112.74491116323573,
+                z: -53.401049659041696
+              },
+              530
+            )
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
+        });
+      const tween3 = new TWEEN.Tween({
+        x: 708.569373736083,
+        y: 1293.2483716584538,
+        z: 1936.7612571467962
+      });
+      tween3
+        .to(
+          {
+            x: 435.49052266841977,
+            y: 1093.8240573808364,
+            z: 1871.6423196139076
+          },
+          1350
+        )
+        .onUpdate(p => {
+          if (p.x < 951.04) {
+            this.camera.position.set(p.x, p.y, p.z);
+            console.log(this.camera.position);
+          }
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onStart(() => {
+          new TWEEN.Tween({
+            x: 58.39330816859741,
+            y: 112.74491116323573,
+            z: -53.401049659041696
+          })
+            .to(
+              {
+                x: 33.774593525336,
+                y: 86.06120954559883,
+                z: -34.27155109992084
+              },
+              1350
+            )
+            .onUpdate(p => {
+              if (p.x > 33.7745) {
+                this.controls.target.set(p.x, p.y, p.z);
+              }
+            })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        })
+        .delay(3250)
+        .start();
+      // tween1.chain(tween2);
+      // tween1.chain(tween3);
+      // tween1.chain(tween2.chain(tween3));
+    },
     addClickListener() {
-      this.renderer.domElement.addEventListener("click", () => {
+      this.labelRenderer.domElement.addEventListener("click", () => {
         console.log(this.camera);
         console.log(this.controls);
       });
@@ -282,22 +403,38 @@ export default {
       });
       this.renderer = renderer;
       renderer.shadowMap.enabled = true;
-      renderer.autoClear = false;
-      // renderer.sortObject = false
+      // renderer.autoClear = false;
+      // renderer.sortObjects = false;
       //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
       const camera = new THREE.PerspectiveCamera(
         25.5,
         1920 / 872.72,
-        -12000,
-        1000
+        0.1,
+        5000
       );
       this.camera = camera;
 
+      // camera.position.set(0, 0, 1500);
+      // camera.position.set(
+      //   776.0798790340208,
+      //   1348.7896454491106,
+      //   1941.053236756071
+      // );
       camera.position.set(
-        433.4546738920335,
-        1092.3373155675602,
-        1871.1568469792544
+        708.569373736083,
+        1293.2483716584538,
+        1936.7612571467962
       );
+      // camera.position.set(
+      //   1385.594408054556,
+      //   1825.0719427934841,
+      //   2091.318077574983
+      // );
+      // camera.position.set(
+      //   433.4546738920335,
+      //   1092.3373155675602,
+      //   1871.1568469792544
+      // );
       // camera.position.set(0, 0, 2000);
 
       // 避免模型很模糊的现象
@@ -325,12 +462,29 @@ export default {
       } else {
         controls = new OrbitControls(this.camera, this.renderer.domElement);
       }
-      controls.zoomSpeed = 0.5;
+      controls.zoomSpeed = 0.2;
+      controls.enableDamping = true;
+
+      // controls.target.set(
+      //   59.68466868034465,
+      //   112.89691857807067,
+      //   -53.53974136460041
+      // );
       controls.target.set(
-        33.695560733839194,
-        85.97554758245946,
-        -34.2101401898482
+        58.39330816859741,
+        112.74491116323573,
+        -53.401049659041696
       );
+      // controls.target.set(
+      //   11.709659521568963,
+      //   66.5938256577859,
+      //   -0.6950996027366432
+      // );
+      // controls.target.set(
+      //   33.695560733839194,
+      //   85.97554758245946,
+      //   -34.2101401898482
+      // );
       this.controls = controls;
       // this.controls.enabled = false;
     },
@@ -346,9 +500,9 @@ export default {
     },
     initDirectionalLight() {
       //方向光
-      const dirLight = new THREE.DirectionalLight("#fff", 0.5);
+      const dirLight = new THREE.DirectionalLight("#fff", 0.1);
       //光源位置
-      dirLight.position.set(20, 40, 15);
+      dirLight.position.set(0, 1000, 0);
       //可以产生阴影
       dirLight.castShadow = true;
       dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
@@ -385,6 +539,7 @@ export default {
       this.controls.update(this.clock.getDelta()); //TrackballControls
 
       const time = this.clock.getElapsedTime();
+      // console.log(time);
       if (this.refractor) {
         this.refractor.material.uniforms.time.value = time;
       }
