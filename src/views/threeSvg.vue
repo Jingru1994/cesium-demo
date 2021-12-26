@@ -11,7 +11,6 @@
 </template>
 <script>
 import * as THREE from "three";
-import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 
@@ -20,12 +19,6 @@ import Popup from "@/utils/widgets/Popup3/Popup.js";
 import GlowCylinder from "@/utils/widgets/GlowCylinder/GlowCylinder.js";
 import { getPublicData } from "@/api/requestData.js";
 import exampleData from "@/utils/saleData.js";
-const d3 = Object.assign(
-  {},
-  require("d3-scale"),
-  require("d3-geo"),
-  require("d3-array")
-);
 
 export default {
   name: "ThreeTerrain",
@@ -40,25 +33,23 @@ export default {
   created() {},
   async mounted() {
     this.clock = new THREE.Clock();
+    this.handler = {};
 
     this.initScene();
-    this.addState();
-    this.initControls();
     this.initLight();
-    const group = await this.loadSvg();
-    // setTimeout(() => {
-    //   this.getPosition(group);
-    // }, 5000);
+    await this.loadSvg();
     this.saleData = exampleData;
     this.createCylinder();
-    this.addPickObject();
-
-    this.addClickListener();
+    this.createPopup();
+    this.cameraAnimate();
+    // this.addClickListener();
     this.animate();
   },
   beforeDestroy() {
     cancelAnimationFrame(this.myAnimate);
     window.removeEventListener("resize", this.onWindowResize);
+    window.removeEventListener("mousemove", this.onPointerMove("mousemove"));
+    this.handler = null;
     this.scene.traverse(item => {
       if (item.isMesh || item instanceof THREE.Sprite) {
         item.geometry.dispose();
@@ -81,8 +72,6 @@ export default {
     loadSvg() {
       const p = new Promise(resolve => {
         const loader = new SVGLoader();
-
-        // load a SVG resource
         loader.load(
           // resource URL
           "data/china.svg",
@@ -93,16 +82,13 @@ export default {
 
             for (let i = 0; i < paths.length; i++) {
               const path = paths[i];
-
+              const shapes = SVGLoader.createShapes(path);
               const material = new THREE.MeshBasicMaterial({
                 color: 0x19bf9e,
                 side: THREE.DoubleSide,
-                // depthWrite: false,
                 transparent: true,
                 opacity: 0.0
               });
-
-              const shapes = SVGLoader.createShapes(path);
 
               for (let j = 0; j < shapes.length; j++) {
                 const shape = shapes[j];
@@ -112,7 +98,7 @@ export default {
                 mesh.number = 10;
                 mesh.orderNum = 10;
                 mesh.sales = 10;
-                mesh.renderOrder = 1;
+                // mesh.renderOrder = 0;
                 group.add(mesh);
               }
             }
@@ -121,15 +107,12 @@ export default {
 
             this.scene.add(group);
             this.map = group;
-            console.log(group);
             resolve(group);
           },
-          // called when loading is in progresses
-          function(xhr) {
+          xhr => {
             console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
           },
-          // called when loading has errors
-          function(error) {
+          error => {
             console.log("An error happened", error);
           }
         );
@@ -185,76 +168,129 @@ export default {
         // data.sales = Number(data.sales);
         data.number = Number(data.number);
       }
-      const maxSale = Math.max(
-        ...this.saleData.map(item => {
-          return item.sales;
-        })
-      );
       const maxHeight = 120;
-      const heightScale = maxSale / maxHeight;
-      console.log(this.saleData);
-      console.log(heightScale);
+      const container = document.querySelector(".three-view");
       const glowCylinders = new GlowCylinder(
         this.saleData.slice(0, 10),
         // this.saleData,
-        maxHeight
+        maxHeight,
+        container,
+        this.scene,
+        this.camera
       );
       // this.adjustModel(glowCylinders.mesh);
       // glowCylinders.mesh.rotation.x = Math.PI;
-      glowCylinders.mesh.renderOrder = 5;
-      console.log(glowCylinders.mesh);
+      // glowCylinders.mesh.renderOrder = 0;
       this.scene.add(glowCylinders.mesh);
+      // this.initControls(glowCylinders.labelRenderer);
+      // this.labelRenderer = glowCylinders.labelRenderer;
+      // this.scene.add(glowCylinders.labels);
+      // console.log(glowCylinders.labels);
     },
-    addPickObject() {
+    pickCylinder() {
       const that = this;
       const raycaster = new THREE.Raycaster();
       let selectedObject;
 
+      that.selectedObjectOpacity = { opacity: 0 };
+      const tween = new TWEEN.Tween(that.selectedObjectOpacity);
+      this.labelRenderer.domElement.addEventListener(
+        "mousemove",
+        this.onPointerMove(
+          "mousemove",
+          that,
+          raycaster,
+          tween,
+          selectedObject,
+          that.popup
+        )
+      );
+    },
+    createPopup() {
       const container = document.querySelector(".three-view");
-      let popup = new Popup(this.scene, this.camera, container);
-      console.log(popup);
+      const popup = new Popup(this.scene, this.camera, container);
+      const textContent = popup.getTextContent();
+      const topDiv = document.createElement("div");
+      topDiv.className = "topDiv";
+      textContent.appendChild(topDiv);
+      const province = document.createElement("div");
+      province.className = "text province";
+      topDiv.appendChild(province);
+      const number = document.createElement("div");
+      number.className = "text number ";
+      topDiv.appendChild(number);
+      const orderDiv = document.createElement("div");
+      orderDiv.className = "bottomDiv";
+      textContent.appendChild(orderDiv);
+      const orderField = document.createElement("div");
+      orderField.className = "text orderNum field";
+      orderField.innerText = "订单数量";
+      orderDiv.appendChild(orderField);
+      const orderNum = document.createElement("div");
+      orderNum.className = "text orderNum value";
+      orderDiv.appendChild(orderNum);
+      const salesDiv = document.createElement("div");
+      salesDiv.className = "bottomDiv";
+      textContent.appendChild(salesDiv);
+      const salesField = document.createElement("div");
+      salesField.className = "text sales field";
+      salesField.innerText = "销售额";
+      salesDiv.appendChild(salesField);
+      const sales = document.createElement("div");
+      sales.className = "text sales value";
+      salesDiv.appendChild(sales);
+
+      function callback(object) {
+        province.innerText = object.name;
+        number.innerText = "TOP " + object.number;
+        orderNum.innerText = object.orderNum + "万笔";
+        sales.innerText = object.sales + "万元";
+      }
+      popup.setAddCallback(callback);
+
       let labelRenderer = popup.getCSS2DRenderer();
       this.labelRenderer = labelRenderer;
       this.initControls(labelRenderer);
-      this.cameraAnimate();
-      labelRenderer.domElement.addEventListener("mousemove", onPointerMove);
-      // this.renderer.domElement.addEventListener("mousemove", onPointerMove);
-      that.selectedObjectOpacity = { opacity: 0 };
-      const tween = new TWEEN.Tween(that.selectedObjectOpacity);
-      function onPointerMove(event) {
-        let mouse = new THREE.Vector2();
-        if (event.isPrimary === false) return;
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      this.popup = popup;
+    },
+    onPointerMove(index, that, raycaster, tween, selectedObject, popup) {
+      return (
+        this.handler[index] ||
+        (this.handler[index] = function(event) {
+          let mouse = new THREE.Vector2();
+          if (event.isPrimary === false) return;
+          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        raycaster.setFromCamera(mouse, that.camera);
-        const intersects = raycaster.intersectObject(that.map, true);
+          raycaster.setFromCamera(mouse, that.camera);
+          const intersects = raycaster.intersectObject(that.map, true);
 
-        if (intersects.length > 0) {
-          if (selectedObject && selectedObject !== intersects[0].object) {
-            tween.stop();
-            selectedObject.material.opacity = 0;
-          }
-          if (!selectedObject || selectedObject !== intersects[0].object) {
-            selectedObject = intersects[0].object;
-            that.selectedObject = selectedObject;
-            tween
-              .to({ opacity: 0.8 }, 500)
-              .easing(TWEEN.Easing.Sinusoidal.InOut)
-              .start();
-            popup.addTo(selectedObject);
-          }
-        } else {
-          if (selectedObject) {
-            tween.stop();
-            selectedObject.material.opacity = 0;
-            popup.remove();
-          }
+          if (intersects.length > 0) {
+            if (selectedObject && selectedObject !== intersects[0].object) {
+              tween.stop();
+              selectedObject.material.opacity = 0;
+            }
+            if (!selectedObject || selectedObject !== intersects[0].object) {
+              selectedObject = intersects[0].object;
+              that.selectedObject = selectedObject;
+              tween
+                .to({ opacity: 0.8 }, 500)
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .start();
+              popup.addTo(selectedObject);
+            }
+          } else {
+            if (selectedObject) {
+              tween.stop();
+              selectedObject.material.opacity = 0;
+              popup.remove();
+            }
 
-          selectedObject = null;
-          that.selectedObject = null;
-        }
-      }
+            selectedObject = null;
+            that.selectedObject = null;
+          }
+        })
+      );
     },
     adjustModel(model) {
       console.log(model.position);
@@ -277,71 +313,12 @@ export default {
       // });
     },
     cameraAnimate() {
-      const tween1 = new TWEEN.Tween({
+      const tween = new TWEEN.Tween({
         x: 708.569373736083,
         y: 1293.2483716584538,
         z: 1936.7612571467962
       });
-      tween1
-        .to(
-          {
-            x: 951.040053269789,
-            y: 1507.7788779093792,
-            z: 1975.2679489045959
-          },
-          1270
-        )
-        .onUpdate(p => {
-          if (p.x < 951.04) {
-            this.camera.position.set(p.x, p.y, p.z);
-          }
-        })
-        .easing(TWEEN.Easing.Linear.None)
-        .onStart(() => {
-          new TWEEN.Tween(this.controls.target)
-            .to(
-              {
-                x: 58.061901138074084,
-                y: 111.11438637580264,
-                z: -56.89248118282435
-              },
-              1270
-            )
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-        })
-        .delay(1380);
-      // .start();
-      const tween2 = new TWEEN.Tween(this.camera.position);
-      tween2
-        .to(
-          {
-            x: 708.569373736083,
-            y: 1293.2483716584538,
-            z: 1936.7612571467962
-          },
-          530
-        )
-        .easing(TWEEN.Easing.Linear.None)
-        .onStart(() => {
-          new TWEEN.Tween(this.controls.target)
-            .to(
-              {
-                x: 58.39330816859741,
-                y: 112.74491116323573,
-                z: -53.401049659041696
-              },
-              530
-            )
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-        });
-      const tween3 = new TWEEN.Tween({
-        x: 708.569373736083,
-        y: 1293.2483716584538,
-        z: 1936.7612571467962
-      });
-      tween3
+      tween
         .to(
           {
             x: 435.49052266841977,
@@ -350,10 +327,12 @@ export default {
           },
           1350
         )
+        .onComplete(() => {
+          this.pickCylinder();
+        })
         .onUpdate(p => {
           if (p.x < 951.04) {
             this.camera.position.set(p.x, p.y, p.z);
-            console.log(this.camera.position);
           }
         })
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -369,7 +348,7 @@ export default {
                 y: 86.06120954559883,
                 z: -34.27155109992084
               },
-              1350
+              1500
             )
             .onUpdate(p => {
               if (p.x > 33.7745) {
@@ -381,9 +360,6 @@ export default {
         })
         .delay(3250)
         .start();
-      // tween1.chain(tween2);
-      // tween1.chain(tween3);
-      // tween1.chain(tween2.chain(tween3));
     },
     addClickListener() {
       this.labelRenderer.domElement.addEventListener("click", () => {
@@ -394,7 +370,6 @@ export default {
     initScene() {
       const scene = new THREE.Scene();
       this.scene = scene;
-      // scene.background = new THREE.Color(0x333333);
       const canvas = document.querySelector("#three");
       const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -402,42 +377,21 @@ export default {
         alpha: true
       });
       this.renderer = renderer;
-      renderer.shadowMap.enabled = true;
-      // renderer.autoClear = false;
-      // renderer.sortObjects = false;
-      //PerspectiveCamera(fov:Number 视野角度, aspect:Number 横纵比, near:Number 近面, far:Number远面) 透视摄像机
+      renderer.shadowMap.enabled = false;
+
       const camera = new THREE.PerspectiveCamera(
         25.5,
         1920 / 872.72,
         0.1,
         5000
       );
-      this.camera = camera;
-
-      // camera.position.set(0, 0, 1500);
-      // camera.position.set(
-      //   776.0798790340208,
-      //   1348.7896454491106,
-      //   1941.053236756071
-      // );
       camera.position.set(
         708.569373736083,
         1293.2483716584538,
         1936.7612571467962
       );
-      // camera.position.set(
-      //   1385.594408054556,
-      //   1825.0719427934841,
-      //   2091.318077574983
-      // );
-      // camera.position.set(
-      //   433.4546738920335,
-      //   1092.3373155675602,
-      //   1871.1568469792544
-      // );
-      // camera.position.set(0, 0, 2000);
+      this.camera = camera;
 
-      // 避免模型很模糊的现象
       let width = window.innerWidth;
       let height = window.innerHeight;
       let canvasPixelWidth = canvas.width / window.devicePixelRatio;
@@ -449,12 +403,6 @@ export default {
       }
       window.addEventListener("resize", this.onWindowResize);
     },
-    addState() {
-      let state = new Stats();
-      this.state = state;
-      const container = document.querySelector(".three-view");
-      container.appendChild(state.dom);
-    },
     initControls(renderer) {
       let controls;
       if (renderer) {
@@ -464,33 +412,18 @@ export default {
       }
       controls.zoomSpeed = 0.2;
       controls.enableDamping = true;
+      // controls.enabled = false;
 
-      // controls.target.set(
-      //   59.68466868034465,
-      //   112.89691857807067,
-      //   -53.53974136460041
-      // );
       controls.target.set(
         58.39330816859741,
         112.74491116323573,
         -53.401049659041696
       );
-      // controls.target.set(
-      //   11.709659521568963,
-      //   66.5938256577859,
-      //   -0.6950996027366432
-      // );
-      // controls.target.set(
-      //   33.695560733839194,
-      //   85.97554758245946,
-      //   -34.2101401898482
-      // );
+
       this.controls = controls;
-      // this.controls.enabled = false;
     },
     initLight() {
       this.initAmbientLight();
-      // this.initPointLight()
       this.initDirectionalLight();
     },
     initAmbientLight() {
@@ -519,14 +452,6 @@ export default {
       // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
       // this.scene.add(debugCamera1)
     },
-    initPointLight() {
-      const pointLight = new THREE.PointLight(0xffffff, 0.5, 200);
-      pointLight.position.set(50, 50, 0);
-      this.scene.add(pointLight);
-      // 显示阴影
-      // const debugCamera = new THREE.CameraHelper(pointLight.shadow.camera)
-      // this.scene.add(debugCamera)
-    },
     animate() {
       //three需要动画循环函数，每一帧都执行这个函数
       TWEEN.update();
@@ -535,16 +460,12 @@ export default {
       }
 
       this.renderer.render(this.scene, this.camera);
-
-      this.controls.update(this.clock.getDelta()); //TrackballControls
-
-      const time = this.clock.getElapsedTime();
-      // console.log(time);
-      if (this.refractor) {
-        this.refractor.material.uniforms.time.value = time;
+      if (this.controls) {
+        this.controls.update(this.clock.getDelta()); //TrackballControls
       }
 
-      this.state.update();
+      // const time = this.clock.getElapsedTime();
+
       this.myAnimate = requestAnimationFrame(this.animate);
     },
     onWindowResize() {

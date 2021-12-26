@@ -2,7 +2,6 @@ import {
   CSS2DRenderer,
   CSS2DObject
 } from "@/utils/widgets/CSS2DRenderer/CSS2DRenderer.js";
-import * as THREE from "three";
 import "./popup.css";
 
 class Popup {
@@ -29,6 +28,9 @@ class Popup {
     });
     this.animate();
   }
+  getTextContent() {
+    return this.textContent;
+  }
   createHtmlElement() {
     const labelDiv = document.createElement("div");
     labelDiv.className = "three-popup-label";
@@ -43,35 +45,6 @@ class Popup {
     this.textContent = document.createElement("div");
     this.textContent.className = "text-content";
     labelPanel.appendChild(this.textContent);
-    const topDiv = document.createElement("div");
-    topDiv.className = "topDiv";
-    this.textContent.appendChild(topDiv);
-    this.province = document.createElement("div");
-    this.province.className = "text province";
-    topDiv.appendChild(this.province);
-    this.number = document.createElement("div");
-    this.number.className = "text number ";
-    topDiv.appendChild(this.number);
-    const orderDiv = document.createElement("div");
-    orderDiv.className = "bottomDiv";
-    this.textContent.appendChild(orderDiv);
-    const orderField = document.createElement("div");
-    orderField.className = "text orderNum field";
-    orderField.innerText = "订单数量";
-    orderDiv.appendChild(orderField);
-    this.orderNum = document.createElement("div");
-    this.orderNum.className = "text orderNum value";
-    orderDiv.appendChild(this.orderNum);
-    const salesDiv = document.createElement("div");
-    salesDiv.className = "bottomDiv";
-    this.textContent.appendChild(salesDiv);
-    const salesField = document.createElement("div");
-    salesField.className = "text sales field";
-    salesField.innerText = "销售额";
-    salesDiv.appendChild(salesField);
-    this.sales = document.createElement("div");
-    this.sales.className = "text sales value";
-    salesDiv.appendChild(this.sales);
 
     this.#labelPanel = labelPanel;
 
@@ -81,18 +54,15 @@ class Popup {
   getCSS2DRenderer() {
     return this.#labelRenderer;
   }
+  setAddCallback(callback) {
+    this.callback = callback;
+  }
   addTo(object) {
     this.remove();
     setTimeout(() => {
-      this.province.innerText = object.name;
-      this.number.innerText = "TOP " + object.number;
-      this.orderNum.innerText = object.orderNum + "万笔";
-      this.sales.innerText = object.sales + "万元";
+      typeof this.callback === "function" && this.callback(object);
       let position = object.geometry.boundingSphere.center;
-      console.log(position);
-      this.label.position.x = position.x;
-      this.label.position.y = position.y;
-      this.label.position.z = position.z;
+      this.label.position.copy(position);
       object.add(this.label);
       this.label.element.classList.add("hover");
       this.#labelLine.classList.add("hover");
