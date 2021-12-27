@@ -22,6 +22,12 @@ import exampleData from "@/utils/saleData.js";
 
 export default {
   name: "ThreeTerrain",
+  props: {
+    saleList: {
+      type: Array,
+      require: true
+    }
+  },
   data() {
     return {
       // videoUrl: "images/大屏.mp4",
@@ -37,9 +43,9 @@ export default {
 
     this.initScene();
     this.initLight();
+    this.saleData = this.saleList;
     await this.loadSvg();
-    this.saleData = exampleData;
-    this.createCylinder();
+    this.createCylinder(3250, 4000);
     this.createPopup();
     this.cameraAnimate();
     // this.addClickListener();
@@ -94,10 +100,14 @@ export default {
                 const shape = shapes[j];
                 const geometry = new THREE.ShapeGeometry(shape);
                 const mesh = new THREE.Mesh(geometry, material);
-                mesh.name = path.userData.node.id;
-                mesh.number = 10;
-                mesh.orderNum = 10;
-                mesh.sales = 10;
+                const data = this.saleData.find(
+                  element => element.code === path.userData.node.id
+                );
+                mesh.code = path.userData.node.id;
+                mesh.name = data.name;
+                mesh.number = data.number;
+                mesh.orderNum = data.orderNum;
+                mesh.sales = data.sales;
                 // mesh.renderOrder = 0;
                 group.add(mesh);
               }
@@ -107,6 +117,7 @@ export default {
 
             this.scene.add(group);
             this.map = group;
+            console.log(this.map);
             resolve(group);
           },
           xhr => {
@@ -120,6 +131,7 @@ export default {
       return p;
       // instantiate a loader
     },
+
     async getData(url) {
       let data = await getPublicData(url);
       return data.features;
@@ -159,9 +171,8 @@ export default {
           position.z
         ];
       }
-      console.log(positionArray);
     },
-    async createCylinder() {
+    async createCylinder(delay1, delay2) {
       let positions = await getPublicData("data/provincePoint.json");
       for (let data of this.saleData) {
         data.position = positions[data.code];
@@ -169,23 +180,16 @@ export default {
         data.number = Number(data.number);
       }
       const maxHeight = 120;
-      const container = document.querySelector(".three-view");
       const glowCylinders = new GlowCylinder(
         this.saleData.slice(0, 10),
         // this.saleData,
         maxHeight,
-        container,
-        this.scene,
-        this.camera
+        delay1,
+        delay2
       );
-      // this.adjustModel(glowCylinders.mesh);
-      // glowCylinders.mesh.rotation.x = Math.PI;
-      // glowCylinders.mesh.renderOrder = 0;
       this.scene.add(glowCylinders.mesh);
-      // this.initControls(glowCylinders.labelRenderer);
-      // this.labelRenderer = glowCylinders.labelRenderer;
-      // this.scene.add(glowCylinders.labels);
-      // console.log(glowCylinders.labels);
+      this.scene.add(glowCylinders.label);
+      this.glowCylinders = glowCylinders;
     },
     pickCylinder() {
       const that = this;
@@ -292,15 +296,50 @@ export default {
         })
       );
     },
+    assignMapData() {
+      console.log(this.map);
+      for (const item of this.map.children) {
+        const data = this.saleData.find(element => element.code === item.code);
+        item.number = data.number;
+        item.sales = data.sales;
+        item.orderNum = data.orderNum;
+      }
+    },
+    destroyCylinder() {
+      this.scene.remove(this.glowCylinders.mesh);
+      this.scene.remove(this.glowCylinders.label);
+      this.glowCylinders.mesh.traverse(item => {
+        if (item.isMesh) {
+          item.geometry.dispose();
+          if (item.material instanceof Array) {
+            item.material.forEach(material => {
+              material.dispose();
+            });
+          } else {
+            item.material.dispose();
+          }
+        }
+      });
+      this.glowCylinders.label.traverse(item => {
+        if (item.isSprite) {
+          item.geometry.dispose();
+          if (item.material instanceof Array) {
+            item.material.forEach(material => {
+              material.dispose();
+            });
+          } else {
+            item.material.dispose();
+          }
+        }
+      });
+    },
     adjustModel(model) {
       console.log(model.position);
       const box = new THREE.Box3().setFromObject(model);
-      console.log(box);
       const center = box.getCenter(new THREE.Vector3());
       model.position.x += model.position.x - center.x;
       model.position.y += model.position.y - center.y;
       model.position.z += model.position.z - center.z;
-      console.log(model);
 
       //调整模型尺寸
       // model.scale.set(0.1, 0.1, 0.1);
@@ -325,7 +364,7 @@ export default {
             y: 1093.8240573808364,
             z: 1871.6423196139076
           },
-          1350
+          1400
         )
         .onComplete(() => {
           this.pickCylinder();
@@ -348,7 +387,7 @@ export default {
                 y: 86.06120954559883,
                 z: -34.27155109992084
               },
-              1500
+              1400
             )
             .onUpdate(p => {
               if (p.x > 33.7745) {
@@ -473,6 +512,18 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
+    }
+  },
+  watch: {
+    saleList: {
+      handler: function(val, oldVal) {
+        console.log("val", val);
+        console.log("oldVal", oldVal);
+        this.assignMapData();
+        this.destroyCylinder();
+        this.createCylinder();
+      },
+      deep: true
     }
   }
 };
