@@ -394,6 +394,18 @@ export default {
         specular: new THREE.Color("rgba(50,88,68,1)"),
         shininess: 32.0
       });
+      // let texture = new THREE.TextureLoader().load("images/side2.png");
+      // texture.flipY = false;
+      // texture.wrapS = THREE.RepeatWrapping;
+      // texture.wrapT = THREE.RepeatWrapping;
+      // texture.repeat.set(2, 45);
+      // texture.offset.set(0, 0.3);
+      // texture.anisotropy = 16;
+      // texture.needsUpdate = true;
+      // let material2 = new THREE.MeshPhongMaterial({
+      //   map: texture,
+      //   shininess: 32.0
+      // });
       let material2 = new THREE.MeshPhongMaterial({
         color: new THREE.Color("rgba(33,76,60,1)"),
         specular: new THREE.Color("rgba(39,60,50,1)"),
