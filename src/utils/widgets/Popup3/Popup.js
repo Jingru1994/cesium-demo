@@ -61,8 +61,10 @@ class Popup {
     this.remove();
     setTimeout(() => {
       typeof this.callback === "function" && this.callback(object);
-      let position = object.geometry.boundingSphere.center;
-      this.label.position.copy(position);
+      if (object.geometry.boundingSphere) {
+        let position = object.geometry.boundingSphere.center;
+        this.label.position.copy(position);
+      }
       object.add(this.label);
       this.label.element.classList.add("hover");
       this.#labelLine.classList.add("hover");

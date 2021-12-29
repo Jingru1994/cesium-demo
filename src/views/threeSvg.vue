@@ -21,7 +21,7 @@ import { getPublicData } from "@/api/requestData.js";
 import exampleData from "@/utils/saleData.js";
 
 export default {
-  name: "ThreeTerrain",
+  name: "MacroBigData",
   props: {
     saleList: {
       type: Array,
@@ -44,6 +44,9 @@ export default {
     this.initScene();
     this.initLight();
     this.saleData = this.saleList;
+    if (!this.saleData) {
+      this.saleData = exampleData;
+    }
     await this.loadSvg();
     this.createCylinder(3250, 4000);
     this.createPopup();
@@ -54,7 +57,10 @@ export default {
   beforeDestroy() {
     cancelAnimationFrame(this.myAnimate);
     window.removeEventListener("resize", this.onWindowResize);
-    window.removeEventListener("mousemove", this.onPointerMove("mousemove"));
+    this.labelRenderer.domElement.removeEventListener(
+      "mousemove",
+      this.onPointerMove("mousemove")
+    );
     this.handler = null;
     this.scene.traverse(item => {
       if (item.isMesh || item instanceof THREE.Sprite) {
@@ -548,6 +554,17 @@ export default {
     left: 0px;
     width: 100%;
     height: 100%;
+  }
+  .topDiv .province {
+    font-weight: bold;
+    font-size: 18px;
+    height: 18px;
+    color: #5df5a0;
+  }
+  .topDiv .number {
+    font-weight: bold;
+    font-size: 12px;
+    height: 12px;
   }
 }
 </style>

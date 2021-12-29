@@ -420,6 +420,12 @@ const routes = [
     name: "threeFather",
     component: () =>
       import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeFather.vue")
+  },
+  {
+    path: "/threeStation",
+    name: "threeStation",
+    component: () =>
+      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeStation.vue")
   }
 ];
 

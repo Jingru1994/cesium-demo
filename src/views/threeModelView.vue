@@ -612,7 +612,7 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/晶格.mtl", materials => {
+      mtlLoader.load("/model/Untitled/Untitled.mtl", materials => {
         // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
@@ -621,13 +621,15 @@ export default {
         loader.load(
           // resource URL
           // "/model/guangzhou.obj",
-          "/model/晶格.obj",
+          "/model/Untitled/Untitled.obj",
           // called when resource is loaded
           object => {
             console.log(object);
             this.scene.add(object);
             this.adjustModel(object);
             this.model = object;
+            object.scale.set(10, 10, 10);
+            object.position.set(0, 10, 0);
             return object;
           },
           // called when loading is in progresses

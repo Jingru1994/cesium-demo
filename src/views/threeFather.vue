@@ -1,18 +1,21 @@
 <template>
   <div class="father-componet">
-    <three-svg :saleList="saleList"> </three-svg>
+    <!-- <three-svg :saleList="saleList"> </three-svg> -->
+    <three-station :year="year"></three-station>
     <button class="button1" @click="buttonClick">anniu</button>
   </div>
 </template>
 
 <script>
 import threeSvg from "@/views/threeSvg.vue";
+import ThreeStation from "@/views/threeStation.vue";
 import exampleData from "@/utils/saleData.js";
 export default {
-  components: { threeSvg },
+  components: { threeSvg, ThreeStation },
   data() {
     return {
-      saleList: exampleData
+      saleList: exampleData,
+      year: 2021
     };
   },
   mounted() {
@@ -24,6 +27,7 @@ export default {
     },
     buttonClick() {
       this.saleList[0].sales = "9.999";
+      this.year = 2019;
     }
   }
 };
