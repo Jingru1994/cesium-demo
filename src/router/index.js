@@ -407,25 +407,31 @@ const routes = [
     path: "/threeSvg",
     name: "threeSvg",
     component: () =>
-      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeSvg.vue")
+      import(/* webpackChunkName: "threeSvg" */ "@/views/threeSvg.vue")
   },
   {
     path: "/threeSvg1",
     name: "threeSvg1",
     component: () =>
-      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeSvg1.vue")
+      import(/* webpackChunkName: "threeSvg1" */ "@/views/threeSvg1.vue")
   },
   {
     path: "/threeFather",
     name: "threeFather",
     component: () =>
-      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeFather.vue")
+      import(/* webpackChunkName: "threeFather" */ "@/views/threeFather.vue")
   },
   {
     path: "/threeStation",
     name: "threeStation",
     component: () =>
-      import(/* webpackChunkName: "sdkCurveMove" */ "@/views/threeStation.vue")
+      import(/* webpackChunkName: "threeStation" */ "@/views/threeStation.vue")
+  },
+  {
+    path: "/threeTrace",
+    name: "threeTrace",
+    component: () =>
+      import(/* webpackChunkName: "threeStation" */ "@/views/threeTrace.vue")
   }
 ];
 
