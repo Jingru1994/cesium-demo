@@ -93,11 +93,12 @@ class GlowCylinder {
   }
   createLabelSprite(object) {
     const topText = "TOP" + object.number + " " + object.name;
-    const bottomText = object.sales + "万";
+    // const bottomText = object.sales + "万";
     const canvas = document.createElement("canvas");
     const fontSize1 = 190;
     const fontSize2 = 230;
-    canvas.height = fontSize1 + fontSize2 + 160;
+    // canvas.height = fontSize1 + fontSize2 + 160;
+    canvas.height = fontSize1 + 80;
     // canvas.height = fontSize1 + 50;
 
     const characterC = topText.match(/[\u4e00-\u9fa5]/g);
@@ -117,7 +118,7 @@ class GlowCylinder {
     ctx.fillText(topText, 10, 10 + fontSize1);
     ctx.font = "normal bold " + fontSize2 + "px Source Han Sans CN";
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(bottomText, 10, 10 + fontSize1 + fontSize2 + 60);
+    // ctx.fillText(bottomText, 10, 10 + fontSize1 + fontSize2 + 60);
 
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.SpriteMaterial({

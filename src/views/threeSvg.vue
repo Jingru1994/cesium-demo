@@ -540,7 +540,7 @@ export default {
   overflow: hidden;
 }
 .three-view {
-  height: 872.72px;
+  // height: 872.72px;
   #three {
     position: fixed;
     top: 0;
