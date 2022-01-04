@@ -79,8 +79,8 @@ export default {
     this.addState();
     this.initControls();
     this.initLight();
-    this.loadOBJModel();
-    // this.loadGLTFModel("/model/Testobj/guangzhou.gltf");
+    // this.loadOBJModel();
+    this.loadGLTFModel("/model/地图测试/Untitled.gltf");
     // this.loadModels();
     this.animate();
     // this.loadFBXModel()
@@ -566,7 +566,7 @@ export default {
             });
             this.scene.add(model);
             this.adjustModel(model);
-            model.visible = false;
+            model.visible = true;
             resolve(model);
           },
           xhr => {
@@ -612,7 +612,7 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/Untitled/Untitled.mtl", materials => {
+      mtlLoader.load("/model/地图测试/Untitled.mtl", materials => {
         // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
@@ -621,15 +621,15 @@ export default {
         loader.load(
           // resource URL
           // "/model/guangzhou.obj",
-          "/model/Untitled/Untitled.obj",
+          "/model/地图测试/Untitled.obj",
           // called when resource is loaded
           object => {
             console.log(object);
             this.scene.add(object);
             this.adjustModel(object);
             this.model = object;
-            object.scale.set(10, 10, 10);
-            object.position.set(0, 10, 0);
+            // object.scale.set(10, 10, 10);
+            // object.position.set(0, 10, 0);
             return object;
           },
           // called when loading is in progresses
