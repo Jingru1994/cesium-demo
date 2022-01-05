@@ -10,7 +10,7 @@ var VerticalReference = {
    * @type {Number}
    * @constant
    */
-  CENTER: 0,
+  CENTER: 1,
 
   /**
    * The origin is at the bottom of the object.
@@ -18,7 +18,7 @@ var VerticalReference = {
    * @type {Number}
    * @constant
    */
-  BOTTOM: 1,
+  BOTTOM: 2,
 
   /**
    * The origin is at the top of the object.
@@ -26,6 +26,6 @@ var VerticalReference = {
    * @type {Number}
    * @constant
    */
-  TOP: -1
+  TOP: 3
 };
 export default Object.freeze(VerticalReference);

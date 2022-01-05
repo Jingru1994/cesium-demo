@@ -1,0 +1,28 @@
+.ant-select-selection--single {
+  color: #4C5159;
+  font: bold 12px "Source Han Sans CN";
+  border-radius: 0;
+  background-color: rgba(35, 106, 245, 0.4);
+  border: 1px solid #236af5;
+}
+.ant-select-dropdown {
+  color: #6b737d;
+  border-radius: 0;
+  background-color: rgba(35, 106, 245, 0.4);
+  border: 1px solid #236af5;
+}
+.ant-select-dropdown-menu-item-selected {
+  background-color: rgba(35, 106, 245, 0.6);
+}
+.ant-select-dropdown-menu-item:hover {
+  background-color: rgba(35, 106, 245, 0.5);
+}
+.ant-select-dropdown-menu-item-active {
+  background-color: rgba(35, 106, 245, 0.5);
+}
+.ant-select-dropdown-menu-item-active:not(.ant-select-dropdown-menu-item-disabled) {
+  background-color: rgba(35, 106, 245, 0.5);
+}
+.ant-select-dropdown-menu-item:hover:not(.ant-select-dropdown-menu-item-disabled) {
+  background-color: rgba(35, 106, 245, 0.5);
+}

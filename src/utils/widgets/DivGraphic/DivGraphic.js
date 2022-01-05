@@ -288,9 +288,10 @@ class DivGraphic {
           cartesian2
         ); // 笛卡尔坐标到画布坐标
         if (defined(canvasPosition)) {
+          const heightLimit = 455 * (window.innerHeight / 800);
           element.style.left = parseInt(canvasPosition.x + offset[0]) + "px";
           element.style.top = parseInt(canvasPosition.y + offset[1]) + "px";
-          if (parseInt(canvasPosition.y + offset[1]) > 510) {
+          if (parseInt(canvasPosition.y + offset[1]) > heightLimit) {
             element.style.display = "none";
           } else {
             element.style.display = "flex";

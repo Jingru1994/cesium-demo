@@ -10,7 +10,7 @@ var HorizontalReferece = {
    * @type {Number}
    * @constant
    */
-  CENTER: 0,
+  CENTER: 1,
 
   /**
    * The origin is on the left side of the object.
@@ -18,7 +18,7 @@ var HorizontalReferece = {
    * @type {Number}
    * @constant
    */
-  LEFT: 1,
+  LEFT: 2,
 
   /**
    * The origin is on the right side of the object.
@@ -26,6 +26,6 @@ var HorizontalReferece = {
    * @type {Number}
    * @constant
    */
-  RIGHT: -1
+  RIGHT: 3
 };
 export default Object.freeze(HorizontalReferece);

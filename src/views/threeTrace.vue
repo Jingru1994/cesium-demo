@@ -8,9 +8,36 @@
       class="cesium-container"
       v-show="selectedMode === 'map'"
     ></div>
-    <div class="img-list-title" v-show="selectedMode === 'map'">
-      {{ selectedPointName }}监控
+    <a-select
+      v-show="selectedMode === 'map'"
+      class="point-search"
+      show-search
+      label-in-value
+      :value="searchValue"
+      placeholder="请输入试点名称"
+      :default-active-first-option="false"
+      :filter-option="false"
+      :show-arrow="false"
+      :not-found-content="fetching ? undefined : null"
+      @search="fetchPointList"
+      @change="handleChange"
+    >
+      <a-spin v-if="fetching" slot="notFoundContent" size="small" />
+      <a-select-option v-for="point in searchPointList" :key="point.code">
+        {{ point.name }}
+      </a-select-option>
+    </a-select>
+    <div
+      v-if="dataLoaded"
+      class="img-list-title"
+      v-show="selectedMode === 'map'"
+    >
+      {{ selectedPoint.name }}监控
     </div>
+    <div
+      class="img-list-title-segmentation"
+      v-show="selectedMode === 'map'"
+    ></div>
     <div class="img-list" v-show="selectedMode === 'map'">
       <!-- <div> -->
       <img
@@ -45,31 +72,31 @@
           <div class="info-title">农户信息</div>
           <div class="segmentation"></div>
           <div class="info-content1">
-            <!-- <img class="photo-info" :src="selectedPoint.farmer.photo"/> -->
+            <!-- <img class="photo-info" :src="selectedPointInfo.farmer.photo"/> -->
             <img class="photo-info" src="@/assets/farmer-photo.png" />
             <div class="text-info">
               <div class="info-filed">
                 <div class="filed-name farmer">姓名：</div>
                 <div class="filed-value farmer">
-                  {{ selectedPoint.nnxx.farmerName }}
+                  {{ selectedPointInfo.nnxx.farmerName }}
                 </div>
               </div>
               <div class="info-filed">
                 <div class="filed-name farmer">性别：</div>
                 <div class="filed-value farmer">
-                  {{ selectedPoint.nnxx.farmerGender }}
+                  {{ selectedPointInfo.nnxx.farmerGender }}
                 </div>
               </div>
               <div class="info-filed">
                 <div class="filed-name farmer">年龄：</div>
                 <div class="filed-value farmer">
-                  {{ selectedPoint.nnxx.farmerAge }}
+                  {{ selectedPointInfo.nnxx.farmerAge }}
                 </div>
               </div>
               <div class="info-filed">
                 <div class="filed-name farmer">养殖经验：</div>
                 <div class="filed-value farmer">
-                  {{ selectedPoint.nnxx.farmerYear }}
+                  {{ selectedPointInfo.nnxx.farmerYear }}
                 </div>
               </div>
             </div>
@@ -82,31 +109,31 @@
             <div class="info-filed">
               <div class="filed-name parish">牧区名称：</div>
               <div class="filed-value parish">
-                {{ selectedPoint.mqxx.parishName }}
+                {{ selectedPointInfo.mqxx.parishName }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name parish">牧区位置：</div>
               <div class="filed-value parish">
-                {{ selectedPoint.mqxx.parishPosition }}
+                {{ selectedPointInfo.mqxx.parishPosition }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name parish">拥有草场面积：</div>
               <div class="filed-value parish">
-                {{ selectedPoint.mqxx.pastureArea }}
+                {{ selectedPointInfo.mqxx.pastureArea }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name parish">草地级别：</div>
               <div class="filed-value parish">
-                {{ selectedPoint.mqxx.pastureLevel }}
+                {{ selectedPointInfo.mqxx.pastureLevel }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name parish">草地所含药材：</div>
               <div class="filed-value parish">
-                {{ selectedPoint.mqxx.herbs }}
+                {{ selectedPointInfo.mqxx.herbs }}
               </div>
             </div>
           </div>
@@ -119,7 +146,7 @@
           <div class="info-content2">
             <div
               class="sub-content"
-              v-for="(item, index) in selectedPoint.psqk"
+              v-for="(item, index) in selectedPointInfo.psqk"
               v-show="index < showNum"
               :key="index"
             >
@@ -163,19 +190,19 @@
             <div class="info-filed">
               <div class="filed-name disinfect">日期：</div>
               <div class="filed-value disinfect">
-                {{ selectedPoint.zxxdjl.disinfectDate }}
+                {{ selectedPointInfo.zxxdjl.disinfectDate }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name disinfect">方式：</div>
               <div class="filed-value disinfect">
-                {{ selectedPoint.zxxdjl.disinfectType }}
+                {{ selectedPointInfo.zxxdjl.disinfectType }}
               </div>
             </div>
             <div class="info-filed">
               <div class="filed-name disinfect">药品：</div>
               <div class="filed-value disinfect">
-                {{ selectedPoint.zxxdjl.disinfectant }}
+                {{ selectedPointInfo.zxxdjl.disinfectant }}
               </div>
             </div>
           </div>
@@ -194,11 +221,16 @@ import MyViewer from "@/utils/sdk/Cesium/MyViewer/MyViewer.js";
 import DivGraphic from "@/utils/widgets/DivGraphic/DivGraphic.js";
 import exampleData from "@/utils/pilotData.js";
 import HeightType from "@/utils/sdk/Cesium/HeightType/HeightType";
-import HorizontalReference from "@/utils/sdk/Cesium/HorizontalReference/HorizontalReference";
-import VerticalReference from "@/utils/sdk/Cesium/VerticalReference/VerticalReference";
+import HorizontalReference from "@/utils/widgets/HorizontalReference/HorizontalReference";
+import VerticalReference from "@/utils/widgets/VerticalReference/VerticalReference";
 
 import Cartesian3 from "cesium/Core/Cartesian3.js";
 import CesiumMath from "cesium/Core/Math.js";
+
+import "ant-design-vue/dist/antd.css";
+import Input from "ant-design-vue/lib/input";
+import Select from "ant-design-vue/lib/select";
+import "@/utils/trace.css";
 
 export default {
   props: {
@@ -207,12 +239,17 @@ export default {
       // require: true
     }
   },
+  components: {
+    ASelect: Select,
+    ASelectOption: Select.Option
+  },
   data() {
     return {
       dataLoaded: false,
       selectedMode: "map",
       pointList: [],
       selectedPoint: {},
+      selectedPointInfo: {},
       videoUrl: "images/goat.mp4",
       imgList: [],
       selectedPointName: undefined,
@@ -220,13 +257,19 @@ export default {
       showMoreTxt: "更多",
       showMoreTxt1: "˅",
       isShowMore: true,
-      showNum: 1
+      showNum: 1,
+      searchPointList: [],
+      searchPointListCopy: [],
+      searchValue: [],
+      fetching: false
     };
   },
   async mounted() {
     this.handler = {};
     this.pointList = await this.queryData(this.year);
     this.selectedPoint = this.pointList[0];
+    // this.selectedPointInfo = await this.queryData(this.selectedPoint.code);
+    this.selectedPointInfo = this.selectedPoint;
     this.dataLoaded = true;
     this.selectedPointName = this.selectedPoint.name;
     // this.imgList = this.selectedPoint.jkxx;
@@ -251,6 +294,16 @@ export default {
       };
     },
     async queryData(year) {
+      // let data = await queryStationList(year);
+      // this.stationData = data;
+      return exampleData;
+    },
+    async queryPointList(year) {
+      // let data = await queryStationList(year);
+      // this.stationData = data;
+      return exampleData;
+    },
+    async queryPointInfo(year) {
       // let data = await queryStationList(year);
       // this.stationData = data;
       return exampleData;
@@ -326,10 +379,15 @@ export default {
 
             that.$emit("clickStation", stationId);
             that.hasPointSelected = true;
-            // that.selectedPoint = that.pointList.find(item => {
-            //   item.code === stationId;
-            // });
-            // console.log(that.selectedPoint);
+            that.selectedPoint = that.pointList.find(item => {
+              return item.code === stationId;
+            });
+            // this.imgList = that.selectedPoint.jkxx;
+            // that.selectedPointInfo = await that.queryPointInfo(stationId);
+            that.selectedPointInfo = that.pointList.find(item => {
+              return item.code === stationId;
+            });
+            console.log(that.selectedPoint);
           }
         })
       );
@@ -347,6 +405,41 @@ export default {
     closeInfo() {
       this.hasPointSelected = false;
       this.selectedPointDiv.className = "infotool-panel";
+    },
+    fetchPointList(value) {
+      this.data = [];
+      this.fetching = true;
+      // let data = this.queryPointList(this.year,value);
+      // this.searchPointList = data;
+      this.searchPointList = exampleData;
+      this.searchPointListCopy = exampleData;
+      console.log(this.searchPointList);
+      this.fetching = true;
+    },
+    handleChange(value) {
+      this.searchPointList = [];
+      this.fetching = false;
+      this.searchValue = value;
+
+      const code = value.key;
+      console.log(code);
+      console.log(this.searchPointListCopy);
+      const point = this.searchPointListCopy.find(item => {
+        return item.code === code;
+      });
+      console.log(point);
+      if (point) {
+        const position = [point.x, point.y, 20000];
+        let cartesianPosition = new Cartesian3.fromDegrees(...position);
+        this.viewer.camera.flyTo({
+          destination: cartesianPosition,
+          orientation: {
+            heading: 0.0, // east, default value is 0.0 (north)
+            pitch: CesiumMath.toRadians(-90), // default value (looking down)
+            roll: 0.0 // default value
+          }
+        });
+      }
     }
   }
 };
@@ -481,6 +574,17 @@ export default {
     left: 493px;
     font: bold 14px/14px "Source Han Sans CN";
   }
+  .img-list-title-segmentation {
+    position: absolute;
+    top: 433px;
+    left: 493px;
+    width: 140px;
+    height: 1px;
+    background-image: url(~@/assets/segmentation.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
   .img-list {
     position: absolute;
     width: 883px;
@@ -527,7 +631,7 @@ export default {
   }
   .info-right-layout-scope {
     box-sizing: border-box;
-    padding: 13px 0px 13px 21px;
+    padding: 13px 0px 13px 24px;
     width: 222px;
   }
   .info-close-layout-scope {
@@ -627,6 +731,12 @@ export default {
     font-size: 14px;
     line-height: 14px;
     margin-right: 4px;
+  }
+  .point-search {
+    top: 89px;
+    width: 340px;
+    height: 30px;
+    box-sizing: border-box;
   }
 }
 </style>
