@@ -80,8 +80,8 @@ export default {
     this.initControls();
     this.initLight();
     // this.loadOBJModel();
-    this.loadGLTFModel("/model/地图测试/Untitled.gltf");
-    // this.loadModels();
+    // this.loadGLTFModel("/model/地图测试/Untitled.gltf");
+    this.loadModels();
     this.animate();
     // this.loadFBXModel()
     this.addClickListener();
@@ -142,11 +142,12 @@ export default {
         2000
       );
       this.camera = camera;
-      camera.position.set(
-        250.66260682992876,
-        -23.24176248772048,
-        -49.1537904128702
-      ); //camera默认放在中心点(0,0,0)，挪一下位置
+      // camera.position.set(
+      //   250.66260682992876,
+      //   -23.24176248772048,
+      //   -49.1537904128702
+      // );
+      camera.position.set(0, 0, 150);
 
       // 避免模型很模糊的现象
       let width = window.innerWidth;
@@ -566,7 +567,7 @@ export default {
             });
             this.scene.add(model);
             this.adjustModel(model);
-            model.visible = true;
+            model.visible = false;
             resolve(model);
           },
           xhr => {
