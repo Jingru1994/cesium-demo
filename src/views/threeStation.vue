@@ -4,6 +4,20 @@
       <img :src="imgUrl" width="100%" />
     </div>
     <canvas id="three"></canvas>
+    <div class="legend">
+      <div class="legend-item center">
+        <div class="symbol center">●</div>
+        <div class="label">电商服务中心</div>
+      </div>
+      <div class="legend-item station">
+        <div class="symbol station">●</div>
+        <div class="label label1">服务站</div>
+        <div v-if="dataLoaded" class="label number">
+          {{ stationData.length }}
+        </div>
+        <div class="label label3">个</div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -31,7 +45,8 @@ export default {
       videoUrl: "images/background.mp4",
       autoPlay: true,
       imgUrl: "images/stationBackground.png",
-      stationData: null
+      stationData: null,
+      dataLoaded: false
     };
   },
   created() {},
@@ -44,6 +59,7 @@ export default {
     this.initLight();
     // this.drawMap();
     await this.queryData(this.year);
+    this.dataLoaded = true;
     this.addStation();
     this.createPopup();
     this.pickStation();
@@ -582,6 +598,10 @@ export default {
 </script>
 
 <style lang="scss">
+@font-face {
+  font-family: "DINAlternateBold";
+  src: url(~@/assets/din-alternate-bold.ttf);
+}
 #app {
   overflow: hidden;
 }
@@ -595,7 +615,7 @@ export default {
     height: 100%;
   }
   .imageDiv {
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
     width: 100%;
@@ -616,5 +636,37 @@ export default {
     margin-bottom: 18px;
     text-align: start;
   }
+  .legend {
+    position: absolute;
+    top: 272px;
+    left: 438px;
+    text-align: start;
+  }
+  .legend-item {
+    display: flex;
+    margin-bottom: 14px;
+  }
+  .symbol {
+    font-size: 24px;
+    color: #ffffff;
+  }
+  .symbol.center {
+    color: #e650f7;
+  }
+  .label {
+    color: #ffffff;
+    font: bold 16px/28px "Source Han Sans CN";
+    margin-left: 6px;
+  }
+  .label.number {
+    font-family: "DINAlternateBold";
+    font-size: 24px;
+    margin-left: 8px;
+  }
+  // .text.value {
+  //   font-family: "DINAlternateBold";
+  //   font-size: 16px;
+  //   letter-spacing: 1px;
+  // }
 }
 </style>
