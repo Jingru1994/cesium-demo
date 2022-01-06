@@ -7,6 +7,7 @@
       </video>
     </div>
     <canvas id="three"></canvas>
+    <div class="map-title">区域销售榜单TOP10</div>
   </div>
 </template>
 <script>
@@ -565,6 +566,19 @@ export default {
     font-weight: bold;
     font-size: 12px;
     height: 12px;
+  }
+  .map-title {
+    position: absolute;
+    top: 226px;
+    left: 458px;
+    width: 220px;
+    height: 32px;
+    color: #ffffff;
+    font: bold 18px/32px "Source Han Sans CN";
+    background-image: url(~@/assets/title_background.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
 }
 </style>
