@@ -431,7 +431,19 @@ const routes = [
     path: "/threeTrace",
     name: "threeTrace",
     component: () =>
-      import(/* webpackChunkName: "threeStation" */ "@/views/threeTrace.vue")
+      import(/* webpackChunkName: "threeTrace" */ "@/views/threeTrace.vue")
+  },
+  {
+    path: "/threeTrace1",
+    name: "threeTrace1",
+    component: () =>
+      import(/* webpackChunkName: "threeTrace1" */ "@/views/threeTrace1.vue")
+  },
+  {
+    path: "/threeGoat",
+    name: "threeGoat",
+    component: () =>
+      import(/* webpackChunkName: "threeTrace1" */ "@/views/threeGoat.vue")
   }
 ];
 
