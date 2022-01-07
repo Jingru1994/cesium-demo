@@ -960,7 +960,7 @@ export default {
     margin-left: 3px;
     width: 100%;
     height: 100%;
-    background-color: #091d45;
+    background-color: rgba(255, 255, 255, 0);
   }
   .slider-line.active {
     background-color: #5df5a0;
