@@ -46,28 +46,28 @@ export default {
       pointList: [
         {
           time: "First Period",
-          id: 0
+          id: 0,
         },
         {
           time: "Second Period",
-          id: 1
+          id: 1,
         },
         {
           time: "Third Period",
-          id: 2
-        }
+          id: 2,
+        },
       ],
       currentIndex: 0,
       timer: "",
       modelUrls: [
         "/model/vase-1.glb",
         "/model/compressor.glb",
-        "/model/vase-2.glb"
+        "/model/vase-2.glb",
       ],
       yOffset: -40.0,
       loadPercentage: 0,
       isActive: true,
-      currentModel: ""
+      currentModel: "",
     };
   },
   created() {
@@ -89,11 +89,11 @@ export default {
   beforeDestroy() {
     cancelAnimationFrame(this.animate);
     window.removeEventListener("resize", this.onWindowResize);
-    this.scene.traverse(item => {
+    this.scene.traverse((item) => {
       if (item.isMesh || item instanceof THREE.Sprite) {
         item.geometry.dispose();
         if (item.material instanceof Array) {
-          item.material.forEach(material => {
+          item.material.forEach((material) => {
             material.dispose();
           });
         } else {
@@ -114,8 +114,8 @@ export default {
           this.models[oldVal].visible = false;
           this.models[newVal].visible = true;
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     addClickListener() {
@@ -129,7 +129,7 @@ export default {
       this.scene = scene;
       scene.background = new THREE.Color(0xa0a0a0);
       // scene.fog = new THREE.Fog("#04613b", 300, 500);
-      // scene.fog = new THREE.Fog( 0x04613b, 300, 500);
+      scene.fog = new THREE.Fog(0x04613b, 300, 500);
       const canvas = document.querySelector("#three");
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
       this.renderer = renderer;
@@ -185,7 +185,7 @@ export default {
       explosionTexture.flipY = false;
       const material = new THREE.MeshBasicMaterial({
         map: explosionTexture,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
       });
       const geometry = new THREE.CircleGeometry(25, 32);
       // const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
@@ -205,19 +205,14 @@ export default {
 
       // ground
       const texture = new THREE.TextureLoader().load("images/world2.png");
-      const texture1 = new THREE.TextureLoader().load("bumpMap.png");
-      const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(819, 409),
-        new THREE.MeshPhongMaterial({
-          transparent: true,
-          // depthWrite: false,
-          map: texture,
-          bumpMap: texture1,
-          bumpScale: 10
-        })
-      );
-      ground.rotation.x = -Math.PI / 2;
-      ground.position.y = this.yOffset;
+      const texture1 = new THREE.TextureLoader().load("images/bumpMap.png");
+      const material4 = new THREE.MeshPhongMaterial({
+        transparent: true,
+        // depthWrite: false,
+        map: texture,
+        bumpMap: texture1,
+        bumpScale: 10,
+      });
 
       //自定义材质-渐变色，但是没有阴影
       //   let groundMaterial = new THREE.ShaderMaterial({
@@ -393,12 +388,28 @@ export default {
       //   let groundMaterial1 = new THREE.ShaderMaterial({
       //     fog: true, //是否受全局雾化影响
       //     lights: true,
-      //     uniforms: mergeUniforms([UniformsLib.lights, UniformsLib.fog]),
+      //     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.lights, THREE.UniformsLib.fog,
+      //       {
+      //         opacity: { type: "f", value: 1.0 },
+      //         color1: { value: new THREE.Color("#046A3B") },
+      //         color2: { value: new THREE.Color("#022A29") }
+      //       },
+      //       // {
+      //       //   color1: { value: new THREE.Color("#046A3B") }
+      //       // },
+      //       // {
+      //       //   color2: { value: new THREE.Color("#022A29") }
+      //       // },
+      //     ]),
       //     vertexShader: `
       //                 #include <common>
       //                 #include <fog_pars_vertex>
       //                 #include <shadowmap_pars_vertex>
+      //                 varying vec2 vUv;
       //                 void main() {
+      //                 #include <beginnormal_vertex>
+      //                 #include <defaultnormal_vertex>
+      //                   vUv = uv;
       //                 #include <begin_vertex>
       //                 #include <project_vertex>
       //                 #include <worldpos_vertex>
@@ -416,10 +427,14 @@ export default {
       //                 #include <shadowmap_pars_fragment>
       //                 #include <shadowmask_pars_fragment>
       //                 #include <dithering_pars_fragment>
+      //                 uniform float opacity;
+      //                 uniform vec3 color1;
+      //                 uniform vec3 color2;
+      //                 varying vec2 vUv;
       //                 void main() {
       //                 // CHANGE THAT TO YOUR NEEDS
       //                 // ------------------------------
-      //                 vec3 finalColor = vec3(0, 0.75, 0);
+      //                 vec3 finalColor = mix(color1, color2, vUv.y);
       //                 vec3 shadowColor = vec3(0, 0, 0);
       //                 float shadowPower = 0.5;
       //                 // ------------------------------
@@ -430,8 +445,14 @@ export default {
       //                 #include <dithering_fragment>
       //                 }
       //             `
-      //     // wireframe: true
-      //   });
+      //   // wireframe: true
+      // });
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(819, 409),
+        groundMaterial3
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = this.yOffset;
       ground.receiveShadow = true;
       // ground.material = groundMaterial3;
       this.scene.add(ground);
@@ -497,7 +518,7 @@ export default {
 
       if (this.models.length === this.modelUrls.length) {
         this.speed += 0.01;
-        this.models.forEach(model => {
+        this.models.forEach((model) => {
           model.rotation.y += 0.01;
         });
       }
@@ -541,13 +562,13 @@ export default {
       }, 4000);
     },
     loadGLTFModel(url) {
-      const p = new Promise(resolve => {
+      const p = new Promise((resolve) => {
         const gltfLoader = new GLTFLoader();
         gltfLoader.load(
           url,
-          gltf => {
+          (gltf) => {
             let model = gltf.scene;
-            model.traverse(o => {
+            model.traverse((o) => {
               // 加材质，这里其实不需要
               // if(o.material && o.material.name === "material_0") {
               //     let explosionTexture = new THREE.TextureLoader().load(
@@ -570,14 +591,14 @@ export default {
             model.visible = false;
             resolve(model);
           },
-          xhr => {
+          (xhr) => {
             // called while loading is progressing
             console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`);
             this.loadPercentage = Number(
               ((xhr.loaded / xhr.total) * 100).toFixed(0)
             );
           },
-          error => {
+          (error) => {
             // called when loading has errors
             console.error("An error happened", error);
           }
@@ -593,18 +614,18 @@ export default {
       loader.setDRACOLoader(dracoLoader);
       loader.load(
         path,
-        gltf => {
+        (gltf) => {
           // called when the resource is loaded
           console.log(gltf);
           this.scene.add(gltf.scene);
           this.model = gltf.scene;
           return gltf.scene;
         },
-        xhr => {
+        (xhr) => {
           // called while loading is progressing
           console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`);
         },
-        error => {
+        (error) => {
           // called when loading has errors
           console.error("An error happened", error);
         }
@@ -613,7 +634,7 @@ export default {
     loadOBJModel() {
       const loader = new OBJLoader();
       const mtlLoader = new MTLLoader();
-      mtlLoader.load("/model/地图测试/Untitled.mtl", materials => {
+      mtlLoader.load("/model/地图测试/Untitled.mtl", (materials) => {
         // mtlLoader.load("/model/Vase-obj.mtl", materials => {
         // 返回一个包含材质的对象MaterialCreator
         console.log(materials);
@@ -624,7 +645,7 @@ export default {
           // "/model/guangzhou.obj",
           "/model/地图测试/Untitled.obj",
           // called when resource is loaded
-          object => {
+          (object) => {
             console.log(object);
             this.scene.add(object);
             this.adjustModel(object);
@@ -642,7 +663,7 @@ export default {
     },
     loadFBXModel() {
       const loader = new FBXLoader();
-      loader.load("/model/vase2.fbx", object => {
+      loader.load("/model/vase2.fbx", (object) => {
         //动作
         // let mixer = new AnimationMixer( object );
         // const action = mixer.clipAction( object.animations[ 0 ] );
@@ -704,8 +725,8 @@ export default {
       this.timer = setInterval(() => {
         this.autoPlay();
       }, 4000);
-    }
-  }
+    },
+  },
 };
 </script>
 

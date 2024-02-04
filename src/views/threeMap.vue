@@ -33,11 +33,11 @@ export default {
   beforeDestroy() {
     cancelAnimationFrame(this.animate);
     window.removeEventListener("resize", this.onWindowResize);
-    this.scene.traverse(item => {
+    this.scene.traverse((item) => {
       if (item.isMesh || item instanceof THREE.Sprite) {
         item.geometry.dispose();
         if (item.material instanceof Array) {
-          item.material.forEach(material => {
+          item.material.forEach((material) => {
             material.dispose();
           });
         } else {
@@ -171,18 +171,18 @@ export default {
       let offsetX = 110;
       let offsetY = 30;
       let i = 0;
-      chinaGeometry.forEach(province => {
+      chinaGeometry.forEach((province) => {
         console.log("i:" + i);
         console.log(province);
         i++;
-        province.geometry.coordinates.forEach(provinceChild => {
-          provinceChild.forEach(point => {
+        province.geometry.coordinates.forEach((provinceChild) => {
+          provinceChild.forEach((point) => {
             let item = this.drawExtrude(
               this.drawShape(point, offsetX, offsetY)
             );
             item.label = province.properties.name;
             let lines = this.drawLine(point, offsetX, offsetY);
-            lines.forEach(line => {
+            lines.forEach((line) => {
               lineGroup.add(line);
             });
             // console.log(item.geometry.boundingSphere.radius)
@@ -203,7 +203,7 @@ export default {
     drawShape(posArr, offsetX, offsetY) {
       var shape = new THREE.Shape();
       shape.moveTo(posArr[0][0] - offsetX, posArr[0][1] - offsetY);
-      posArr.forEach(item => {
+      posArr.forEach((item) => {
         shape.lineTo(item[0] - offsetX, item[1] - offsetY);
       });
       return shape;
@@ -212,17 +212,17 @@ export default {
       const extrudeSettings = {
         steps: 2,
         depth: 1,
-        bevelEnabled: false
+        bevelEnabled: false,
       };
       let geometry = new THREE.ExtrudeGeometry(shapeObj, extrudeSettings);
       let material1 = new THREE.MeshPhongMaterial({
         color: new THREE.Color("#161E32"),
         specular: new THREE.Color("#334676"),
         // specular: 0x111111,
-        shininess: 32.0
+        shininess: 32.0,
       });
       let material2 = new THREE.MeshBasicMaterial({
-        color: 0x008bfb
+        color: 0x008bfb,
       });
       let shapeGeometryObj = new THREE.Mesh(geometry, [material1, material2]);
       // shapeGeometryObj.position = geometry.boundingSphere.center
@@ -235,7 +235,7 @@ export default {
       let geometry2 = new THREE.BufferGeometry();
       let verticesList1 = [];
       let verticesList2 = [];
-      posArr.forEach(item => {
+      posArr.forEach((item) => {
         verticesList1.push(item[0] - offsetX);
         verticesList1.push(item[1] - offsetY);
         verticesList1.push(1.001);
@@ -300,8 +300,8 @@ export default {
           selectedObject = null;
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

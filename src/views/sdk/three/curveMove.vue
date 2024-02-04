@@ -30,7 +30,7 @@ export default {
       const compositeScene = new CompositeScene({
         container: canvas,
         cameraPosition: [0, -30, 30],
-        backgroundColor: "#041336"
+        backgroundColor: "#041336",
       });
       this.compositeScene = compositeScene;
       this.scene = compositeScene.getScene();
@@ -42,7 +42,7 @@ export default {
       const cubeMaterial = new THREE.MeshPhongMaterial({
         color: new THREE.Color("rgba(184,179,46,1)"),
         specular: new THREE.Color("rgba(55,55,55,1)"),
-        shininess: 32.0
+        shininess: 32.0,
       });
       const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
       this.scene.add(cube);
@@ -50,12 +50,12 @@ export default {
         [0, 0, 0],
         [0, 10, 10],
         [10, 10, 10],
-        [10, 0, 0]
+        [10, 0, 0],
       ];
       const motion = new CurveMotion({
         nodes: nodeList,
         object: cube,
-        speed: 0.05
+        speed: 0.05,
       });
       this.motion = motion;
       this.scene.add(motion.line);
@@ -76,8 +76,8 @@ export default {
       dirLight.shadow.camera.top = 40;
       dirLight.shadow.camera.bottom = -50;
       this.scene.add(dirLight);
-    }
-  }
+    },
+  },
 };
 </script>
 
