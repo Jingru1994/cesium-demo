@@ -8,8 +8,8 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrain.js";
-// import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrainCopy.js";
+// import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrain.js";
+import DistrictTerrain from "@/utils/widgets/Terrain/DistrictTerrain2.js";
 import { getPublicData } from "@/api/requestData.js";
 import * as d3 from "d3-geo";
 
@@ -26,9 +26,14 @@ export default {
     this.addState();
     this.initControls();
     this.initLight();
+    console.log(this.scene);
 
-    this.addTerrain();
-    // this.addTerrain1();
+    // this.addTerrain();
+    this.addTerrain1();
+    // const geometry = new THREE.BoxGeometry(5, 5, 5);
+    // const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+    // const cube = new THREE.Mesh(geometry, material);
+    // this.scene.add(cube);
 
     this.addClickListener();
 
@@ -41,11 +46,11 @@ export default {
   beforeDestroy() {
     cancelAnimationFrame(this.myAnimate);
     window.removeEventListener("resize", this.onWindowResize);
-    this.scene.traverse(item => {
+    this.scene.traverse((item) => {
       if (item.isMesh || item instanceof THREE.Sprite) {
         item.geometry.dispose();
         if (item.material instanceof Array) {
-          item.material.forEach(material => {
+          item.material.forEach((material) => {
             material.dispose();
           });
         } else {
@@ -70,11 +75,12 @@ export default {
       const scene = new THREE.Scene();
       this.scene = scene;
       scene.background = new THREE.Color(0x333333);
+      scene.fog = new THREE.Fog(0x04613b, 10, 100);
       const canvas = document.querySelector("#three");
       const renderer = new THREE.WebGLRenderer({
         canvas,
         antialias: true,
-        alpha: true
+        alpha: true,
       });
       this.renderer = renderer;
       renderer.shadowMap.enabled = true;
@@ -132,7 +138,7 @@ export default {
     },
     initLight() {
       this.initAmbientLight();
-      // this.initPointLight()
+      // this.initPointLight();
       this.initDirectionalLight();
     },
     initAmbientLight() {
@@ -158,8 +164,8 @@ export default {
       this.dirLight = dirLight;
       this.scene.add(dirLight);
       //显示灯光方向
-      // var debugCamera1 = new THREE.DirectionalLightHelper(dirLight)
-      // this.scene.add(debugCamera1)
+      var debugCamera1 = new THREE.DirectionalLightHelper(dirLight);
+      this.scene.add(debugCamera1);
     },
     initPointLight() {
       const pointLight = new THREE.PointLight(0xffffff, 0.5, 200);
@@ -196,62 +202,64 @@ export default {
     async addTerrain1() {
       const features = await this.getData("data/beijing.geojson");
       const center = this.computeFeaturesCenter(features);
-      features.forEach(feature => {
-        feature.geometry.coordinates.forEach(child => {
-          child.forEach(points => {
-            points.forEach(point => {
+      features.forEach((feature) => {
+        feature.geometry.coordinates.forEach((child) => {
+          child.forEach((points) => {
+            points.forEach((point) => {
               [point[0], point[1]] = this.projection(point, center, 1000);
             });
           });
         });
       });
-      //   const heightTexture = new THREE.TextureLoader().load(
-      //     "images/rs/beijing_dem6.png"
-      //   );
-      //   const diffuseTexture = new THREE.TextureLoader().load(
-      //     "images/rs/beijing_satellite7.png",
-      //     texture => {
-      //       const options = {
-      //         width: 100,
-      //         height: 100,
-      //         depth: 1,
-      //         heightRatio: 3,
-      //         heightTexture: heightTexture,
-      //         diffuseTexture: texture,
-      //         data: features[0]
-      //       };
-      //       const terrain = new DistrictTerrain(options).mesh;
-      //       console.log(terrain);
-      //       this.scene.add(terrain);
-      //     }
-      //   );
+      const heightTexture = new THREE.TextureLoader().load(
+        "images/rs/beijing_dem6.png"
+      );
+      console.log(heightTexture);
+      const diffuseTexture = new THREE.TextureLoader().load(
+        "images/rs/beijing_satellite7.png",
+        (texture) => {
+          const options = {
+            width: 100,
+            height: 100,
+            depth: 1,
+            heightRatio: 3,
+            heightTexture: heightTexture,
+            diffuseTexture: texture,
+            data: features[0],
+            color: new THREE.Color(0x244931),
+          };
+          const terrain = new DistrictTerrain(options).mesh;
+          terrain.rotation.x = -Math.PI / 2;
+          this.scene.add(terrain);
+        }
+      );
     },
     computeFeaturesCenter(features) {
       let coordinateList = [];
-      features.forEach(feature => {
-        feature.geometry.coordinates.forEach(coordinate => {
-          coordinate.forEach(points => {
+      features.forEach((feature) => {
+        feature.geometry.coordinates.forEach((coordinate) => {
+          coordinate.forEach((points) => {
             coordinateList.push(...points);
           });
         });
       });
       let xMax = Math.max(
-        ...coordinateList.map(item => {
+        ...coordinateList.map((item) => {
           return item[0];
         })
       );
       let xMin = Math.min(
-        ...coordinateList.map(item => {
+        ...coordinateList.map((item) => {
           return item[0];
         })
       );
       let yMax = Math.max(
-        ...coordinateList.map(item => {
+        ...coordinateList.map((item) => {
           return item[1];
         })
       );
       let yMin = Math.min(
-        ...coordinateList.map(item => {
+        ...coordinateList.map((item) => {
           return item[1];
         })
       );
@@ -284,14 +292,14 @@ export default {
         depth: 3,
         heightRatio: 3,
         heightTexture: heightTexture,
-        diffuseTexture: diffuseTexture
+        diffuseTexture: diffuseTexture,
       };
       const terrain = new DistrictTerrain(options).mesh;
       terrain.rotation.x = -Math.PI / 2;
       this.terrain = terrain;
       this.scene.add(terrain);
-    }
-  }
+    },
+  },
 };
 </script>
 

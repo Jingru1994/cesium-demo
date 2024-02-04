@@ -31,6 +31,10 @@ class DistrictTerrain {
 
     const geometry = this.createGeometry(data);
     this.reMapUv(geometry);
+    const point = this.createWallPoint(data, depth);
+    const wallGeometry = this.createBottemGeometry(point);
+    this.reMapUv(wallGeometry);
+    
     // const material = new THREE.MeshLambertMaterial({
     //     color: 'purple',
     //     wireframe: true
@@ -44,15 +48,22 @@ class DistrictTerrain {
       heightTexture,
       diffuseTexture
     );
+    const wallMaterial = this.createWallMaterial(
+      heightRatio,
+      heightTexture,
+      diffuseTexture
+    )
+    const wall = new THREE.Mesh(wallGeometry, wallMaterial)
+
 
     const mesh = new THREE.Mesh(geometry, material);
-    this.mesh = mesh;
-    window.mesh = mesh;
+    // this.mesh = mesh;
+    // window.mesh = mesh;
     // const bottom = this.createBottom(width, height, heightTexture, color);
     // bottom.position.set(0, 0, -depth);
-    // const group = new THREE.Group();
-    // group.add(mesh, mesh1);
-    // this.mesh = group;
+    const group = new THREE.Group();
+    group.add(mesh, wall);
+    this.mesh = group;
     
   }
   get mesh() {
@@ -96,19 +107,96 @@ class DistrictTerrain {
     filterdMeshIndex = filterdMeshIndex.flat(1);
     const geometry = new THREE.BufferGeometry().setFromPoints(points3d);
     geometry.setIndex(filterdMeshIndex);
-    let decimals = [];
-    for(let point of points3d){
-      decimals.push(this.countDecimals(point.x));
-    }
-    console.log(decimals)
-
-    geometry.setAttribute("decimal", new THREE.Float32BufferAttribute(decimals, 1));
     geometry.computeVertexNormals();
     return geometry;
   }
-  countDecimals(number) { 
-    if (Math.floor(number) === number) return 0; 
-    return number.toString().split(".").pop().length; 
+  createWallMaterial(heightRatio, heightTexture, diffiseTexture) {
+    var phongShader = THREE.ShaderLib.phong;
+    console.log(phongShader)
+    const vertexShader = `
+            uniform sampler2D heightMap;
+            uniform float heightRatio;
+
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                vec3 pos = position;
+                float hValue = texture2D(heightMap, vUv).r;
+                if(pos.z != 1.0){
+                  pos.z = hValue * heightRatio;
+                }else{
+                  pos.z = -5.0;
+                }
+                
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
+            }
+        `;
+    const fragmentShader = `
+            uniform sampler2D diffuseMap;
+            // uniform sampler2D heightMap;
+
+            varying vec2 vUv;
+            varying float aa;
+            void main() {
+                gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0 );
+                // gl_FragColor = vec4(texture2D(heightMap, vUv).rgb, 1.0 );
+                // gl_FragColor = vec4(vUv.y, 0.0, 0.0, 1.0 );
+                // gl_FragColor = vec4(1.0,1.0,1.0, 1.0 );
+            }
+        `;
+    const terrainMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        heightRatio: { value: heightRatio },
+        heightMap: { value: heightTexture },
+        diffuseMap: { value: diffiseTexture }
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      side: THREE.DoubleSide,
+      // wireframe: true,
+    });
+    return terrainMaterial;
+  }
+  createBottemGeometry(point){
+    const geometry = new THREE.BufferGeometry();
+  // 4. 设置position
+    const vertices = new Float32Array(point);
+    geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+    return geometry;
+
+  }
+  createWallPoint(data, depth) {
+    let verticesByTwo = [];
+    switch (data.geometry.type) {
+      case "Polygon":
+        this.traversePolygon(data.geometry.coordinates, p => {
+          verticesByTwo.push([[p[0], p[1], 0], [p[0], p[1], depth]]);
+        });
+        break;
+      case "MultiPolygon":
+        this.traverseMultiPolygon(data.geometry.coordinates, p => {
+          verticesByTwo.push([[p[0], p[1], 0], [p[0], p[1], depth]]);
+        });
+        break;
+    }
+    const verticesByFour = verticesByTwo.reduce((arr, item, i) => {
+      if (i === verticesByTwo.length - 1) return arr;
+      return arr.concat([[...item, ...verticesByTwo[i + 1]]]);
+    }, []);
+    const verticesByThree = verticesByFour.reduce((arr, item) => {
+      const [point1, point2, point3, point4] = item;
+      return arr.concat(
+        ...point2,
+        ...point1,
+        ...point4,
+        ...point1,
+        ...point3,
+        ...point4
+      );
+    }, []);
+    return verticesByThree;
+    console.log(verticesByThree)
+
   }
   createGridPoint(data) {
     const districtData = data;
@@ -173,21 +261,12 @@ class DistrictTerrain {
             uniform sampler2D heightMap;
             uniform float heightRatio;
 
-            attribute float decimal;
-
             varying vec2 vUv;
-            varying float aa;
-            
             void main() {
-                aa = 0.0;
                 vUv = uv;
                 vec3 pos = position;
                 float hValue = texture2D(heightMap, vUv).r;
                 pos.z = hValue * heightRatio;
-                if(decimal > 1.0){
-                  pos.z = -5.0;
-                  aa = 1.0;
-                }
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
             }
         `;
@@ -199,9 +278,6 @@ class DistrictTerrain {
             varying float aa;
             void main() {
                 gl_FragColor = vec4(texture2D(diffuseMap, vUv).rgb, 1.0 );
-                if(aa == 1.0){
-                  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0 );
-                }
                 // gl_FragColor = vec4(texture2D(heightMap, vUv).rgb, 1.0 );
                 // gl_FragColor = vec4(vUv.y, 0.0, 0.0, 1.0 );
                 // gl_FragColor = vec4(1.0,1.0,1.0, 1.0 );
